@@ -113,6 +113,57 @@ export function createFighter(animal) {
   }
 }
 
+export function getLegalMoves(player) {
+  return player.animal.moves.filter((move) => move.type !== 'defend' || player.defenseReady)
+}
+
+function expectedAttackDamage(attacker, defender, move) {
+  const range = getDamageRange(attacker.animal, move)
+  const accuracy = clampAccuracy(move.accuracy + attacker.focus - defender.evasion)
+  const guarded = defender.guard > 0
+  const bonus = (defender.health <= MAX_HEALTH / 2 ? move.bonusBelowHalf ?? 0 : 0)
+    + (guarded ? move.bonusVsGuard ?? 0 : 0)
+  const averageHit = (range.min + range.max) / 2 + bonus
+  const guardReduction = guarded ? Math.max(0, defender.guard - (move.guardPierce ?? 0)) : 0
+  return Math.max(1, averageHit * (1 - guardReduction)) * range.hits * accuracy
+}
+
+export function chooseCpuMove(players, active, random = Math.random) {
+  const attacker = players[active]
+  const defender = players[1 - active]
+  const legalMoves = getLegalMoves(attacker)
+  let bestMove = legalMoves[0]
+  let bestScore = -Infinity
+
+  for (const move of legalMoves) {
+    let score
+    if (move.type === 'attack') {
+      const expectedDamage = expectedAttackDamage(attacker, defender, move)
+      const reliableFinish = defender.health <= expectedDamage && move.accuracy >= 0.8 ? 5 : 0
+      const utility = (move.heal ?? 0) * (attacker.health < MAX_HEALTH ? 0.7 : 0)
+        + (move.focusGain ?? 0) * 8
+        + (move.evasionGain ?? 0) * 7
+      score = expectedDamage + reliableFinish + utility
+    } else {
+      const missingHealth = MAX_HEALTH - attacker.health
+      const healthPressure = (1 - attacker.health / MAX_HEALTH) * 10
+      const incomingThreat = expectedAttackDamage(defender, attacker, defender.animal.moves[1])
+      score = healthPressure + move.guard * incomingThreat + move.focus * 9
+        + (move.evasionGain ?? 0) * 8 + Math.min(missingHealth, move.heal ?? 0)
+      if (attacker.health === MAX_HEALTH && !defender.guard) score -= 3
+    }
+
+    // A small independent preference roll keeps equally sound turns from becoming scripted.
+    score += random() * 4
+    if (score > bestScore) {
+      bestScore = score
+      bestMove = move
+    }
+  }
+
+  return bestMove
+}
+
 function rollDamage(animal, move, random) {
   const range = getDamageRange(animal, move)
   return Math.floor(random() * (range.max - range.min + 1)) + range.min
