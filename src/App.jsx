@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import {
   ANIMALS, chooseCpuMove, createFighter, getDamageRange,
-  getOpeningActor, MAX_HEALTH, resolveAction,
+  getOpeningActor, resolveAction,
 } from './game.js'
 
 const initialSelection = [null, null]
@@ -23,8 +23,8 @@ function Logo() {
 
 function AttributeLine({ animal }) {
   return (
-    <span className="animal-attributes" aria-label={`Strength ${animal.strength}, speed ${animal.speed}`}>
-      <span>STR <b>{animal.strength}</b></span><span>SPD <b>{animal.speed}</b></span>
+    <span className="animal-attributes" aria-label={`${animal.health} health, strength ${animal.strength}, speed ${animal.speed}`}>
+      <span>HP <b>{animal.health}</b></span><span>STR <b>{animal.strength}</b></span><span>SPD <b>{animal.speed}</b></span>
     </span>
   )
 }
@@ -103,10 +103,10 @@ function SelectScreen({ mode, onBack, onStart }) {
   )
 }
 
-function HealthBar({ health }) {
-  const percent = (health / MAX_HEALTH) * 100
+function HealthBar({ health, maxHealth }) {
+  const percent = (health / maxHealth) * 100
   const danger = percent <= 25
-  return <div className={`health-track ${danger ? 'danger' : ''}`} aria-label={`${health} of ${MAX_HEALTH} health`}><span style={{ width: `${percent}%` }} /></div>
+  return <div className={`health-track ${danger ? 'danger' : ''}`} aria-label={`${health} of ${maxHealth} health`}><span style={{ width: `${percent}%` }} /></div>
 }
 
 function StatusRow({ player }) {
@@ -129,7 +129,7 @@ function FighterHud({ player, index, active, label }) {
         <AttributeLine animal={player.animal} />
       </div>
       <div className="hud-health">
-        <div><HealthBar health={player.health} /><b>{player.health}/{MAX_HEALTH} HP</b></div>
+        <div><HealthBar health={player.health} maxHealth={player.animal.health} /><b>{player.health}/{player.animal.health} HP</b></div>
         <StatusRow player={player} />
       </div>
     </aside>

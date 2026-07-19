@@ -19,7 +19,7 @@ Choose single player to face a tactical CPU, or share one screen in local multip
 ## Battle rules
 
 - Eight differently styled, evenly matched animals
-- 40 HP each
+- Each animal has a compressed, size-inspired HP level; smaller fighters trade durability for speed or utility
 - Strength modifies attack damage
 - Speed decides the opening move and controls initiative; fast fighters occasionally act twice in succession
 - Every attack has its own damage range, hit probability, and tactical effects
@@ -29,14 +29,14 @@ Choose single player to face a tactical CPU, or share one screen in local multip
 
 ### Fighters
 
-- **Tiger — STR 7 / SPD 7:** balanced hunter that builds focus and punishes wounded opponents
-- **Gorilla — STR 10 / SPD 4:** slow bruiser with the hardest hits, strongest guard, and guard-piercing attacks
-- **Eagle — STR 5 / SPD 10:** swift trickster with multi-hit attacks, evasion, and extra initiative
-- **Crocodile — STR 8 / SPD 5:** armored survivor with healing and anti-guard pressure
-- **Rhino — STR 10 / SPD 3:** relentless charger with heavy guard-piercing attacks
-- **Hippo — STR 11 / SPD 3:** river powerhouse with punishing bites, strong guard, and recovery
-- **Horse — STR 5 / SPD 9:** fleet combo fighter with focus, evasion, and extra initiative
-- **Elephant — STR 9 / SPD 5:** steady tactician with strong guard and anti-guard attacks
+- **Tiger — 40 HP / STR 7 / SPD 7:** balanced hunter that builds focus and punishes wounded opponents
+- **Gorilla — 41 HP / STR 10 / SPD 4:** slow bruiser with the hardest hits, strongest guard, and guard-piercing attacks
+- **Eagle — 39 HP / STR 5 / SPD 10:** swift trickster with multi-hit attacks, evasion, and extra initiative
+- **Crocodile — 40 HP / STR 8 / SPD 5:** armored survivor with healing and anti-guard pressure
+- **Rhino — 41 HP / STR 10 / SPD 3:** relentless charger with heavy guard-piercing attacks
+- **Hippo — 41 HP / STR 11 / SPD 3:** river powerhouse with punishing bites, strong guard, and recovery
+- **Horse — 39 HP / STR 5 / SPD 9:** fleet combo fighter with focus, evasion, and extra initiative
+- **Elephant — 41 HP / STR 9 / SPD 5:** steady tactician with strong guard and anti-guard attacks
 
 The kits are intentionally asymmetric. Seeded matchup simulations keep overall random-strategy win rates close while allowing meaningful strengths and counters.
 
