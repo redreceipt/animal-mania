@@ -1,6 +1,6 @@
 # Animal Mania
 
-A local two-player, turn-based animal fighting game inspired by classic creature battlers and 8-bit tactics games.
+A turn-based animal fighting game with tactical single-player and local two-player modes, inspired by classic creature battlers and 8-bit tactics games.
 
 ## Play
 
@@ -9,7 +9,7 @@ npm install
 npm run dev
 ```
 
-Both players share one screen. Pick a fighter, then use its four-move kit to outplay the opponent. Every animal has a distinct mix of damage, accuracy, defense, and utility.
+Choose single player to face a tactical CPU, or share one screen in local multiplayer. Pick a fighter, then use its four-move kit to outplay the opponent. Every animal has a distinct mix of damage, accuracy, defense, and utility.
 
 ### Controls
 

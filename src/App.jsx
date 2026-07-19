@@ -1,5 +1,8 @@
-import { useEffect, useState } from 'react'
-import { ANIMALS, createFighter, getDamageRange, getOpeningActor, MAX_HEALTH, resolveAction } from './game.js'
+import { useCallback, useEffect, useState } from 'react'
+import {
+  ANIMALS, chooseCpuMove, createFighter, getDamageRange,
+  getOpeningActor, MAX_HEALTH, resolveAction,
+} from './game.js'
 
 const initialSelection = [null, null]
 
@@ -26,22 +29,56 @@ function AttributeLine({ animal }) {
   )
 }
 
-function SelectScreen({ onStart }) {
+function ModeScreen({ onChoose }) {
+  return (
+    <main className="arcade-shell mode-screen">
+      <header className="game-header"><Logo /><p>Choose your showdown</p></header>
+      <section className="mode-options" aria-label="Game mode">
+        <button className="mode-card" onClick={() => onChoose('single')}>
+          <span className="mode-icon" aria-hidden="true">1P</span>
+          <strong>Single player</strong>
+          <small>Battle a tactical CPU opponent</small>
+        </button>
+        <button className="mode-card" onClick={() => onChoose('local')}>
+          <span className="mode-icon" aria-hidden="true">2P</span>
+          <strong>Local multiplayer</strong>
+          <small>Share the screen and settle the score</small>
+        </button>
+      </section>
+    </main>
+  )
+}
+
+function SelectScreen({ mode, onBack, onStart }) {
   const [selections, setSelections] = useState(initialSelection)
-  const ready = selections.every(Boolean)
+  const [randomOpponent, setRandomOpponent] = useState(false)
+  const singlePlayer = mode === 'single'
+  const ready = Boolean(selections[0] && (selections[1] || randomOpponent))
 
   function select(player, animal) {
     setSelections((current) => current.map((value, index) => index === player ? animal : value))
+    if (player === 1) setRandomOpponent(false)
+  }
+
+  function startMatch() {
+    if (!ready) return
+    if (!randomOpponent) { onStart(selections); return }
+    const opponents = ANIMALS.filter((animal) => animal.id !== selections[0].id)
+    onStart([selections[0], opponents[Math.floor(Math.random() * opponents.length)]])
   }
 
   return (
     <main className="arcade-shell select-screen">
-      <header className="game-header"><Logo /><p>Pick your wild contender</p></header>
+      <header className="game-header"><Logo /><p>{singlePlayer ? 'Pick your fighter and CPU rival' : 'Pick your wild contenders'}</p></header>
       <section className="select-layout">
         {[0, 1].map((player) => (
           <div className={`player-select p${player + 1}`} key={player}>
-            <div className="player-heading"><span>Player {player + 1}</span><b>{selections[player]?.name ?? 'Choose!'}</b></div>
-            <div className="roster" aria-label={`Player ${player + 1} animal selection`}>
+            <div className="player-heading">
+              <span>{singlePlayer && player === 1 ? 'CPU opponent' : `Player ${player + 1}`}</span>
+              <b>{player === 1 && randomOpponent ? 'Random!' : selections[player]?.name ?? 'Choose!'}</b>
+            </div>
+            {singlePlayer && player === 1 ? <button className={`random-btn ${randomOpponent ? 'selected' : ''}`} onClick={() => { setSelections((current) => [current[0], null]); setRandomOpponent(true) }} aria-pressed={randomOpponent}>Surprise me · Random rival</button> : null}
+            <div className="roster" aria-label={`${singlePlayer && player === 1 ? 'CPU' : `Player ${player + 1}`} animal selection`}>
               {ANIMALS.map((animal) => {
                 const selected = selections[player]?.id === animal.id
                 return (
@@ -59,8 +96,8 @@ function SelectScreen({ onStart }) {
       </section>
       <div className="versus-mark" aria-hidden="true">VS</div>
       <footer className="select-footer">
-        <p>{ready ? `${selections[0].name} versus ${selections[1].name}. Ready!` : 'Each player chooses one fighter'}</p>
-        <button className="primary-btn" disabled={!ready} onClick={() => onStart(selections)}>Start showdown</button>
+        <p>{ready ? `${selections[0].name} versus ${randomOpponent ? 'a mystery rival' : selections[1].name}. Ready!` : singlePlayer ? 'Choose your fighter and a CPU rival' : 'Each player chooses one fighter'}</p>
+        <div className="select-actions"><button className="secondary-btn" onClick={onBack}>Back</button><button className="primary-btn" disabled={!ready} onClick={startMatch}>Start showdown</button></div>
       </footer>
     </main>
   )
@@ -83,11 +120,11 @@ function StatusRow({ player }) {
   )
 }
 
-function FighterHud({ player, index, active }) {
+function FighterHud({ player, index, active, label }) {
   return (
     <aside className={`fighter-hud p${index + 1} ${active ? 'active' : ''}`}>
       <div className="hud-identity">
-        <span>Player {index + 1}</span>
+        <span>{label ?? `Player ${index + 1}`}</span>
         <strong>{player.animal.name}</strong>
         <AttributeLine animal={player.animal} />
       </div>
@@ -129,7 +166,7 @@ function BattleLog({ entries }) {
   )
 }
 
-function BattleScreen({ choices, onReset }) {
+function BattleScreen({ choices, singlePlayer, onReset }) {
   const [opening] = useState(() => makeBattle(choices))
   const [players, setPlayers] = useState(opening.players)
   const [active, setActive] = useState(opening.active)
@@ -139,7 +176,9 @@ function BattleScreen({ choices, onReset }) {
   const [resolving, setResolving] = useState(false)
   const activeMoves = players[active].animal.moves
   const victor = winner === null ? null : players[winner]
-  const turnLabel = victor ? `Player ${winner + 1} wins!` : `Player ${active + 1} — choose a move`
+  const actorLabel = singlePlayer && active === 1 ? 'CPU' : `Player ${active + 1}`
+  const winnerLabel = singlePlayer && winner === 1 ? 'CPU' : `Player ${winner + 1}`
+  const turnLabel = victor ? `${winnerLabel} wins!` : singlePlayer && active === 1 ? 'CPU is choosing…' : `${actorLabel} — choose a move`
 
   function resetBattle() {
     const freshBattle = makeBattle(choices)
@@ -151,8 +190,9 @@ function BattleScreen({ choices, onReset }) {
     setResolving(false)
   }
 
-  function chooseMove(index) {
+  const chooseMove = useCallback((index, isCpuAction = false) => {
     if (resolving || victor) return
+    if (singlePlayer && active === 1 && !isCpuAction) return
     const move = activeMoves[index]
     if (!move || (move.type === 'defend' && !players[active].defenseReady)) return
     const result = resolveAction(players, active, move)
@@ -165,11 +205,20 @@ function BattleScreen({ choices, onReset }) {
     if (result.winner !== null) setWinner(result.winner)
     else setActive(result.nextActive)
     window.setTimeout(() => setResolving(false), 360)
-  }
+  }, [active, activeMoves, players, resolving, singlePlayer, victor])
+
+  useEffect(() => {
+    if (!singlePlayer || active !== 1 || resolving || winner !== null) return undefined
+    const timer = window.setTimeout(() => {
+      const move = chooseCpuMove(players, 1)
+      chooseMove(activeMoves.indexOf(move), true)
+    }, 650)
+    return () => window.clearTimeout(timer)
+  }, [active, activeMoves, chooseMove, players, resolving, singlePlayer, winner])
 
   useEffect(() => {
     function keydown(event) {
-      if (event.repeat || winner !== null) return
+      if (event.repeat || winner !== null || (singlePlayer && active === 1)) return
       const index = Number(event.key) - 1
       if (index >= 0 && index < 4) {
         event.preventDefault()
@@ -178,17 +227,17 @@ function BattleScreen({ choices, onReset }) {
     }
     window.addEventListener('keydown', keydown)
     return () => window.removeEventListener('keydown', keydown)
-  })
+  }, [active, chooseMove, singlePlayer, winner])
 
   const commandHint = victor ? `${victor.animal.name} rules the wild!` : `${players[active].animal.name}'s move set`
 
   return (
     <main className={`arcade-shell battle-screen ${resolving ? 'resolving' : ''}`}>
-      <header className="battle-header"><Logo /><button className="text-btn" onClick={onReset}>New match</button></header>
+      <header className="battle-header"><Logo /><button className="text-btn" onClick={onReset}>Change fighters</button></header>
       <section className="hud-row">
         <FighterHud player={players[0]} index={0} active={active === 0 && !victor} />
         <div className="turn-banner" aria-live="polite">{turnLabel}</div>
-        <FighterHud player={players[1]} index={1} active={active === 1 && !victor} />
+        <FighterHud player={players[1]} index={1} active={active === 1 && !victor} label={singlePlayer ? 'CPU opponent' : undefined} />
       </section>
       <section className="faceoff-arena" aria-label={`${players[0].animal.name} faces ${players[1].animal.name}`}>
         <div className="fighter-slot left"><PixelAnimal animal={players[0].animal} variant="fighter" /></div>
@@ -198,12 +247,12 @@ function BattleScreen({ choices, onReset }) {
       <p className="battle-message" aria-live="polite">{message}</p>
       <section className="command-zone">
         <div className="move-panel">
-          <h2>{victor ? commandHint : `Player ${active + 1} · ${commandHint}`}</h2>
+          <h2>{victor ? commandHint : `${actorLabel} · ${commandHint}`}</h2>
           {victor ? (
             <div className="victory-actions"><button className="primary-btn" onClick={resetBattle}>Rematch</button><button className="secondary-btn" onClick={onReset}>Change fighters</button></div>
           ) : (
             <div className="move-grid">
-              {activeMoves.map((move, index) => <MoveButton key={move.name} animal={players[active].animal} move={move} index={index} onChoose={() => chooseMove(index)} disabled={resolving || (move.type === 'defend' && !players[active].defenseReady)} />)}
+              {activeMoves.map((move, index) => <MoveButton key={move.name} animal={players[active].animal} move={move} index={index} onChoose={() => chooseMove(index)} disabled={resolving || (singlePlayer && active === 1) || (move.type === 'defend' && !players[active].defenseReady)} />)}
             </div>
           )}
         </div>
@@ -215,6 +264,9 @@ function BattleScreen({ choices, onReset }) {
 }
 
 export default function App() {
+  const [mode, setMode] = useState(null)
   const [choices, setChoices] = useState(null)
-  return choices ? <BattleScreen choices={choices} onReset={() => setChoices(null)} /> : <SelectScreen onStart={setChoices} />
+  if (!mode) return <ModeScreen onChoose={setMode} />
+  if (!choices) return <SelectScreen mode={mode} onBack={() => setMode(null)} onStart={setChoices} />
+  return <BattleScreen choices={choices} singlePlayer={mode === 'single'} onReset={() => setChoices(null)} />
 }
