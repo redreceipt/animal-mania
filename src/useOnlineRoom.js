@@ -55,7 +55,7 @@ export function useOnlineRoom(initialCode = '') {
       if (!active) return
       setStatus(attempts === 0 ? 'connecting' : 'reconnecting')
       const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:'
-      socket = new WebSocket(`${protocol}//${window.location.host}/online`)
+      socket = new WebSocket(`${protocol}//${window.location.host}/api/online`)
       socketRef.current = socket
 
       socket.addEventListener('open', () => {

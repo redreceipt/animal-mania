@@ -27,9 +27,11 @@ animal has a distinct mix of damage, accuracy, defense, and utility.
 Online matches support two anonymous players. The Node server is authoritative
 for fighter selection, turns, random rolls, battle state, and rematches. A
 disconnected player can rejoin from the same browser session, and inactive
-rooms expire after 30 minutes. Rooms are held in process memory, so production
-deployments should use one long-lived server instance unless room persistence
-and cross-instance routing are added.
+rooms expire after 30 minutes. The same endpoint runs locally on the combined
+Node server and deploys as a Vercel WebSocket Function. Rooms are currently held
+in process memory; reliable multi-instance deployments require shared room
+persistence and event delivery (such as Redis), because two connections may
+land on different instances.
 
 ### Controls
 
