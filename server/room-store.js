@@ -55,7 +55,7 @@ function serializeFighter({ animal, ...fighter }) {
 }
 
 function createPlayer(token) {
-  return { token, connected: true, animalId: null, wantsRematch: false }
+  return { token, connected: true, animalId: null }
 }
 
 export class RoomStore {
@@ -83,6 +83,7 @@ export class RoomStore {
       updatedAt: timestamp,
       players: [createPlayer(token), null],
       battle: null,
+      rematch: null,
       round: 0,
     }
     this.rooms.set(code, room)
@@ -126,7 +127,6 @@ export class RoomStore {
     if (room.battle) throw new RoomError('MATCH_STARTED', 'Fighter selection is closed for this round.')
     if (!ANIMALS_BY_ID.has(animalId)) throw new RoomError('INVALID_ANIMAL', 'Choose a fighter from the roster.')
     room.players[playerIndex].animalId = animalId
-    room.players[playerIndex].wantsRematch = false
     this.#touch(room)
     if (room.players.every((player) => player?.animalId)) this.#startBattle(room)
     return this.snapshot(room)
@@ -174,13 +174,29 @@ export class RoomStore {
   }
 
   requestRematch(rawCode, token) {
-    const { room, playerIndex } = this.#member(rawCode, token)
-    if (!room.battle || room.battle.winner === null) {
-      throw new RoomError('MATCH_NOT_FINISHED', 'Finish the current match before requesting a rematch.')
+    const { room, playerIndex } = this.#finishedMatchMember(rawCode, token)
+    if (room.rematch?.status === 'pending') {
+      if (room.rematch.requester === playerIndex) return this.snapshot(room)
+      throw new RoomError('REMATCH_ALREADY_PENDING', 'Respond to the rival\'s rematch request instead.')
     }
-    room.players[playerIndex].wantsRematch = true
+    room.rematch = { requester: playerIndex, status: 'pending' }
     this.#touch(room)
-    if (room.players.every((player) => player?.wantsRematch)) this.#startBattle(room)
+    return this.snapshot(room)
+  }
+
+  acceptRematch(rawCode, token) {
+    const { room, playerIndex } = this.#finishedMatchMember(rawCode, token)
+    this.#requireRematchResponse(room, playerIndex)
+    this.#startBattle(room)
+    this.#touch(room)
+    return this.snapshot(room)
+  }
+
+  declineRematch(rawCode, token) {
+    const { room, playerIndex } = this.#finishedMatchMember(rawCode, token)
+    this.#requireRematchResponse(room, playerIndex)
+    room.rematch = { ...room.rematch, status: 'declined' }
+    this.#touch(room)
     return this.snapshot(room)
   }
 
@@ -195,8 +211,8 @@ export class RoomStore {
       players: room.players.map((player) => player && ({
         connected: player.connected,
         animalId: player.animalId,
-        wantsRematch: player.wantsRematch,
       })),
+      rematch: room.rematch && { ...room.rematch },
       battle: room.battle && {
         players: room.battle.players.map(serializeFighter),
         active: room.battle.active,
@@ -231,11 +247,28 @@ export class RoomStore {
     return { room, playerIndex }
   }
 
+  #finishedMatchMember(rawCode, token) {
+    const member = this.#member(rawCode, token)
+    if (!member.room.battle || member.room.battle.winner === null) {
+      throw new RoomError('MATCH_NOT_FINISHED', 'Finish the current match before requesting a rematch.')
+    }
+    return member
+  }
+
+  #requireRematchResponse(room, playerIndex) {
+    if (room.rematch?.status !== 'pending') {
+      throw new RoomError('REMATCH_NOT_PENDING', 'There is no rematch request to answer.')
+    }
+    if (room.rematch.requester === playerIndex) {
+      throw new RoomError('REMATCH_REQUESTER', 'Only the receiving player can answer this rematch request.')
+    }
+  }
+
   #startBattle(room) {
     const animals = room.players.map((player) => ANIMALS_BY_ID.get(player.animalId))
     const active = getOpeningActor(animals, this.random)
     room.round += 1
-    room.players.forEach((player) => { player.wantsRematch = false })
+    room.rematch = null
     room.battle = {
       players: animals.map(createFighter),
       active,

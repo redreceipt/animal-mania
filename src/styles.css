@@ -164,6 +164,10 @@ button:disabled { filter: grayscale(1); opacity: .4; cursor: not-allowed; }
 .battle-log li { display: grid; grid-template-columns: 25px 1fr; align-items: start; gap: 8px; border-bottom: 2px solid #18384c; padding: 0 0 6px; color: #b9c8c8; font-size: 6px; line-height: 1.55; }
 .battle-log li > span { color: #50bce5; }
 .victory-actions { display: flex; align-items: center; justify-content: center; gap: 16px; min-height: 142px; }
+.rematch-panel { min-height: 142px; display: grid; align-content: center; gap: 14px; }
+.rematch-panel .victory-actions { min-height: 0; }
+.rematch-status { margin: 0; color: #9edcf2; font-size: 7px; line-height: 1.7; text-align: center; text-transform: uppercase; }
+.incoming-rematch .rematch-status { color: var(--gold); }
 .secondary-btn { border: 3px solid var(--cream); background: var(--blue); color: white; padding: 15px 20px; text-transform: uppercase; cursor: pointer; }
 .hint { text-align: center; color: #91aaa8; font-size: 7px; line-height: 1.5; }
 @media (min-width: 561px) {
@@ -285,6 +289,8 @@ button:disabled { filter: grayscale(1); opacity: .4; cursor: not-allowed; }
   .move-copy small { font-size: 5px; }
   .move-copy em { font-size: 5px; white-space: normal; }
   .victory-actions { min-height: 170px; flex-direction: column; }
+  .rematch-panel { min-height: 170px; }
+  .rematch-panel .victory-actions { min-height: 0; }
   .hint { display: none; }
 }
 @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
