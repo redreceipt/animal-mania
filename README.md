@@ -36,8 +36,6 @@ Both players share one screen. Pick a fighter, then use its four-move kit to out
 
 The kits are intentionally asymmetric. Seeded matchup simulations keep overall random-strategy win rates close while allowing meaningful strengths and counters.
 
-See [ROADMAP.md](ROADMAP.md) for online multiplayer, the planned Defense attribute, and ideas for expanding the animal roster.
-
 ## Quality checks
 
 ```bash
