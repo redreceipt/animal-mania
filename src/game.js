@@ -8,7 +8,8 @@ const defend = (name, guard, focus, description, effects = {}) => ({
 
 export const ANIMALS = [
   {
-    id: 'tiger', name: 'Tiger', color: '#ee7b24', detail: 'Balanced hunter', col: 0, health: 40, strength: 7, defense: 6, speed: 7, home: 'Sunstripe Jungle',
+    id: 'tiger', name: 'Tiger', color: '#ee7b24', detail: 'Balanced hunter', archetype: 'all-rounder', col: 0, health: 40, strength: 7, defense: 6, speed: 7, home: 'Sunstripe Jungle',
+    budget: { strength: 5, speed: 5, defense: 5, accuracy: 5, utility: 5, initiative: 5 },
     moves: [
       attack('Quick Pounce', 4, 6, 0.96, 'Reliable. Builds +12% focus.', { focusGain: 0.12 }),
       attack('Raking Claws', 8, 11, 0.82, 'Deals +3 to wounded foes.', { bonusBelowHalf: 3 }),
@@ -17,7 +18,8 @@ export const ANIMALS = [
     ],
   },
   {
-    id: 'gorilla', name: 'Gorilla', color: '#6f7781', detail: 'Heavy bruiser', col: 1, health: 48, strength: 10, defense: 7, speed: 4, home: 'Mistpeak Rainforest',
+    id: 'gorilla', name: 'Gorilla', color: '#6f7781', detail: 'Heavy bruiser', archetype: 'bruiser', col: 1, health: 48, strength: 10, defense: 7, speed: 4, home: 'Mistpeak Rainforest',
+    budget: { strength: 8, speed: 2, defense: 7, accuracy: 4, utility: 5, initiative: 4 },
     moves: [
       attack('Knuckle Jab', 5, 7, 0.92, 'Heavy and dependable.'),
       attack('Rock Hurler', 9, 12, 0.72, 'Ignores 25% of guard.', { guardPierce: 0.25 }),
@@ -26,7 +28,8 @@ export const ANIMALS = [
     ],
   },
   {
-    id: 'eagle', name: 'Eagle', color: '#f5d78a', detail: 'Swift trickster', col: 2, health: 30, strength: 5, defense: 4, speed: 10, home: 'Skyreach Cliffs',
+    id: 'eagle', name: 'Eagle', color: '#f5d78a', detail: 'Swift trickster', archetype: 'skirmisher', col: 2, health: 30, strength: 5, defense: 4, speed: 10, home: 'Skyreach Cliffs',
+    budget: { strength: 2, speed: 8, defense: 2, accuracy: 8, utility: 6, initiative: 4 },
     moves: [
       attack('Wing Flick', 4, 6, 0.99, 'Reliable. Gain 15% evasion.', { evasionGain: 0.15 }),
       attack('Talon Rush', 4, 5, 0.84, 'Two separate chances to hit.', { hits: 2 }),
@@ -35,7 +38,8 @@ export const ANIMALS = [
     ],
   },
   {
-    id: 'crocodile', name: 'Crocodile', color: '#54a84b', detail: 'Armored survivor', col: 3, health: 44, strength: 8, defense: 10, speed: 5, home: 'Blackwater Mangroves',
+    id: 'crocodile', name: 'Crocodile', color: '#54a84b', detail: 'Armored survivor', archetype: 'survivor', col: 3, health: 44, strength: 8, defense: 10, speed: 5, home: 'Blackwater Mangroves',
+    budget: { strength: 5, speed: 3, defense: 8, accuracy: 5, utility: 6, initiative: 3 },
     moves: [
       attack('Tail Snap', 4, 7, 0.94, 'Reliable pressure attack.'),
       attack('Death Roll', 8, 11, 0.78, 'Deals +3 through any guard.', { bonusVsGuard: 3 }),
@@ -44,7 +48,8 @@ export const ANIMALS = [
     ],
   },
   {
-    id: 'rhino', name: 'Rhino', color: '#8d98a5', detail: 'Relentless charger', col: 4, health: 52, strength: 10, defense: 9, speed: 3, home: 'Sunstone Savanna',
+    id: 'rhino', name: 'Rhino', color: '#8d98a5', detail: 'Relentless charger', archetype: 'bruiser', col: 4, health: 52, strength: 10, defense: 9, speed: 3, home: 'Sunstone Savanna',
+    budget: { strength: 8, speed: 2, defense: 8, accuracy: 4, utility: 6, initiative: 2 },
     moves: [
       attack('Horn Feint', 5, 8, 0.93, 'Reliable. Slips through 15% of guard.', { guardPierce: 0.15 }),
       attack('Stampede', 9, 11, 0.78, 'Deals +2 through any guard.', { bonusVsGuard: 2 }),
@@ -53,7 +58,8 @@ export const ANIMALS = [
     ],
   },
   {
-    id: 'hippo', name: 'Hippo', color: '#80708f', detail: 'River powerhouse', col: 5, health: 56, strength: 11, defense: 8, speed: 3, home: 'Sunset Riverbank',
+    id: 'hippo', name: 'Hippo', color: '#80708f', detail: 'River powerhouse', archetype: 'bruiser', col: 5, health: 56, strength: 11, defense: 8, speed: 3, home: 'Sunset Riverbank',
+    budget: { strength: 9, speed: 2, defense: 8, accuracy: 5, utility: 4, initiative: 2 },
     moves: [
       attack('Jaw Jab', 5, 7, 0.95, 'Short-range, dependable bite.'),
       attack('River Rush', 7, 10, 0.84, 'Deals +2 to wounded foes.', { bonusBelowHalf: 2 }),
@@ -62,7 +68,8 @@ export const ANIMALS = [
     ],
   },
   {
-    id: 'horse', name: 'Horse', color: '#c56c2d', detail: 'Fleet combo fighter', col: 6, health: 36, strength: 5, defense: 4, speed: 9, home: 'Wildflower Prairie',
+    id: 'horse', name: 'Horse', color: '#c56c2d', detail: 'Fleet combo fighter', archetype: 'skirmisher', col: 6, health: 36, strength: 5, defense: 4, speed: 9, home: 'Wildflower Prairie',
+    budget: { strength: 3, speed: 8, defense: 3, accuracy: 7, utility: 5, initiative: 4 },
     moves: [
       attack('Hoof Flick', 6, 9, 0.97, 'Reliable. Builds +10% focus.', { focusGain: 0.1 }),
       attack('Gallop Combo', 4, 5, 0.8, 'Two separate chances to connect.', { hits: 2 }),
@@ -71,7 +78,8 @@ export const ANIMALS = [
     ],
   },
   {
-    id: 'elephant', name: 'Elephant', color: '#718da2', detail: 'Steady tactician', col: 7, health: 60, strength: 9, defense: 8, speed: 5, home: 'Baobab Floodplain',
+    id: 'elephant', name: 'Elephant', color: '#718da2', detail: 'Steady tactician', archetype: 'survivor', col: 7, health: 60, strength: 9, defense: 8, speed: 5, home: 'Baobab Floodplain',
+    budget: { strength: 7, speed: 3, defense: 8, accuracy: 5, utility: 4, initiative: 3 },
     moves: [
       attack('Trunk Tap', 4, 6, 0.96, 'Reliable pressure attack.'),
       attack('Tusk Sweep', 8, 11, 0.82, 'Deals +3 through any guard.', { bonusVsGuard: 3 }),
@@ -80,7 +88,8 @@ export const ANIMALS = [
     ],
   },
   {
-    id: 'grizzly-bear', name: 'Grizzly Bear', color: '#9a582d', detail: 'Savage grappler', col: 8, health: 50, strength: 9, defense: 7, speed: 4, home: 'Cedar Run',
+    id: 'grizzly-bear', name: 'Grizzly Bear', color: '#9a582d', detail: 'Savage grappler', archetype: 'bruiser', col: 8, health: 50, strength: 9, defense: 7, speed: 4, home: 'Cedar Run',
+    budget: { strength: 7, speed: 3, defense: 6, accuracy: 5, utility: 6, initiative: 3 },
     moves: [
       attack('Paw Swipe', 5, 7, 0.95, 'Reliable. Builds +8% focus.', { focusGain: 0.08 }),
       attack('Mauling Rush', 4, 5, 0.82, 'Two separate chances to hit.', { hits: 2 }),
@@ -89,7 +98,8 @@ export const ANIMALS = [
     ],
   },
   {
-    id: 'polar-bear', name: 'Polar Bear', color: '#dbe8ef', detail: 'Cold opportunist', col: 9, health: 46, strength: 8, defense: 6, speed: 6, home: 'Aurora Ice Shelf',
+    id: 'polar-bear', name: 'Polar Bear', color: '#dbe8ef', detail: 'Cold opportunist', archetype: 'all-rounder', col: 9, health: 46, strength: 8, defense: 6, speed: 6, home: 'Aurora Ice Shelf',
+    budget: { strength: 6, speed: 5, defense: 5, accuracy: 6, utility: 5, initiative: 3 },
     moves: [
       attack('Frost Feint', 4, 6, 0.97, 'Reliable. Gain 10% evasion.', { evasionGain: 0.1 }),
       attack('Ice Claws', 7, 10, 0.84, 'Deals +2 to wounded foes.', { bonusBelowHalf: 2 }),
@@ -98,7 +108,8 @@ export const ANIMALS = [
     ],
   },
   {
-    id: 'wolf', name: 'Wolf', color: '#7f8995', detail: 'Pack tactician', col: 10, health: 38, strength: 7, defense: 6, speed: 7, home: 'Moonpine Valley',
+    id: 'wolf', name: 'Wolf', color: '#7f8995', detail: 'Pack tactician', archetype: 'all-rounder', col: 10, health: 38, strength: 7, defense: 6, speed: 7, home: 'Moonpine Valley',
+    budget: { strength: 5, speed: 6, defense: 5, accuracy: 6, utility: 5, initiative: 3 },
     moves: [
       attack('Driving Bite', 4, 6, 0.96, 'Reliable. Builds +13% focus.', { focusGain: 0.13 }),
       attack('Pack Feint', 8, 11, 0.82, 'Deals +3 to wounded foes.', { bonusBelowHalf: 3 }),
@@ -107,7 +118,8 @@ export const ANIMALS = [
     ],
   },
   {
-    id: 'komodo-dragon', name: 'Komodo Dragon', color: '#76694f', detail: 'Patient predator', col: 11, health: 45, strength: 8, defense: 10, speed: 5, home: 'Sundown Scrubland',
+    id: 'komodo-dragon', name: 'Komodo Dragon', color: '#76694f', detail: 'Patient predator', archetype: 'survivor', col: 11, health: 45, strength: 8, defense: 10, speed: 5, home: 'Sundown Scrubland',
+    budget: { strength: 6, speed: 3, defense: 8, accuracy: 4, utility: 6, initiative: 3 },
     moves: [
       attack('Claw Rake', 4, 7, 0.95, 'Reliable pressure attack.'),
       attack('Tail Sweep', 8, 11, 0.78, 'Deals +3 through any guard.', { bonusVsGuard: 3 }),
@@ -116,7 +128,8 @@ export const ANIMALS = [
     ],
   },
   {
-    id: 'lion', name: 'Lion', color: '#d39235', detail: 'Regal finisher', col: 12, health: 49, strength: 10, defense: 7, speed: 4, home: 'Golden Grasslands',
+    id: 'lion', name: 'Lion', color: '#d39235', detail: 'Regal finisher', archetype: 'bruiser', col: 12, health: 49, strength: 10, defense: 7, speed: 4, home: 'Golden Grasslands',
+    budget: { strength: 8, speed: 2, defense: 7, accuracy: 4, utility: 5, initiative: 4 },
     moves: [
       attack('Paw Strike', 5, 7, 0.92, 'Heavy and dependable.'),
       attack('Mane Rush', 9, 12, 0.72, 'Ignores 25% of guard.', { guardPierce: 0.25 }),
@@ -125,7 +138,8 @@ export const ANIMALS = [
     ],
   },
   {
-    id: 'anaconda', name: 'Anaconda', color: '#768c3a', detail: 'Coiling controller', col: 13, health: 42, strength: 7, defense: 6, speed: 7, home: 'Emerald Backwater',
+    id: 'anaconda', name: 'Anaconda', color: '#768c3a', detail: 'Coiling controller', archetype: 'tactician', col: 13, health: 42, strength: 7, defense: 6, speed: 7, home: 'Emerald Backwater',
+    budget: { strength: 5, speed: 6, defense: 5, accuracy: 5, utility: 6, initiative: 3 },
     moves: [
       attack('Snap Bite', 4, 6, 0.96, 'Reliable. Builds +12% focus.', { focusGain: 0.12 }),
       attack('Coil Crush', 8, 11, 0.82, 'Deals +3 to wounded foes.', { bonusBelowHalf: 3 }),
@@ -134,7 +148,8 @@ export const ANIMALS = [
     ],
   },
   {
-    id: 'water-buffalo', name: 'Water Buffalo', color: '#665e56', detail: 'Marsh juggernaut', col: 14, health: 58, strength: 11, defense: 8, speed: 3, home: 'Monsoon Wetlands',
+    id: 'water-buffalo', name: 'Water Buffalo', color: '#665e56', detail: 'Marsh juggernaut', archetype: 'bruiser', col: 14, health: 58, strength: 11, defense: 8, speed: 3, home: 'Monsoon Wetlands',
+    budget: { strength: 9, speed: 2, defense: 8, accuracy: 5, utility: 4, initiative: 2 },
     moves: [
       attack('Horn Jab', 5, 7, 0.95, 'Short-range, dependable strike.'),
       attack('Marsh Trample', 7, 10, 0.84, 'Deals +2 to wounded foes.', { bonusBelowHalf: 2 }),
@@ -143,7 +158,8 @@ export const ANIMALS = [
     ],
   },
   {
-    id: 'shark', name: 'Shark', color: '#507f9b', detail: 'Relentless striker', col: 15, health: 47, strength: 8, defense: 6, speed: 6, home: 'Bluewater Reef',
+    id: 'shark', name: 'Shark', color: '#507f9b', detail: 'Relentless striker', archetype: 'all-rounder', col: 15, health: 47, strength: 8, defense: 6, speed: 6, home: 'Bluewater Reef',
+    budget: { strength: 6, speed: 5, defense: 4, accuracy: 6, utility: 5, initiative: 4 },
     moves: [
       attack('Bite Feint', 4, 6, 0.97, 'Reliable. Gain 4% evasion.', { evasionGain: 0.04 }),
       attack('Ramming Strike', 7, 10, 0.84, 'Deals +2 to wounded foes.', { bonusBelowHalf: 2 }),
@@ -152,7 +168,8 @@ export const ANIMALS = [
     ],
   },
   {
-    id: 'orca', name: 'Orca', color: '#394b61', detail: 'Ocean powerhouse', col: 16, health: 54, strength: 9, defense: 8, speed: 6, home: 'Kelp Channel',
+    id: 'orca', name: 'Orca', color: '#394b61', detail: 'Ocean powerhouse', archetype: 'all-rounder', col: 16, health: 54, strength: 9, defense: 8, speed: 6, home: 'Kelp Channel',
+    budget: { strength: 7, speed: 5, defense: 7, accuracy: 5, utility: 3, initiative: 3 },
     moves: [
       attack('Tail Slap', 3, 5, 0.96, 'Reliable pressure attack.'),
       attack('Wave Ram', 9, 12, 0.82, 'Deals +3 through any guard.', { bonusVsGuard: 3 }),
@@ -161,7 +178,8 @@ export const ANIMALS = [
     ],
   },
   {
-    id: 'ostrich', name: 'Ostrich', color: '#d6c2a1', detail: 'Fleet kicker', col: 17, health: 34, strength: 5, defense: 4, speed: 10, home: 'Acacia Flats',
+    id: 'ostrich', name: 'Ostrich', color: '#d6c2a1', detail: 'Fleet kicker', archetype: 'skirmisher', col: 17, health: 34, strength: 5, defense: 4, speed: 10, home: 'Acacia Flats',
+    budget: { strength: 3, speed: 8, defense: 3, accuracy: 7, utility: 5, initiative: 4 },
     moves: [
       attack('Beak Jab', 4, 6, 0.99, 'Reliable. Gain 16% evasion.', { evasionGain: 0.16 }),
       attack('Double Kick', 4, 5, 0.84, 'Two separate chances to connect.', { hits: 2 }),
@@ -170,7 +188,8 @@ export const ANIMALS = [
     ],
   },
   {
-    id: 'falcon', name: 'Falcon', color: '#9c8062', detail: 'Aerial daredevil', col: 18, health: 28, strength: 5, defense: 4, speed: 10, home: 'Redstone Aerie',
+    id: 'falcon', name: 'Falcon', color: '#9c8062', detail: 'Aerial daredevil', archetype: 'skirmisher', col: 18, health: 28, strength: 5, defense: 4, speed: 10, home: 'Redstone Aerie',
+    budget: { strength: 2, speed: 8, defense: 2, accuracy: 8, utility: 6, initiative: 4 },
     moves: [
       attack('Beak Strike', 4, 6, 0.98, 'Reliable. Gain 15% evasion.', { evasionGain: 0.15 }),
       attack('Talon Flurry', 4, 5, 0.84, 'Two separate chances to hit.', { hits: 2 }),
@@ -179,7 +198,8 @@ export const ANIMALS = [
     ],
   },
   {
-    id: 'octopus', name: 'Octopus', color: '#b65f48', detail: 'Elusive grappler', col: 19, health: 41, strength: 8, defense: 9, speed: 5, home: 'Tidepool Grotto',
+    id: 'octopus', name: 'Octopus', color: '#b65f48', detail: 'Elusive grappler', archetype: 'tactician', col: 19, health: 41, strength: 8, defense: 9, speed: 5, home: 'Tidepool Grotto',
+    budget: { strength: 5, speed: 3, defense: 8, accuracy: 4, utility: 7, initiative: 3 },
     moves: [
       attack('Arm Snap', 4, 6, 0.92, 'Reliable pressure attack.'),
       attack('Sucker Grip', 8, 11, 0.78, 'Deals +3 through any guard.', { bonusVsGuard: 3 }),

@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "balance": "node scripts/balance-report.mjs",
     "build": "vite build",
     "lint": "eslint .",
     "test": "node --test",
