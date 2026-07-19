@@ -39,7 +39,14 @@ The kits are intentionally asymmetric. Seeded matchup simulations keep overall r
 ## Quality checks
 
 ```bash
+npm ci
 npm test
 npm run lint
 npm run build
 ```
+
+Gameplay pull requests must also complete the browser, viewport, input, console,
+and documentation checks in the
+[gameplay release quality checklist](docs/gameplay-release-checklist.md). The
+pull request template records the results so the same release bar is applied to
+future gameplay changes.
