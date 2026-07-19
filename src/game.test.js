@@ -42,6 +42,9 @@ test('animals have defined attributes and mechanically different move kits', () 
     bonusBelowHalf: move.bonusBelowHalf,
     bonusVsGuard: move.bonusVsGuard,
     heal: move.heal,
+    poison: move.poison,
+    expose: move.expose,
+    daze: move.daze,
   }))))
   assert.equal(new Set(profiles).size, ANIMALS.length)
   assert.deepEqual(ANIMALS.map(({ strength }) => strength), [7, 10, 5, 8, 10, 11, 5, 9, 9, 8, 7, 8, 10, 7, 11, 8, 9, 5, 5, 8])
@@ -189,8 +192,64 @@ test('unique defensive and attack effects resolve correctly', () => {
 
   const eagle = createFighter(ANIMALS[2])
   const target = createFighter(ANIMALS[3])
-  const eagleDodge = resolveAction([eagle, target], 0, ANIMALS[2].moves[0], () => 0)
-  assert.equal(eagleDodge.players[0].evasion, 0.15)
+  const eagleDodge = resolveAction([eagle, target], 0, ANIMALS[2].moves[2], () => 0)
+  assert.equal(eagleDodge.players[0].evasion, 0.18)
+})
+
+test('venom, exposure, and daze create distinct setup strategies', () => {
+  const komodo = createFighter(ANIMALS.find(({ id }) => id === 'komodo-dragon'))
+  const tiger = createFighter(ANIMALS.find(({ id }) => id === 'tiger'))
+  const venomBite = komodo.animal.moves.find(({ poison }) => poison)
+  let result = resolveAction([komodo, tiger], 0, venomBite, () => 0)
+  assert.deepEqual(result.players[1].poisoned, { damage: 1, turns: 3 })
+
+  const poisonedHealth = result.players[1].health
+  result = resolveAction(result.players, 1, tiger.animal.moves[0], () => 0)
+  assert.equal(result.players[1].health, poisonedHealth - 1)
+  assert.deepEqual(result.players[1].poisoned, { damage: 1, turns: 2 })
+  assert.match(result.message, /Venom dealt 1 damage/)
+
+  const eagle = createFighter(ANIMALS.find(({ id }) => id === 'eagle'))
+  const exposed = resolveAction([eagle, createFighter(tiger.animal)], 0, eagle.animal.moves[0], () => 0)
+  assert.equal(exposed.players[1].exposed, 2)
+  const exposedHit = resolveAction(exposed.players, 0, eagle.animal.moves[1], () => 0)
+  const plainHit = resolveAction([
+    eagle,
+    { ...exposed.players[1], exposed: 0 },
+  ], 0, eagle.animal.moves[1], () => 0)
+  assert.equal(plainHit.players[1].health - exposedHit.players[1].health, 2)
+  assert.equal(exposedHit.players[1].exposed, 0)
+
+  const falcon = createFighter(ANIMALS.find(({ id }) => id === 'falcon'))
+  const gorilla = createFighter(ANIMALS.find(({ id }) => id === 'gorilla'))
+  const dazed = resolveAction([falcon, gorilla], 0, falcon.animal.moves[0], () => 0)
+  assert.equal(dazed.players[1].dazed, 0.12)
+  const dazedMiss = resolveAction(dazed.players, 1, gorilla.animal.moves[0], () => 0.85)
+  assert.equal(dazedMiss.players[0].health, dazed.players[0].health)
+  assert.equal(dazedMiss.players[1].dazed, 0)
+  assert.match(dazedMiss.message, /daze cut accuracy/)
+})
+
+test('venom can finish its poisoned fighter after that fighter acts', () => {
+  const tiger = createFighter(ANIMALS.find(({ id }) => id === 'tiger'))
+  const poisonedTiger = { ...createFighter(tiger.animal), health: 1, poisoned: { damage: 1, turns: 1 } }
+  const result = resolveAction([tiger, poisonedTiger], 1, poisonedTiger.animal.moves[0], () => 0)
+
+  assert.equal(result.players[1].health, 0)
+  assert.equal(result.players[1].poisoned, null)
+  assert.equal(result.winner, 0)
+})
+
+test('venom defeats its poisoned fighter when both fighters are knocked out', () => {
+  const tiger = createFighter(ANIMALS.find(({ id }) => id === 'tiger'))
+  const target = { ...createFighter(tiger.animal), health: 1 }
+  const poisonedTiger = { ...createFighter(tiger.animal), health: 1, poisoned: { damage: 1, turns: 1 } }
+  const result = resolveAction([target, poisonedTiger], 1, poisonedTiger.animal.moves[0], () => 0)
+
+  assert.deepEqual(result.players.map(({ health }) => health), [0, 0])
+  assert.equal(result.players[1].poisoned, null)
+  assert.equal(result.winner, 0)
+  assert.match(result.message, /Venom dealt 1 damage/)
 })
 
 test('CPU only chooses legal moves and waits for defense to recharge', () => {

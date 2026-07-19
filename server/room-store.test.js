@@ -69,6 +69,18 @@ test('authoritative actions reject out-of-turn, invalid, and client-modified bat
   expectRoomError('STALE_ACTION', () => store.playMove(host.code, host.token, 0, 0))
 })
 
+test('authoritative online battles serialize move statuses', () => {
+  const store = makeStore()
+  const host = store.createRoom()
+  const guest = store.joinRoom(host.code)
+  store.selectAnimal(host.code, host.token, 'komodo-dragon')
+  const room = store.selectAnimal(host.code, guest.token, 'gorilla')
+
+  assert.equal(room.battle.active, 0)
+  const resolved = store.playMove(host.code, host.token, 1, 0)
+  assert.deepEqual(resolved.battle.players[1].poisoned, { damage: 1, turns: 3 })
+})
+
 test('disconnects pause play and reconnect tokens restore the same player seat', () => {
   const store = makeStore()
   const { host, guest } = startMatch(store)

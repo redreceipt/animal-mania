@@ -31,7 +31,7 @@ export const ANIMALS = [
     id: 'eagle', name: 'Eagle', color: '#f5d78a', detail: 'Swift trickster', archetype: 'skirmisher', col: 2, health: 30, strength: 5, defense: 4, speed: 10, home: 'Skyreach Cliffs',
     budget: { strength: 2, speed: 8, defense: 2, accuracy: 8, utility: 6, initiative: 4 },
     moves: [
-      attack('Wing Flick', 4, 6, 0.99, 'Reliable. Gain 15% evasion.', { evasionGain: 0.15 }),
+      attack('Wing Feint', 4, 6, 0.99, 'Expose the foe: the next hit deals +2 damage.', { expose: 2 }),
       attack('Talon Rush', 4, 5, 0.84, 'Two separate chances to hit.', { hits: 2 }),
       attack('Skyfall Dive', 10, 14, 0.68, 'Strong. Gain 18% evasion.', { evasionGain: 0.18 }),
       defend('Keen Winds', 0.3, 0.28, 'Light guard, high focus and evasion.', { evasionGain: 0.15 }),
@@ -71,7 +71,7 @@ export const ANIMALS = [
     id: 'horse', name: 'Horse', color: '#c56c2d', detail: 'Fleet combo fighter', archetype: 'skirmisher', col: 6, health: 36, strength: 5, defense: 4, speed: 9, home: 'Wildflower Prairie',
     budget: { strength: 3, speed: 8, defense: 3, accuracy: 7, utility: 5, initiative: 4 },
     moves: [
-      attack('Hoof Flick', 6, 9, 0.97, 'Reliable. Builds +10% focus.', { focusGain: 0.1 }),
+      attack('Dust Feint', 6, 9, 0.97, "Daze the foe: their next attack loses 10% accuracy.", { daze: 0.1 }),
       attack('Gallop Combo', 4, 5, 0.8, 'Two separate chances to connect.', { hits: 2 }),
       attack('Rear Kick', 11, 15, 0.7, 'Strong. Gain 12% evasion.', { evasionGain: 0.12 }),
       defend('Second Wind', 0.35, 0.2, 'Light guard with focus and evasion.', { evasionGain: 0.1 }),
@@ -122,7 +122,7 @@ export const ANIMALS = [
     budget: { strength: 6, speed: 3, defense: 8, accuracy: 4, utility: 6, initiative: 3 },
     moves: [
       attack('Claw Rake', 4, 7, 0.95, 'Reliable pressure attack.'),
-      attack('Tail Sweep', 8, 11, 0.78, 'Deals +3 through any guard.', { bonusVsGuard: 3 }),
+      attack('Venom Bite', 6, 9, 0.78, "Poison for 1 damage after each of the foe's next 3 moves.", { poison: { damage: 1, turns: 3 } }),
       attack('Ambush Bite', 11, 15, 0.62, 'Recover 3 HP on a hit.', { heal: 3 }),
       defend('Burrow Brace', 0.6, 0.08, 'Guard and recover 2 HP.', { heal: 2 }),
     ],
@@ -191,7 +191,7 @@ export const ANIMALS = [
     id: 'falcon', name: 'Falcon', color: '#9c8062', detail: 'Aerial daredevil', archetype: 'skirmisher', col: 18, health: 28, strength: 5, defense: 4, speed: 10, home: 'Redstone Aerie',
     budget: { strength: 2, speed: 8, defense: 2, accuracy: 8, utility: 6, initiative: 4 },
     moves: [
-      attack('Beak Strike', 4, 6, 0.98, 'Reliable. Gain 15% evasion.', { evasionGain: 0.15 }),
+      attack('Dust Dive', 4, 6, 0.98, "Daze the foe: their next attack loses 12% accuracy.", { daze: 0.12 }),
       attack('Talon Flurry', 4, 5, 0.84, 'Two separate chances to hit.', { hits: 2 }),
       attack('Stooping Dive', 10, 14, 0.68, 'Strong. Gain 18% evasion.', { evasionGain: 0.18 }),
       defend('Thermal Ride', 0.3, 0.28, 'Light guard, high focus and evasion.', { evasionGain: 0.15 }),
@@ -235,6 +235,9 @@ export function createFighter(animal) {
     guard: 0,
     focus: 0,
     evasion: 0,
+    poisoned: null,
+    exposed: 0,
+    dazed: 0,
     defenseReady: true,
     initiative: 0,
   }
@@ -252,13 +255,17 @@ const resolvedHitDamage = (damage, defender, guardReduction) => Math.max(1, Math
 
 function expectedAttackDamage(attacker, defender, move) {
   const range = getDamageRange(attacker.animal, move)
-  const accuracy = clampAccuracy(move.accuracy + attacker.focus - defender.evasion)
+  const accuracy = clampAccuracy(move.accuracy + attacker.focus - defender.evasion - (attacker.dazed ?? 0))
   const guarded = defender.guard > 0
   const bonus = (defender.health <= defender.animal.health / 2 ? move.bonusBelowHalf ?? 0 : 0)
     + (guarded ? move.bonusVsGuard ?? 0 : 0)
   const averageHit = (range.min + range.max) / 2 + bonus
   const guardReduction = guarded ? Math.max(0, defender.guard - (move.guardPierce ?? 0)) : 0
-  return resolvedHitDamage(averageHit, defender, guardReduction) * range.hits * accuracy
+  const baseDamage = resolvedHitDamage(averageHit, defender, guardReduction) * range.hits * accuracy
+  const exposedDamage = defender.exposed
+    ? resolvedHitDamage(defender.exposed, defender, guardReduction) * (1 - (1 - accuracy) ** range.hits)
+    : 0
+  return baseDamage + exposedDamage
 }
 
 export function chooseCpuMove(players, active, random = Math.random) {
@@ -273,9 +280,17 @@ export function chooseCpuMove(players, active, random = Math.random) {
     if (move.type === 'attack') {
       const expectedDamage = expectedAttackDamage(attacker, defender, move)
       const reliableFinish = defender.health <= expectedDamage && move.accuracy >= 0.8 ? 5 : 0
+      const currentPoisonValue = (defender.poisoned?.damage ?? 0) * (defender.poisoned?.turns ?? 0)
+      const nextPoisonValue = move.poison
+        ? Math.max(defender.poisoned?.damage ?? 0, move.poison.damage)
+          * Math.max(defender.poisoned?.turns ?? 0, move.poison.turns)
+        : currentPoisonValue
       const utility = (move.heal ?? 0) * (attacker.health < attacker.animal.health ? 0.7 : 0)
         + (move.focusGain ?? 0) * 8
         + (move.evasionGain ?? 0) * 7
+        + (nextPoisonValue - currentPoisonValue) * 0.8
+        + Math.max(0, (move.expose ?? 0) - (defender.exposed ?? 0)) * 0.8
+        + Math.max(0, (move.daze ?? 0) - (defender.dazed ?? 0)) * 10
       score = expectedDamage + reliableFinish + utility
     } else {
       const missingHealth = attacker.animal.health - attacker.health
@@ -312,6 +327,35 @@ function nextActor(players, acting) {
 
 const clampAccuracy = (value) => Math.max(0.25, Math.min(0.99, value))
 
+function applyPoisonTick(player) {
+  if (!player.poisoned) return null
+  const damage = Math.min(player.health, player.poisoned.damage)
+  const turns = player.poisoned.turns - 1
+  player.health -= damage
+  player.poisoned = turns > 0 ? { ...player.poisoned, turns } : null
+  return { damage, turns }
+}
+
+function finishAction(nextPlayers, active, message, winner = null) {
+  let resolvedWinner = winner
+  let resolvedMessage = message
+
+  const poisonTick = applyPoisonTick(nextPlayers[active])
+  if (poisonTick) {
+    const turnsLeft = poisonTick.turns > 0 ? ` ${poisonTick.turns} move${poisonTick.turns === 1 ? '' : 's'} left.` : ' The poison faded.'
+    resolvedMessage += ` Venom dealt ${poisonTick.damage} damage to ${nextPlayers[active].animal.name}.${turnsLeft}`
+    if (nextPlayers[active].health === 0) resolvedWinner = 1 - active
+  }
+
+  return {
+    players: nextPlayers,
+    message: resolvedMessage,
+    log: resolvedMessage,
+    winner: resolvedWinner,
+    nextActive: resolvedWinner === null ? nextActor(nextPlayers, active) : resolvedWinner,
+  }
+}
+
 export function resolveAction(players, active, move, random = Math.random) {
   const nextPlayers = players.map((player) => ({ ...player }))
   const attacker = nextPlayers[active]
@@ -333,20 +377,23 @@ export function resolveAction(players, active, move, random = Math.random) {
     if (move.evasionGain) effects.push(`+${Math.round(move.evasionGain * 100)}% evasion`)
     if (move.heal) effects.push(`healed ${move.heal}`)
     const message = `${attackerName} used ${move.name}: ${effects.join(', ')}.`
-    return { players: nextPlayers, message, log: message, winner: null, nextActive: nextActor(nextPlayers, active) }
+    return finishAction(nextPlayers, active, message)
   }
 
   const guardValue = defender.guard
   const guarded = guardValue > 0
   const targetWasWounded = defender.health <= defender.animal.health / 2
-  const accuracy = clampAccuracy(move.accuracy + attacker.focus - defender.evasion)
+  const accuracy = clampAccuracy(move.accuracy + attacker.focus - defender.evasion - (attacker.dazed ?? 0))
   const focused = attacker.focus > 0
   const evasive = defender.evasion > 0
+  const dazed = (attacker.dazed ?? 0) > 0
   const hitCount = move.hits ?? 1
   let landedHits = 0
   let totalDamage = 0
+  let exposedBonus = 0
 
   attacker.focus = 0
+  attacker.dazed = 0
   attacker.defenseReady = true
   defender.guard = 0
   defender.evasion = 0
@@ -357,30 +404,50 @@ export function resolveAction(players, active, move, random = Math.random) {
     let damage = rollDamage(attacker.animal, move, random)
     if (targetWasWounded) damage += move.bonusBelowHalf ?? 0
     if (guarded) damage += move.bonusVsGuard ?? 0
+    if (defender.exposed) {
+      exposedBonus = defender.exposed
+      damage += defender.exposed
+      defender.exposed = 0
+    }
     const guardReduction = Math.max(0, guardValue - (move.guardPierce ?? 0))
     totalDamage += resolvedHitDamage(damage, defender, guardReduction)
   }
 
   if (landedHits === 0) {
-    const details = [evasive ? `${defenderName} evaded` : 'it missed', guarded ? 'guard expired' : null].filter(Boolean).join(', ')
+    const details = [evasive ? `${defenderName} evaded` : 'it missed', dazed ? 'daze cut accuracy' : null, guarded ? 'guard expired' : null].filter(Boolean).join(', ')
     const message = `${attackerName} used ${move.name} — ${details}!`
-    return { players: nextPlayers, message, log: message, winner: null, nextActive: nextActor(nextPlayers, active) }
+    return finishAction(nextPlayers, active, message)
   }
 
   defender.health = Math.max(0, defender.health - totalDamage)
   attacker.health = Math.min(attacker.animal.health, attacker.health + (move.heal ?? 0))
   attacker.focus = Math.max(attacker.focus, move.focusGain ?? 0)
   attacker.evasion = Math.max(attacker.evasion, move.evasionGain ?? 0)
+  if (move.poison) {
+    const currentPotency = defender.poisoned?.damage ?? 0
+    const currentTurns = defender.poisoned?.turns ?? 0
+    defender.poisoned = {
+      damage: Math.max(currentPotency, move.poison.damage),
+      turns: Math.max(currentTurns, move.poison.turns),
+    }
+  }
+  defender.exposed = Math.max(defender.exposed ?? 0, move.expose ?? 0)
+  defender.dazed = Math.max(defender.dazed ?? 0, move.daze ?? 0)
 
   const effects = []
   if (hitCount > 1) effects.push(`${landedHits}/${hitCount} hits`)
   if (guarded) effects.push(move.guardPierce ? 'pierced guard' : 'guard softened it')
   if (focused) effects.push('focus boosted accuracy')
+  if (dazed) effects.push('daze reduced accuracy')
+  if (exposedBonus) effects.push(`exposure added ${exposedBonus}`)
   if (move.heal) effects.push(`healed ${move.heal}`)
   if (move.focusGain) effects.push(`gained ${Math.round(move.focusGain * 100)}% focus`)
   if (move.evasionGain) effects.push(`gained ${Math.round(move.evasionGain * 100)}% evasion`)
+  if (move.poison) effects.push(`inflicted venom ${move.poison.damage}×${move.poison.turns}`)
+  if (move.expose) effects.push(`exposed +${move.expose}`)
+  if (move.daze) effects.push(`dazed -${Math.round(move.daze * 100)}% accuracy`)
   const effectText = effects.length ? ` (${effects.join(', ')})` : ''
   const message = `${attackerName} used ${move.name} for ${totalDamage} damage${effectText}!`
   const winner = defender.health === 0 ? active : null
-  return { players: nextPlayers, message, log: message, winner, nextActive: winner === null ? nextActor(nextPlayers, active) : active }
+  return finishAction(nextPlayers, active, message, winner)
 }

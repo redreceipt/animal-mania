@@ -47,6 +47,7 @@ land on different instances.
 - Defense persistently changes incoming damage by 1% per point from the neutral rating of 6; it applies separately from guard, so guard-piercing moves do not bypass Defense
 - Speed decides the opening move and controls initiative; fast fighters occasionally act twice in succession
 - Every attack has its own damage range, hit probability, and tactical effects
+- Venom deals damage after a poisoned fighter acts; exposure empowers the next hit; daze lowers the next attack's accuracy
 - Guard, focus, and evasion create defensive and setup options
 - Defense must be recharged by attacking once, preventing endless stalling
 - First fighter to reach 0 HP loses
@@ -55,23 +56,23 @@ land on different instances.
 
 - **Tiger — 40 HP / STR 7 / DEF 6 / SPD 7:** balanced hunter that builds focus and punishes wounded opponents
 - **Gorilla — 48 HP / STR 10 / DEF 7 / SPD 4:** slow bruiser with the hardest hits, strongest guard, and guard-piercing attacks
-- **Eagle — 30 HP / STR 5 / DEF 4 / SPD 10:** swift trickster with multi-hit attacks, evasion, and extra initiative
+- **Eagle — 30 HP / STR 5 / DEF 4 / SPD 10:** swift trickster with exposure setups, multi-hit attacks, and extra initiative
 - **Crocodile — 44 HP / STR 8 / DEF 10 / SPD 5:** armored survivor with healing and anti-guard pressure
 - **Rhino — 52 HP / STR 10 / DEF 9 / SPD 3:** relentless charger with heavy guard-piercing attacks
 - **Hippo — 56 HP / STR 11 / DEF 8 / SPD 3:** river powerhouse with punishing bites, strong guard, and recovery
-- **Horse — 36 HP / STR 5 / DEF 4 / SPD 9:** fleet combo fighter with focus, evasion, and extra initiative
+- **Horse — 36 HP / STR 5 / DEF 4 / SPD 9:** fleet combo fighter with dazing feints, evasion, and extra initiative
 - **Elephant — 60 HP / STR 9 / DEF 8 / SPD 5:** steady tactician with strong guard and anti-guard attacks
 - **Grizzly Bear — 50 HP / STR 9 / DEF 7 / SPD 4:** savage grappler with multi-hit pressure, evasive guard, and anti-guard attacks
 - **Polar Bear — 46 HP / STR 8 / DEF 6 / SPD 6:** cold opportunist with evasion, wounded-target pressure, and guard piercing
 - **Wolf — 38 HP / STR 7 / DEF 6 / SPD 7:** pack tactician with focus and wounded-target pressure
-- **Komodo Dragon — 45 HP / STR 8 / DEF 10 / SPD 5:** patient predator with recovery and anti-guard pressure
+- **Komodo Dragon — 45 HP / STR 8 / DEF 10 / SPD 5:** patient predator with lingering venom, recovery, and strong defense
 - **Lion — 49 HP / STR 10 / DEF 7 / SPD 4:** regal finisher with the strongest guard and guard-piercing attacks
 - **Anaconda — 42 HP / STR 7 / DEF 6 / SPD 7:** coiling controller that builds focus and punishes wounded opponents
 - **Water Buffalo — 58 HP / STR 11 / DEF 8 / SPD 3:** marsh juggernaut with heavy guard, recovery, and powerful charges
 - **Shark — 47 HP / STR 8 / DEF 6 / SPD 6:** relentless striker with evasion, wounded-target pressure, and guard piercing
 - **Orca — 54 HP / STR 9 / DEF 8 / SPD 6:** ocean powerhouse with strong guard and anti-guard attacks
 - **Ostrich — 34 HP / STR 5 / DEF 4 / SPD 10:** fleet kicker with multi-hit attacks, evasion, and extra initiative
-- **Falcon — 28 HP / STR 5 / DEF 4 / SPD 10:** aerial daredevil with multi-hit attacks, high evasion, and extra initiative
+- **Falcon — 28 HP / STR 5 / DEF 4 / SPD 10:** aerial daredevil with accuracy disruption, multi-hit attacks, and extra initiative
 - **Octopus — 41 HP / STR 8 / DEF 9 / SPD 5:** elusive grappler with strong defense, recovery, and anti-guard pressure
 
 The kits are intentionally asymmetric. Seeded matchup simulations keep overall random-strategy win rates close while allowing meaningful strengths and counters.

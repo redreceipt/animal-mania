@@ -15,7 +15,7 @@ Every fighter spends 30 points (with a one-point tuning tolerance) across six ax
 | Speed | Evasion, repositioning, and repeated low-damage opportunities |
 | Defense | Persistent damage reduction, guard, health, and recovery |
 | Accuracy | Reliable attacks, multi-hit consistency, and focus generation |
-| Utility | Healing, guard piercing, conditional damage, focus, and evasion |
+| Utility | Healing, guard piercing, conditional damage, focus, evasion, and status setup |
 | Initiative | Opening priority and the chance to act twice before a slower rival |
 
 The budget is a design ledger, not a second damage formula. A point must be visible in
@@ -102,3 +102,21 @@ validation, seeded simulation tuning, and human playtesting.
 
 Adding an animal remains a data-and-assets change. The battle engine only needs a new
 mechanic when recognizable behavior cannot be expressed by the existing move effects.
+
+## Status setup effects
+
+Status moves trade immediate power for a later advantage and should remain readable
+from both the move card and fighter HUD:
+
+- **Venom** deals its listed damage after each of the poisoned fighter's next moves.
+  Reapplying venom keeps the stronger damage and longer remaining duration rather than
+  stacking both. Venom resolves after attack damage, so a simultaneous knockout defeats
+  the poisoned fighter.
+- **Exposure** adds its listed damage to the next landed hit, then clears. Misses and
+  defensive moves do not consume it.
+- **Daze** lowers the accuracy of the fighter's next attack, then clears whether that
+  attack lands or misses. Defending delays but does not remove it.
+
+Price these effects on the Utility axis and retune immediate damage, accuracy, or
+another benefit instead of adding them to an already complete move. Every fighter
+still needs exactly three attacks and one rechargeable defensive move.
