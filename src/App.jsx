@@ -35,6 +35,11 @@ function battleImages(homeId, awayId) {
   ]
 }
 
+function randomAnimal(excludedId) {
+  const fighters = excludedId ? ANIMALS.filter((animal) => animal.id !== excludedId) : ANIMALS
+  return fighters[Math.floor(Math.random() * fighters.length)]
+}
+
 function PixelAnimal({ animal, variant = 'portrait', flip = false }) {
   const src = animalImage(animal, variant)
   const [imageState, setImageState] = useState({ src: null, groundOffset: 0 })
@@ -177,11 +182,17 @@ function RoomShare({ code }) {
 }
 
 function OnlineSelectScreen({ online }) {
+  const [randomSelection, setRandomSelection] = useState(false)
   const { room, session } = online
   const you = session.playerIndex
   const rival = room.players[1 - you]
   const selectedId = room.players[you]?.animalId
   const rivalAnimal = ANIMALS.find((animal) => animal.id === rival?.animalId)
+
+  function selectFighter(animalId, randomized = false) {
+    setRandomSelection(randomized)
+    online.selectAnimal(animalId)
+  }
 
   return (
     <main className="arcade-shell online-select-screen">
@@ -190,12 +201,13 @@ function OnlineSelectScreen({ online }) {
       <RoomShare code={room.code} />
       <section className="online-select-layout">
         <div className="player-select">
-          <div className="player-heading"><span>You · Player {you + 1}</span><b>{ANIMALS.find((animal) => animal.id === selectedId)?.name ?? 'Choose!'}</b></div>
+          <div className="player-heading"><span>You · Player {you + 1}</span><b>{randomSelection ? 'Random!' : ANIMALS.find((animal) => animal.id === selectedId)?.name ?? 'Choose!'}</b></div>
+          <button className={`random-btn ${randomSelection ? 'selected' : ''}`} onClick={() => selectFighter(randomAnimal().id, true)} aria-pressed={randomSelection} disabled={online.status !== 'connected'}>Surprise me · Random fighter</button>
           <div className="roster" aria-label="Your animal selection">
             {ANIMALS.map((animal) => {
               const selected = selectedId === animal.id
               return (
-                <button className={`animal-card ${selected ? 'selected' : ''}`} key={animal.id} onClick={() => online.selectAnimal(animal.id)} aria-pressed={selected} disabled={online.status !== 'connected'}>
+                <button className={`animal-card ${selected ? 'selected' : ''}`} key={animal.id} onClick={() => selectFighter(animal.id)} aria-pressed={selected} disabled={online.status !== 'connected'}>
                   <PixelAnimal animal={animal} />
                   <strong>{animal.name}</strong>
                   <AttributeLine animal={animal} />
@@ -221,7 +233,7 @@ function OnlineSelectScreen({ online }) {
 
 function SelectScreen({ mode, onBack, onStart }) {
   const [selections, setSelections] = useState(initialSelection)
-  const [randomOpponent, setRandomOpponent] = useState(false)
+  const [randomSelections, setRandomSelections] = useState([false, false])
   const [preparedAssetKey, setPreparedAssetKey] = useState(null)
   const singlePlayer = mode === 'single'
   const homeId = selections[0]?.id
@@ -230,18 +242,27 @@ function SelectScreen({ mode, onBack, onStart }) {
   const ready = Boolean(battleAssetKey)
   const battleAssetsReady = battleAssetKey === preparedAssetKey
 
-  function randomRival(home) {
-    const opponents = ANIMALS.filter((animal) => animal.id !== home?.id)
-    return opponents[Math.floor(Math.random() * opponents.length)]
+  function randomFighter(player, home = selections[0]) {
+    return randomAnimal(singlePlayer && player === 1 ? home?.id : null)
   }
 
   function select(player, animal) {
     setSelections((current) => current.map((value, index) => {
       if (index === player) return animal
-      if (player === 0 && index === 1 && randomOpponent) return randomRival(animal)
+      if (player === 0 && index === 1 && singlePlayer && randomSelections[1]) return randomFighter(1, animal)
       return value
     }))
-    if (player === 1) setRandomOpponent(false)
+    setRandomSelections((current) => current.map((random, index) => index === player ? false : random))
+  }
+
+  function randomize(player) {
+    setSelections((current) => {
+      const next = [...current]
+      next[player] = randomFighter(player, current[0])
+      if (player === 0 && singlePlayer && randomSelections[1]) next[1] = randomFighter(1, next[0])
+      return next
+    })
+    setRandomSelections((current) => current.map((random, index) => index === player ? true : random))
   }
 
   function startMatch() {
@@ -266,9 +287,9 @@ function SelectScreen({ mode, onBack, onStart }) {
           <div className={`player-select p${player + 1}`} key={player}>
             <div className="player-heading">
               <span>{singlePlayer && player === 1 ? 'CPU opponent' : `Player ${player + 1}`}</span>
-              <b>{player === 1 && randomOpponent ? 'Random!' : selections[player]?.name ?? 'Choose!'}</b>
+              <b>{randomSelections[player] ? 'Random!' : selections[player]?.name ?? 'Choose!'}</b>
             </div>
-            {singlePlayer && player === 1 ? <button className={`random-btn ${randomOpponent ? 'selected' : ''}`} onClick={() => { setSelections((current) => [current[0], randomRival(current[0])]); setRandomOpponent(true) }} aria-pressed={randomOpponent}>Surprise me · Random rival</button> : null}
+            <button className={`random-btn ${randomSelections[player] ? 'selected' : ''}`} onClick={() => randomize(player)} aria-pressed={randomSelections[player]}>Surprise me · Random {singlePlayer && player === 1 ? 'rival' : 'fighter'}</button>
             <div className="roster" aria-label={`${singlePlayer && player === 1 ? 'CPU' : `Player ${player + 1}`} animal selection`}>
               {ANIMALS.map((animal) => {
                 const selected = selections[player]?.id === animal.id
