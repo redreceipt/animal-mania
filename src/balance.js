@@ -115,6 +115,16 @@ export function validateRoster(animals) {
       if (!Number.isFinite(move.accuracy) || move.accuracy < 0.25 || move.accuracy > 0.99) {
         errors.push(`${label} / ${move.name}: accuracy must be between 0.25 and 0.99`)
       }
+      if (move.poison && (!Number.isInteger(move.poison.damage) || move.poison.damage < 1
+        || !Number.isInteger(move.poison.turns) || move.poison.turns < 1)) {
+        errors.push(`${label} / ${move.name}: poison needs positive integer damage and turns`)
+      }
+      if (move.expose !== undefined && (!Number.isInteger(move.expose) || move.expose < 1)) {
+        errors.push(`${label} / ${move.name}: expose must be a positive integer`)
+      }
+      if (move.daze !== undefined && (!Number.isFinite(move.daze) || move.daze <= 0 || move.daze > 0.5)) {
+        errors.push(`${label} / ${move.name}: daze must be between 0 and 0.5`)
+      }
     }
 
     for (const move of defenses) {

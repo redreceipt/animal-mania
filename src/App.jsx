@@ -301,12 +301,15 @@ function HealthBar({ health, maxHealth }) {
 }
 
 function StatusRow({ player }) {
-  if (!player.guard && !player.focus && !player.evasion) return <div className="status-row empty">Ready</div>
+  if (!player.guard && !player.focus && !player.evasion && !player.poisoned && !player.exposed && !player.dazed) return <div className="status-row empty">Ready</div>
   return (
     <div className="status-row">
       {player.guard ? <span className="guard-status">◆ Guard {Math.round(player.guard * 100)}%</span> : null}
       {player.focus ? <span className="focus-status">✦ Focused +{Math.round(player.focus * 100)}%</span> : null}
       {player.evasion ? <span className="evasion-status">▲ Evade +{Math.round(player.evasion * 100)}%</span> : null}
+      {player.poisoned ? <span className="poison-status">☠ Venom {player.poisoned.damage}×{player.poisoned.turns}</span> : null}
+      {player.exposed ? <span className="exposed-status">◎ Exposed +{player.exposed}</span> : null}
+      {player.dazed ? <span className="dazed-status">◌ Dazed -{Math.round(player.dazed * 100)}%</span> : null}
     </div>
   )
 }
@@ -331,7 +334,12 @@ function FighterHud({ player, index, active, label }) {
 function MoveButton({ animal, move, index, onChoose, disabled }) {
   const defensive = move.type === 'defend'
   const range = getDamageRange(animal, move)
-  const attackStats = range ? `${range.min}–${range.max} dmg${range.hits > 1 ? ` ×${range.hits}` : ''} · ${Math.round(move.accuracy * 100)}% hit` : ''
+  const effectStats = [
+    move.poison ? `Venom ${move.poison.damage}×${move.poison.turns}` : null,
+    move.expose ? `Expose +${move.expose}` : null,
+    move.daze ? `Daze -${Math.round(move.daze * 100)}%` : null,
+  ].filter(Boolean).join(' · ')
+  const attackStats = range ? `${range.min}–${range.max} dmg${range.hits > 1 ? ` ×${range.hits}` : ''} · ${Math.round(move.accuracy * 100)}% hit${effectStats ? ` · ${effectStats}` : ''}` : ''
   const defenseStats = [`Guard ${Math.round((move.guard ?? 0) * 100)}%`, move.focus ? `Focus +${Math.round(move.focus * 100)}%` : null, move.evasionGain ? `Evade +${Math.round(move.evasionGain * 100)}%` : null].filter(Boolean).join(' · ')
   return (
     <button className={`move-card ${defensive ? 'defensive' : `attack-${index + 1}`}`} onClick={onChoose} disabled={disabled}>
