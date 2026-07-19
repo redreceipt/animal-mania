@@ -1,5 +1,3 @@
-export const MAX_HEALTH = 40
-
 const attack = (name, minDamage, maxDamage, accuracy, description, effects = {}) => ({
   type: 'attack', name, minDamage, maxDamage, accuracy, description, ...effects,
 })
@@ -10,7 +8,7 @@ const defend = (name, guard, focus, description, effects = {}) => ({
 
 export const ANIMALS = [
   {
-    id: 'tiger', name: 'Tiger', color: '#ee7b24', detail: 'Balanced hunter', col: 0, strength: 7, speed: 7,
+    id: 'tiger', name: 'Tiger', color: '#ee7b24', detail: 'Balanced hunter', col: 0, health: 40, strength: 7, speed: 7,
     moves: [
       attack('Quick Pounce', 4, 6, 0.96, 'Reliable. Builds +12% focus.', { focusGain: 0.12 }),
       attack('Raking Claws', 8, 11, 0.82, 'Deals +3 to wounded foes.', { bonusBelowHalf: 3 }),
@@ -19,7 +17,7 @@ export const ANIMALS = [
     ],
   },
   {
-    id: 'gorilla', name: 'Gorilla', color: '#6f7781', detail: 'Heavy bruiser', col: 1, strength: 10, speed: 4,
+    id: 'gorilla', name: 'Gorilla', color: '#6f7781', detail: 'Heavy bruiser', col: 1, health: 48, strength: 10, speed: 4,
     moves: [
       attack('Knuckle Jab', 5, 7, 0.92, 'Heavy and dependable.'),
       attack('Rock Hurler', 9, 12, 0.72, 'Ignores 25% of guard.', { guardPierce: 0.25 }),
@@ -28,7 +26,7 @@ export const ANIMALS = [
     ],
   },
   {
-    id: 'eagle', name: 'Eagle', color: '#f5d78a', detail: 'Swift trickster', col: 2, strength: 5, speed: 10,
+    id: 'eagle', name: 'Eagle', color: '#f5d78a', detail: 'Swift trickster', col: 2, health: 30, strength: 5, speed: 10,
     moves: [
       attack('Wing Flick', 4, 6, 0.99, 'Reliable. Gain 15% evasion.', { evasionGain: 0.15 }),
       attack('Talon Rush', 4, 5, 0.84, 'Two separate chances to hit.', { hits: 2 }),
@@ -37,16 +35,16 @@ export const ANIMALS = [
     ],
   },
   {
-    id: 'crocodile', name: 'Crocodile', color: '#54a84b', detail: 'Armored survivor', col: 3, strength: 8, speed: 5,
+    id: 'crocodile', name: 'Crocodile', color: '#54a84b', detail: 'Armored survivor', col: 3, health: 44, strength: 8, speed: 5,
     moves: [
-      attack('Tail Snap', 4, 6, 0.94, 'Reliable pressure attack.'),
+      attack('Tail Snap', 4, 7, 0.94, 'Reliable pressure attack.'),
       attack('Death Roll', 8, 11, 0.78, 'Deals +3 through any guard.', { bonusVsGuard: 3 }),
       attack('Marsh Lunge', 11, 15, 0.62, 'Recover 3 HP on a hit.', { heal: 3 }),
       defend('Scaled Stance', 0.6, 0.08, 'Guard and recover 2 HP.', { heal: 2 }),
     ],
   },
   {
-    id: 'rhino', name: 'Rhino', color: '#8d98a5', detail: 'Relentless charger', col: 4, strength: 10, speed: 3,
+    id: 'rhino', name: 'Rhino', color: '#8d98a5', detail: 'Relentless charger', col: 4, health: 52, strength: 10, speed: 3,
     moves: [
       attack('Horn Feint', 5, 8, 0.93, 'Reliable. Slips through 15% of guard.', { guardPierce: 0.15 }),
       attack('Stampede', 9, 11, 0.78, 'Deals +2 through any guard.', { bonusVsGuard: 2 }),
@@ -55,27 +53,27 @@ export const ANIMALS = [
     ],
   },
   {
-    id: 'hippo', name: 'Hippo', color: '#80708f', detail: 'River powerhouse', col: 5, strength: 11, speed: 3,
+    id: 'hippo', name: 'Hippo', color: '#80708f', detail: 'River powerhouse', col: 5, health: 56, strength: 11, speed: 3,
     moves: [
-      attack('Jaw Jab', 4, 6, 0.95, 'Short-range, dependable bite.'),
+      attack('Jaw Jab', 5, 7, 0.95, 'Short-range, dependable bite.'),
       attack('River Rush', 7, 10, 0.84, 'Deals +2 to wounded foes.', { bonusBelowHalf: 2 }),
       attack('Crushing Bite', 12, 16, 0.64, 'A fearsome all-or-nothing chomp.'),
       defend('Mud Wall', 0.675, 0.03, 'Heavy guard and recover 2 HP.', { heal: 2 }),
     ],
   },
   {
-    id: 'horse', name: 'Horse', color: '#c56c2d', detail: 'Fleet combo fighter', col: 6, strength: 5, speed: 9,
+    id: 'horse', name: 'Horse', color: '#c56c2d', detail: 'Fleet combo fighter', col: 6, health: 36, strength: 5, speed: 9,
     moves: [
-      attack('Hoof Flick', 5, 7, 0.97, 'Reliable. Builds +10% focus.', { focusGain: 0.1 }),
+      attack('Hoof Flick', 6, 9, 0.97, 'Reliable. Builds +10% focus.', { focusGain: 0.1 }),
       attack('Gallop Combo', 4, 5, 0.8, 'Two separate chances to connect.', { hits: 2 }),
       attack('Rear Kick', 11, 15, 0.7, 'Strong. Gain 12% evasion.', { evasionGain: 0.12 }),
       defend('Second Wind', 0.35, 0.2, 'Light guard with focus and evasion.', { evasionGain: 0.1 }),
     ],
   },
   {
-    id: 'elephant', name: 'Elephant', color: '#718da2', detail: 'Steady tactician', col: 7, strength: 9, speed: 5,
+    id: 'elephant', name: 'Elephant', color: '#718da2', detail: 'Steady tactician', col: 7, health: 60, strength: 9, speed: 5,
     moves: [
-      attack('Trunk Tap', 5, 7, 0.96, 'Reliable pressure attack.'),
+      attack('Trunk Tap', 4, 6, 0.96, 'Reliable pressure attack.'),
       attack('Tusk Sweep', 8, 11, 0.82, 'Deals +3 through any guard.', { bonusVsGuard: 3 }),
       attack('Earthshaker', 13, 17, 0.62, 'Powerful hit that pierces 30% of guard.', { guardPierce: 0.3 }),
       defend('Memory Guard', 0.62, 0.1, 'Strong guard with measured focus.'),
@@ -104,7 +102,7 @@ export function getOpeningActor(animals, random = Math.random) {
 export function createFighter(animal) {
   return {
     animal,
-    health: MAX_HEALTH,
+    health: animal.health,
     guard: 0,
     focus: 0,
     evasion: 0,
@@ -117,15 +115,17 @@ export function getLegalMoves(player) {
   return player.animal.moves.filter((move) => move.type !== 'defend' || player.defenseReady)
 }
 
+const damageTakenMultiplier = (animal) => animal.health / 40
+
 function expectedAttackDamage(attacker, defender, move) {
   const range = getDamageRange(attacker.animal, move)
   const accuracy = clampAccuracy(move.accuracy + attacker.focus - defender.evasion)
   const guarded = defender.guard > 0
-  const bonus = (defender.health <= MAX_HEALTH / 2 ? move.bonusBelowHalf ?? 0 : 0)
+  const bonus = (defender.health <= defender.animal.health / 2 ? move.bonusBelowHalf ?? 0 : 0)
     + (guarded ? move.bonusVsGuard ?? 0 : 0)
   const averageHit = (range.min + range.max) / 2 + bonus
   const guardReduction = guarded ? Math.max(0, defender.guard - (move.guardPierce ?? 0)) : 0
-  return Math.max(1, averageHit * (1 - guardReduction)) * range.hits * accuracy
+  return Math.max(1, averageHit * (1 - guardReduction) * damageTakenMultiplier(defender.animal)) * range.hits * accuracy
 }
 
 export function chooseCpuMove(players, active, random = Math.random) {
@@ -140,17 +140,17 @@ export function chooseCpuMove(players, active, random = Math.random) {
     if (move.type === 'attack') {
       const expectedDamage = expectedAttackDamage(attacker, defender, move)
       const reliableFinish = defender.health <= expectedDamage && move.accuracy >= 0.8 ? 5 : 0
-      const utility = (move.heal ?? 0) * (attacker.health < MAX_HEALTH ? 0.7 : 0)
+      const utility = (move.heal ?? 0) * (attacker.health < attacker.animal.health ? 0.7 : 0)
         + (move.focusGain ?? 0) * 8
         + (move.evasionGain ?? 0) * 7
       score = expectedDamage + reliableFinish + utility
     } else {
-      const missingHealth = MAX_HEALTH - attacker.health
-      const healthPressure = (1 - attacker.health / MAX_HEALTH) * 10
+      const missingHealth = attacker.animal.health - attacker.health
+      const healthPressure = (1 - attacker.health / attacker.animal.health) * 10
       const incomingThreat = expectedAttackDamage(defender, attacker, defender.animal.moves[1])
       score = healthPressure + move.guard * incomingThreat + move.focus * 9
         + (move.evasionGain ?? 0) * 8 + Math.min(missingHealth, move.heal ?? 0)
-      if (attacker.health === MAX_HEALTH && !defender.guard) score -= 3
+      if (attacker.health === attacker.animal.health && !defender.guard) score -= 3
     }
 
     // A small independent preference roll keeps equally sound turns from becoming scripted.
@@ -193,7 +193,7 @@ export function resolveAction(players, active, move, random = Math.random) {
     attacker.guard = move.guard
     attacker.focus = move.focus
     attacker.evasion = Math.max(attacker.evasion, move.evasionGain ?? 0)
-    attacker.health = Math.min(MAX_HEALTH, attacker.health + (move.heal ?? 0))
+    attacker.health = Math.min(attacker.animal.health, attacker.health + (move.heal ?? 0))
     attacker.defenseReady = false
     const effects = [`${Math.round(move.guard * 100)}% guard`]
     if (move.focus) effects.push(`+${Math.round(move.focus * 100)}% focus`)
@@ -205,7 +205,7 @@ export function resolveAction(players, active, move, random = Math.random) {
 
   const guardValue = defender.guard
   const guarded = guardValue > 0
-  const targetWasWounded = defender.health <= MAX_HEALTH / 2
+  const targetWasWounded = defender.health <= defender.animal.health / 2
   const accuracy = clampAccuracy(move.accuracy + attacker.focus - defender.evasion)
   const focused = attacker.focus > 0
   const evasive = defender.evasion > 0
@@ -225,7 +225,7 @@ export function resolveAction(players, active, move, random = Math.random) {
     if (targetWasWounded) damage += move.bonusBelowHalf ?? 0
     if (guarded) damage += move.bonusVsGuard ?? 0
     const guardReduction = Math.max(0, guardValue - (move.guardPierce ?? 0))
-    totalDamage += Math.max(1, Math.ceil(damage * (1 - guardReduction)))
+    totalDamage += Math.max(1, Math.ceil(damage * (1 - guardReduction) * damageTakenMultiplier(defender.animal)))
   }
 
   if (landedHits === 0) {
@@ -235,7 +235,7 @@ export function resolveAction(players, active, move, random = Math.random) {
   }
 
   defender.health = Math.max(0, defender.health - totalDamage)
-  attacker.health = Math.min(MAX_HEALTH, attacker.health + (move.heal ?? 0))
+  attacker.health = Math.min(attacker.animal.health, attacker.health + (move.heal ?? 0))
   attacker.focus = Math.max(attacker.focus, move.focusGain ?? 0)
   attacker.evasion = Math.max(attacker.evasion, move.evasionGain ?? 0)
 

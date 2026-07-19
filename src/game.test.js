@@ -2,7 +2,7 @@ import assert from 'node:assert/strict'
 import test from 'node:test'
 import {
   ANIMALS, chooseCpuMove, createFighter, getDamageRange, getLegalMoves,
-  getOpeningActor, MAX_HEALTH, resolveAction,
+  getOpeningActor, resolveAction,
 } from './game.js'
 
 test('animals have distinct attributes and mechanically different move kits', () => {
@@ -25,6 +25,31 @@ test('animals have distinct attributes and mechanically different move kits', ()
   assert.equal(new Set(profiles).size, ANIMALS.length)
   assert.deepEqual(ANIMALS.map(({ strength }) => strength), [7, 10, 5, 8, 10, 11, 5, 9])
   assert.deepEqual(ANIMALS.map(({ speed }) => speed), [7, 4, 10, 5, 3, 3, 9, 5])
+  assert.deepEqual(ANIMALS.map(({ health }) => health), [40, 48, 30, 44, 52, 56, 36, 60])
+  assert.equal(new Set(ANIMALS.map(({ health }) => health)).size, ANIMALS.length)
+})
+
+test('fighters start at their animal health cap and healing respects it', () => {
+  const eagle = createFighter(ANIMALS[2])
+  const crocodile = createFighter(ANIMALS[3])
+  assert.equal(eagle.health, 30)
+  assert.equal(crocodile.health, 44)
+
+  const woundedCrocodile = { ...crocodile, health: 43 }
+  const defense = resolveAction([woundedCrocodile, eagle], 0, ANIMALS[3].moves[3], () => 0)
+  assert.equal(defense.players[0].health, 44)
+})
+
+test('size scaling keeps the wide health range from deciding damage races', () => {
+  const tiger = createFighter(ANIMALS[0])
+  const eagle = createFighter(ANIMALS[2])
+  const elephant = createFighter(ANIMALS[7])
+  const move = ANIMALS[0].moves[0]
+
+  const eagleHit = resolveAction([tiger, eagle], 0, move, () => 0)
+  const elephantHit = resolveAction([tiger, elephant], 0, move, () => 0)
+  assert.equal(eagle.health - eagleHit.players[1].health, 3)
+  assert.equal(elephant.health - elephantHit.players[1].health, 6)
 })
 
 test('strength changes displayed and resolved damage ranges', () => {
@@ -60,7 +85,7 @@ test('unique defensive and attack effects resolve correctly', () => {
 
   const guardPiercingHit = resolveAction(players, 1, ANIMALS[1].moves[1], () => 0)
   players = guardPiercingHit.players
-  assert.equal(players[0].health, MAX_HEALTH - 9)
+  assert.equal(players[0].health, ANIMALS[0].health - 9)
   assert.equal(players[0].guard, 0)
 
   const tigerFocusBuilder = resolveAction(players, 0, ANIMALS[0].moves[0], () => 0)
