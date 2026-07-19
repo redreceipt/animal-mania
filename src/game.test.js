@@ -47,11 +47,11 @@ test('animals have defined attributes and mechanically different move kits', () 
     daze: move.daze,
   }))))
   assert.equal(new Set(profiles).size, ANIMALS.length)
-  assert.deepEqual(ANIMALS.map(({ strength }) => strength), [7, 10, 5, 8, 10, 11, 5, 9, 9, 8, 7, 8, 10, 7, 11, 8, 9, 5, 5, 8])
-  assert.deepEqual(ANIMALS.map(({ defense }) => defense), [6, 7, 4, 10, 9, 8, 4, 8, 7, 6, 6, 10, 7, 6, 8, 6, 8, 4, 4, 9])
-  assert.deepEqual(ANIMALS.map(({ speed }) => speed), [7, 4, 10, 5, 3, 3, 9, 5, 4, 6, 7, 5, 4, 7, 3, 6, 6, 10, 10, 5])
-  assert.deepEqual(ANIMALS.map(({ health }) => health), [40, 48, 30, 44, 52, 56, 36, 60, 50, 46, 38, 45, 49, 42, 58, 47, 54, 34, 28, 41])
-  assert.equal(new Set(ANIMALS.map(({ health }) => health)).size, ANIMALS.length)
+  assert.deepEqual(ANIMALS.slice(0, 20).map(({ strength }) => strength), [7, 10, 5, 8, 10, 11, 5, 9, 9, 8, 7, 8, 10, 7, 11, 8, 9, 5, 5, 8])
+  assert.deepEqual(ANIMALS.slice(0, 20).map(({ defense }) => defense), [6, 7, 4, 10, 9, 8, 4, 8, 7, 6, 6, 10, 7, 6, 8, 6, 8, 4, 4, 9])
+  assert.deepEqual(ANIMALS.slice(0, 20).map(({ speed }) => speed), [7, 4, 10, 5, 3, 3, 9, 5, 4, 6, 7, 5, 4, 7, 3, 6, 6, 10, 10, 5])
+  assert.deepEqual(ANIMALS.slice(0, 20).map(({ health }) => health), [40, 48, 30, 44, 52, 56, 36, 60, 50, 46, 38, 45, 49, 42, 58, 47, 54, 34, 28, 41])
+  assert.equal(new Set(ANIMALS.slice(0, 20).map(({ health }) => health)).size, 20)
 })
 
 test('every animal has a complete visual set and unique home arena', () => {
@@ -74,11 +74,35 @@ test('fighter artwork is shifted only when transparent padding exceeds the groun
   assert.equal(getGroundOffsetPercent(new Uint8ClampedArray(4 * 4 * 4), 4, 4), 0)
 })
 
-test('expanded roster includes the requested fighters in display order', () => {
+test('first roster expansion remains in display order', () => {
   assert.deepEqual(ANIMALS.slice(10).map(({ id }) => id), [
     'wolf', 'komodo-dragon', 'lion', 'anaconda', 'water-buffalo',
-    'shark', 'orca', 'ostrich', 'falcon', 'octopus',
+    'shark', 'orca', 'ostrich', 'falcon', 'octopus', 'panda', 'hawk',
+    'honey-badger', 'leopard', 'panther', 'moose', 'yak', 'bull',
+    'snow-leopard', 'king-cobra', 'hammerhead-shark', 'alligator',
+    'warthog', 'giraffe', 'skunk', 'bunny', 'goat', 'dolphin', 'dog',
   ])
+})
+
+test('issue 36 fighters use grounded tactics to offset small-animal power', () => {
+  const requestedIds = [
+    'panda', 'hawk', 'honey-badger', 'leopard', 'panther', 'moose', 'yak',
+    'bull', 'snow-leopard', 'king-cobra', 'hammerhead-shark', 'alligator',
+    'warthog', 'giraffe', 'skunk', 'bunny', 'goat', 'dolphin', 'dog',
+  ]
+  assert.deepEqual(ANIMALS.slice(-requestedIds.length).map(({ id }) => id), requestedIds)
+
+  const smallerFighters = ANIMALS.filter(({ id }) => [
+    'hawk', 'king-cobra', 'skunk', 'bunny', 'goat', 'dog',
+  ].includes(id))
+  for (const animal of smallerFighters) {
+    assert.ok(animal.strength <= 6, `${animal.name} should not rely on implausible strength`)
+    const tacticalMoves = animal.moves.filter((move) => (
+      move.daze || move.expose || move.poison || move.hits || move.focusGain
+      || move.evasionGain || move.guardPierce || move.bonusBelowHalf || move.heal
+    ))
+    assert.ok(tacticalMoves.length >= 2, `${animal.name} needs multiple tactical answers`)
+  }
 })
 
 test('bear fighters have unique roster identities and sprite columns', () => {

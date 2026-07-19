@@ -40,8 +40,8 @@ land on different instances.
 
 ## Battle rules
 
-- Twenty data-driven, evenly matched animals using a shared 30-point balance budget
-- Animal HP ranges from 28 to 60 based on size and toughness
+- Thirty-nine data-driven, evenly matched animals using a shared 30-point balance budget
+- Animal HP ranges from 24 to 60 based on size and toughness
 - Small targets take lighter hits while large targets take heavier hits, keeping the wide HP range balanced without erasing its durability advantage
 - Strength modifies attack damage
 - Defense persistently changes incoming damage by 1% per point from the neutral rating of 6; it applies separately from guard, so guard-piercing moves do not bypass Defense
@@ -74,10 +74,29 @@ land on different instances.
 - **Ostrich — 34 HP / STR 5 / DEF 4 / SPD 10:** fleet kicker with multi-hit attacks, evasion, and extra initiative
 - **Falcon — 28 HP / STR 5 / DEF 4 / SPD 10:** aerial daredevil with accuracy disruption, multi-hit attacks, and extra initiative
 - **Octopus — 41 HP / STR 8 / DEF 9 / SPD 5:** elusive grappler with strong defense, recovery, and anti-guard pressure
+- **Panda — 48 HP / STR 8 / DEF 8 / SPD 5:** bamboo counterpuncher with focus, recovery, and anti-guard pressure
+- **Hawk — 29 HP / STR 5 / DEF 4 / SPD 10:** precision harrier with exposure, multi-hit pressure, evasion, and guard piercing
+- **Honey Badger — 35 HP / STR 7 / DEF 9 / SPD 7:** fearless scrapper with wounded-target pressure, guard piercing, and recovery
+- **Leopard — 39 HP / STR 5 / DEF 4 / SPD 9:** explosive ambusher with evasion, wounded-target pressure, and guard piercing
+- **Panther — 40 HP / STR 6 / DEF 6 / SPD 8:** shadow tactician with exposure, evasion, and anti-guard pressure
+- **Moose — 55 HP / STR 10 / DEF 8 / SPD 4:** antlered juggernaut with punishing charges and a towering guard
+- **Yak — 53 HP / STR 9 / DEF 9 / SPD 3:** highland survivor with strong guard, recovery, and heavy shoves
+- **Bull — 52 HP / STR 10 / DEF 8 / SPD 4:** headlong bruiser with focus, guard piercing, and wounded-target finishing power
+- **Snow Leopard — 37 HP / STR 5 / DEF 5 / SPD 9:** alpine ambusher with multi-hit kicks, focus, and evasion
+- **King Cobra — 31 HP / STR 5 / DEF 4 / SPD 9:** venomous zoner with daze, lingering venom, and evasion
+- **Hammerhead Shark — 46 HP / STR 7 / DEF 7 / SPD 7:** wide-sense hunter with exposure and anti-guard attacks
+- **Alligator — 45 HP / STR 8 / DEF 10 / SPD 5:** swamp counterfighter with anti-guard pressure and strong recovery
+- **Warthog — 43 HP / STR 8 / DEF 7 / SPD 5:** scrappy charger with guard piercing, recovery, and wounded-target pressure
+- **Giraffe — 51 HP / STR 7 / DEF 5 / SPD 8:** long-range kicker with focus, multi-hit attacks, and evasive footwork
+- **Skunk — 27 HP / STR 4 / DEF 4 / SPD 7:** scent-screen trickster with daze, exposure, and evasive defense
+- **Bunny — 24 HP / STR 4 / DEF 3 / SPD 9:** alert evasive kicker with repeated hind-leg attacks and cover
+- **Goat — 33 HP / STR 6 / DEF 6 / SPD 8:** sure-footed duelist with focus, guard piercing, and evasive attacks
+- **Dolphin — 44 HP / STR 6 / DEF 6 / SPD 9:** echolocating tactician with exposure, multi-hit attacks, and evasive movement
+- **Dog — 34 HP / STR 6 / DEF 5 / SPD 8:** tenacious team fighter with daze, wounded-target pressure, and recovery
 
 The kits are intentionally asymmetric. Seeded matchup simulations keep overall random-strategy win rates close while allowing meaningful strengths and counters.
 See the [roster balance guide](docs/roster-balance.md) for the six-axis budget,
-archetypes, automated hard-counter audit, and a grounded rabbit blueprint.
+archetypes, automated hard-counter audit, and a grounded small-animal blueprint.
 
 ## Quality checks
 
