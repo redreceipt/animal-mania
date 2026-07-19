@@ -307,7 +307,7 @@ function nextActor(players, acting) {
   const other = 1 - acting
   if (players[acting].initiative < players[other].initiative) return acting
   if (players[acting].initiative > players[other].initiative) return other
-  return players[acting].animal.speed >= players[other].animal.speed ? acting : other
+  return players[acting].animal.speed > players[other].animal.speed ? acting : other
 }
 
 const clampAccuracy = (value) => Math.max(0.25, Math.min(0.99, value))

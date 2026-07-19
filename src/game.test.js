@@ -136,6 +136,25 @@ test('strength changes displayed and resolved damage ranges', () => {
   assert.deepEqual(gorillaRange, { min: 7, max: 9, hits: 1 })
 })
 
+test('equal-speed animals alternate without bonus turns', () => {
+  const animals = [
+    ANIMALS.find(({ id }) => id === 'elephant'),
+    ANIMALS.find(({ id }) => id === 'komodo-dragon'),
+  ]
+  let players = animals.map(createFighter)
+  let active = getOpeningActor(animals, () => 0)
+  const turns = []
+
+  for (let turn = 0; turn < 8; turn += 1) {
+    turns.push(active)
+    const result = resolveAction(players, active, players[active].animal.moves[0], () => 0.999)
+    players = result.players
+    active = result.nextActive
+  }
+
+  assert.deepEqual(turns, [0, 1, 0, 1, 0, 1, 0, 1])
+})
+
 test('speed controls initiative and can earn the faster animal another move', () => {
   let players = [createFighter(ANIMALS[2]), createFighter(ANIMALS[1])]
   let active = getOpeningActor([ANIMALS[2], ANIMALS[1]], () => 0)
