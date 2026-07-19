@@ -15,6 +15,6 @@ function redactRoomCode(event) {
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <App />
-    <Analytics beforeSend={redactRoomCode} />
+    {import.meta.env.VERCEL && <Analytics beforeSend={redactRoomCode} />}
   </StrictMode>,
 )
