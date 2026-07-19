@@ -49,9 +49,11 @@ button:focus-visible { outline: 4px solid white; outline-offset: 3px; }
 .animal-attributes b { color: var(--gold); }
 .animal-card .animal-attributes { width: 100%; min-width: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 3px clamp(3px, .5vw, 8px); margin-bottom: 7px; }
 .animal-card .animal-attributes > span { min-width: 0; display: inline-flex; justify-content: center; align-items: baseline; gap: 1px; white-space: nowrap; }
-.pixel-animal { display: block; object-fit: contain; image-rendering: pixelated; user-select: none; }
-.pixel-animal.portrait { width: 100%; height: clamp(120px, 19vh, 185px); }
-.pixel-animal.fighter { width: 92%; height: auto; aspect-ratio: 1; align-self: end; }
+.pixel-animal-frame { display: grid; place-items: center; overflow: hidden; background: repeating-linear-gradient(135deg, color-mix(in srgb, var(--animal-color) 24%, #07131d) 0 8px, #07131d 8px 16px); }
+.pixel-animal-frame.portrait { width: 100%; height: clamp(120px, 19vh, 185px); }
+.pixel-animal-frame.fighter { width: 92%; height: auto; aspect-ratio: 1; align-self: end; background: transparent; }
+.pixel-animal { display: block; width: 100%; height: 100%; object-fit: contain; image-rendering: pixelated; opacity: 0; user-select: none; transition: opacity 120ms steps(2); }
+.pixel-animal.loaded { opacity: 1; }
 .pixel-animal.flip { transform: scaleX(-1); }
 .versus-mark { position: absolute; left: 50%; top: 51%; transform: translate(-50%, -50%) rotate(-5deg); color: var(--gold); font-size: clamp(30px, 5vw, 62px); text-shadow: 4px 4px 0 var(--red); z-index: 2; }
 .select-footer { text-align: center; padding-top: 20px; }
@@ -97,7 +99,8 @@ button:disabled { filter: grayscale(1); opacity: .4; cursor: not-allowed; }
 .arena-plaque span { color: #91aaa8; font-size: 5px; }
 .arena-plaque strong { color: var(--gold); font-size: 7px; line-height: 1.3; }
 .fighter-slot { height: 100%; min-width: 0; display: flex; align-items: end; justify-content: center; z-index: 1; }
-.fighter-slot .pixel-animal.fighter { width: min(320px, 78%); aspect-ratio: 1; filter: drop-shadow(8px 9px 0 rgb(1 12 13 / .5)); transition: transform 200ms steps(3); }
+.fighter-slot .pixel-animal-frame.fighter { width: min(320px, 78%); aspect-ratio: 1; }
+.fighter-slot .pixel-animal { filter: drop-shadow(8px 9px 0 rgb(1 12 13 / .5)); transition: opacity 120ms steps(2), transform 200ms steps(3); }
 .fighter-slot.right .pixel-animal { transform: scaleX(-1); }
 .resolving .fighter-slot.left .pixel-animal { transform: translateX(12px); }
 .resolving .fighter-slot.right .pixel-animal { transform: scaleX(-1) translateX(12px); }
@@ -136,7 +139,7 @@ button:disabled { filter: grayscale(1); opacity: .4; cursor: not-allowed; }
   .select-screen .player-heading { margin-bottom: clamp(7px, 1.5dvh, 16px); }
   .select-screen .roster { min-height: 0; grid-template-rows: repeat(4, minmax(0, 1fr)); gap: clamp(6px, 1.2dvh, 12px); }
   .select-screen .animal-card { min-height: 0; display: grid; grid-template-rows: minmax(0, 1fr) auto auto auto; align-items: center; overflow: hidden; padding: clamp(5px, 1.1dvh, 10px) clamp(2px, .35vw, 5px); }
-  .select-screen .pixel-animal.portrait { width: 100%; max-width: 100%; height: auto; max-height: 100%; min-height: 0; aspect-ratio: 1; place-self: center; background-size: 1000% 200%; }
+  .select-screen .pixel-animal-frame.portrait { width: 100%; max-width: 100%; height: auto; max-height: 100%; min-height: 0; aspect-ratio: 1; place-self: center; }
   .select-screen .animal-card strong { margin: clamp(4px, 1dvh, 9px) 0 clamp(3px, .8dvh, 7px); }
   .select-screen .animal-card .animal-attributes { margin-bottom: clamp(3px, .8dvh, 7px); }
   .select-screen .select-footer { padding-top: clamp(7px, 1.5dvh, 20px); }
@@ -189,7 +192,7 @@ button:disabled { filter: grayscale(1); opacity: .4; cursor: not-allowed; }
   .animal-card { padding: 5px; }
   .animal-card strong { font-size: 6px; }
   .animal-card .animal-attributes { gap: 5px; margin-bottom: 0; font-size: 5px; }
-  .pixel-animal.portrait { height: auto; aspect-ratio: 1; background-size: 1000% 200%; }
+  .pixel-animal-frame.portrait { height: auto; aspect-ratio: 1; }
   .animal-card small { display: none; }
   .battle-screen { padding: 9px; gap: 7px; grid-template-rows: auto auto 220px auto auto auto; }
   .battle-header .logo { font-size: 21px; letter-spacing: -2px; }
@@ -206,7 +209,7 @@ button:disabled { filter: grayscale(1); opacity: .4; cursor: not-allowed; }
   .faceoff-arena { grid-template-columns: 1fr 35px 1fr; }
   .arena-plaque { top: 5px; min-width: 150px; padding: 5px 8px; }
   .arena-plaque strong { font-size: 6px; }
-  .fighter-slot .pixel-animal.fighter { width: 100%; }
+  .fighter-slot .pixel-animal-frame.fighter { width: 100%; }
   .versus-spark { font-size: 13px; }
   .battle-message { min-height: 48px; padding: 8px; font-size: 6px; }
   .battle-message::before { margin-right: 5px; }
