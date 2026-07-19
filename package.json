@@ -14,6 +14,7 @@
   },
   "dependencies": {
     "@fontsource/press-start-2p": "^5.2.6",
+    "@vercel/analytics": "^2.0.1",
     "@vitejs/plugin-react": "^4.4.1",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
