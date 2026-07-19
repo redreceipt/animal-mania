@@ -182,6 +182,8 @@ export function useOnlineRoom(initialCode = '') {
     leaveRoom,
     selectAnimal: useCallback((animalId) => send({ type: 'select', animalId }), [send]),
     playMove: useCallback((moveIndex, revision) => send({ type: 'act', moveIndex, revision }), [send]),
-    requestRematch: useCallback(() => send({ type: 'rematch' }), [send]),
+    requestRematch: useCallback(() => send({ type: 'rematch-request' }), [send]),
+    acceptRematch: useCallback(() => send({ type: 'rematch-accept' }), [send]),
+    declineRematch: useCallback(() => send({ type: 'rematch-decline' }), [send]),
   }
 }

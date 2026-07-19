@@ -493,6 +493,44 @@ function hydrateOnlineFighter(fighter) {
   return { ...fighter, animal: ANIMALS.find((animal) => animal.id === fighter.animalId) }
 }
 
+function RematchControls({ online, rematch, playerIndex, connected }) {
+  const pending = rematch?.status === 'pending'
+  const requestedByYou = pending && rematch.requester === playerIndex
+  const requestedByRival = pending && rematch.requester !== playerIndex
+  const declined = rematch?.status === 'declined'
+  const declinedYourRequest = declined && rematch.requester === playerIndex
+
+  if (requestedByRival) {
+    return (
+      <div className="rematch-panel incoming-rematch">
+        <p className="rematch-status" role="status" aria-live="polite">Your rival requested a rematch.</p>
+        <div className="victory-actions">
+          <button className="primary-btn" onClick={online.acceptRematch} disabled={!connected}>Accept rematch</button>
+          <button className="secondary-btn" onClick={online.declineRematch} disabled={!connected}>Decline</button>
+        </div>
+      </div>
+    )
+  }
+
+  const status = requestedByYou
+    ? 'Rematch requested. Waiting for your rival to accept or decline.'
+    : declinedYourRequest
+      ? 'Your rival declined the rematch.'
+      : declined
+        ? 'Rematch declined. You can send a new request.'
+        : 'Ready for another round?'
+
+  return (
+    <div className="rematch-panel">
+      <p className="rematch-status" role="status" aria-live="polite">{status}</p>
+      <div className="victory-actions">
+        <button className="primary-btn" onClick={online.requestRematch} disabled={requestedByYou || !connected}>{requestedByYou ? 'Waiting for rival…' : declinedYourRequest ? 'Request again' : 'Request rematch'}</button>
+        <button className="secondary-btn" onClick={online.leaveRoom}>Leave room</button>
+      </div>
+    </div>
+  )
+}
+
 function OnlineBattleScreen({ online }) {
   const { room, session } = online
   const { battle } = room
@@ -506,7 +544,6 @@ function OnlineBattleScreen({ online }) {
   const canAct = yourTurn && rivalConnected && roomConnected
   const victor = battle.winner === null ? null : players[battle.winner]
   const youWon = battle.winner === you
-  const rematchRequested = room.players[you].wantsRematch
   const turnLabel = victor
     ? (youWon ? 'You win!' : 'Rival wins!')
     : battle.bonusTurn
@@ -555,10 +592,7 @@ function OnlineBattleScreen({ online }) {
         <div className="move-panel">
           <h2>{victor ? `${victor.animal.name} rules the wild!` : `${yourTurn ? 'Your' : 'Waiting · your'} move set`}</h2>
           {victor ? (
-            <div className="victory-actions">
-              <button className="primary-btn" onClick={online.requestRematch} disabled={rematchRequested || !roomConnected}>{rematchRequested ? 'Waiting for rival…' : 'Request rematch'}</button>
-              <button className="secondary-btn" onClick={online.leaveRoom}>Leave room</button>
-            </div>
+            <RematchControls online={online} rematch={room.rematch} playerIndex={you} connected={roomConnected} />
           ) : (
             <div className="move-grid">
               {yourPlayer.animal.moves.map((move, index) => (

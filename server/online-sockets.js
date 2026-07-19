@@ -57,7 +57,13 @@ export function attachOnlineSockets(webSockets) {
         let room
         if (message.type === 'select') room = rooms.selectAnimal(session.code, session.token, message.animalId)
         else if (message.type === 'act') room = rooms.playMove(session.code, session.token, message.moveIndex, message.revision)
-        else if (message.type === 'rematch') room = rooms.requestRematch(session.code, session.token)
+        else if (message.type === 'rematch' || message.type === 'rematch-request') {
+          room = rooms.requestRematch(session.code, session.token)
+        } else if (message.type === 'rematch-accept') {
+          room = rooms.acceptRematch(session.code, session.token)
+        } else if (message.type === 'rematch-decline') {
+          room = rooms.declineRematch(session.code, session.token)
+        }
         else throw new RoomError('BAD_REQUEST', 'Unknown room action.')
         broadcast(session.code, room)
       } catch (error) {

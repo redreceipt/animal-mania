@@ -83,7 +83,7 @@ test('disconnects pause play and reconnect tokens restore the same player seat',
   assert.equal(room.battle.revision, 1)
 })
 
-test('both players can rematch in the same room with fresh authoritative state', () => {
+test('a rematch starts only after the receiving player explicitly accepts', () => {
   const store = makeStore()
   const { host, guest } = startMatch(store)
   const tokens = [host.token, guest.token]
@@ -95,13 +95,23 @@ test('both players can rematch in the same room with fresh authoritative state',
   assert.equal(room.phase, 'finished')
 
   room = store.requestRematch(host.code, host.token)
-  assert.equal(room.players[0].wantsRematch, true)
+  assert.deepEqual(room.rematch, { requester: 0, status: 'pending' })
   assert.equal(room.phase, 'finished')
-  room = store.requestRematch(host.code, guest.token)
+  expectRoomError('REMATCH_REQUESTER', () => store.acceptRematch(host.code, host.token))
+  expectRoomError('REMATCH_REQUESTER', () => store.declineRematch(host.code, host.token))
+  expectRoomError('REMATCH_ALREADY_PENDING', () => store.requestRematch(host.code, guest.token))
+
+  room = store.declineRematch(host.code, guest.token)
+  assert.deepEqual(room.rematch, { requester: 0, status: 'declined' })
+  assert.equal(room.phase, 'finished')
+
+  room = store.requestRematch(host.code, host.token)
+  assert.deepEqual(room.rematch, { requester: 0, status: 'pending' })
+  room = store.acceptRematch(host.code, guest.token)
   assert.equal(room.phase, 'battle')
   assert.equal(room.round, 2)
   assert.deepEqual(room.battle.players.map(({ health }) => health), [40, 48])
-  assert.ok(room.players.every(({ wantsRematch }) => !wantsRematch))
+  assert.equal(room.rematch, null)
 })
 
 test('inactive private rooms expire and can no longer be joined', () => {
