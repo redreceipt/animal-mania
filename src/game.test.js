@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import {
-  ANIMALS, chooseCpuMove, createFighter, getDamageRange, getLegalMoves,
+  ANIMALS, chooseCpuMove, createFighter, defenseMultiplier, getDamageRange, getLegalMoves,
   getOpeningActor, resolveAction,
 } from './game.js'
 
@@ -24,6 +24,7 @@ test('animals have distinct attributes and mechanically different move kits', ()
   }))))
   assert.equal(new Set(profiles).size, ANIMALS.length)
   assert.deepEqual(ANIMALS.map(({ strength }) => strength), [7, 10, 5, 8, 10, 11, 5, 9, 9, 8])
+  assert.deepEqual(ANIMALS.map(({ defense }) => defense), [6, 7, 4, 10, 9, 8, 4, 8, 7, 6])
   assert.deepEqual(ANIMALS.map(({ speed }) => speed), [7, 4, 10, 5, 3, 3, 9, 5, 4, 6])
   assert.deepEqual(ANIMALS.map(({ health }) => health), [40, 48, 30, 44, 52, 56, 36, 60, 50, 46])
   assert.equal(new Set(ANIMALS.map(({ health }) => health)).size, ANIMALS.length)
@@ -55,10 +56,29 @@ test('size scaling keeps the wide health range from deciding damage races', () =
   const elephant = createFighter(ANIMALS[7])
   const move = ANIMALS[0].moves[0]
 
-  const eagleHit = resolveAction([tiger, eagle], 0, move, () => 0)
-  const elephantHit = resolveAction([tiger, elephant], 0, move, () => 0)
+  const eagleHit = resolveAction([tiger, { ...eagle, animal: { ...eagle.animal, defense: 6 } }], 0, move, () => 0)
+  const elephantHit = resolveAction([tiger, { ...elephant, animal: { ...elephant.animal, defense: 6 } }], 0, move, () => 0)
   assert.equal(eagle.health - eagleHit.players[1].health, 3)
   assert.equal(elephant.health - elephantHit.players[1].health, 6)
+})
+
+test('defense persistently scales damage separately from temporary guard', () => {
+  assert.equal(defenseMultiplier(3), 1.03)
+  assert.equal(defenseMultiplier(6), 1)
+  assert.equal(defenseMultiplier(10), 0.96)
+
+  const tiger = createFighter(ANIMALS[0])
+  const fragileTarget = { ...createFighter(ANIMALS[0]), animal: { ...ANIMALS[0], defense: 3 } }
+  const armoredTarget = { ...createFighter(ANIMALS[0]), animal: { ...ANIMALS[0], defense: 10 } }
+  const move = ANIMALS[0].moves[2]
+  const fragileHit = resolveAction([tiger, fragileTarget], 0, move, () => 0)
+  const armoredHit = resolveAction([tiger, armoredTarget], 0, move, () => 0)
+  assert.equal(fragileTarget.health - fragileHit.players[1].health, 15)
+  assert.equal(armoredTarget.health - armoredHit.players[1].health, 14)
+
+  const guardedTarget = { ...armoredTarget, guard: 0.45 }
+  const piercedHit = resolveAction([createFighter(ANIMALS[1]), guardedTarget], 0, ANIMALS[1].moves[1], () => 0)
+  assert.equal(guardedTarget.health - piercedHit.players[1].health, 9)
 })
 
 test('strength changes displayed and resolved damage ranges', () => {
@@ -142,20 +162,49 @@ test('CPU choices respond to battle state and retain tactical variety', () => {
   assert.ok(variedChoices.size >= 2, `expected varied choices, got ${[...variedChoices].join(', ')}`)
 })
 
-function simulateMatch(animalA, animalB, random) {
+function simulateMatch(animalA, animalB, random, chooseMove = (players, active) => {
+  const legalMoves = getLegalMoves(players[active])
+  return legalMoves[Math.floor(random() * legalMoves.length)]
+}) {
   let players = [createFighter(animalA), createFighter(animalB)]
   let active = getOpeningActor([animalA, animalB], random)
 
   for (let turn = 0; turn < 300; turn += 1) {
-    const legalMoves = players[active].animal.moves.filter((move) => move.type !== 'defend' || players[active].defenseReady)
-    const move = legalMoves[Math.floor(random() * legalMoves.length)]
+    const move = chooseMove(players, active, random)
     const result = resolveAction(players, active, move, random)
     players = result.players
-    if (result.winner !== null) return result.winner
+    if (result.winner !== null) return { winner: result.winner, turns: turn + 1 }
     active = result.nextActive
   }
   throw new Error('match stalled')
 }
+
+test('all ordered matchups finish under common move strategies', () => {
+  let state = 975318642
+  const random = () => ((state = (1664525 * state + 1013904223) >>> 0) / 4294967296)
+  const strategies = [
+    ['reliable attacks', (players, active) => getLegalMoves(players[active]).find((move) => move.type === 'attack')],
+    ['power attacks', (players, active) => getLegalMoves(players[active]).findLast((move) => move.type === 'attack')],
+    ['tactical CPU', (players, active, roll) => chooseCpuMove(players, active, roll)],
+  ]
+
+  for (const [name, chooseMove] of strategies) {
+    let totalTurns = 0
+    let matches = 0
+    for (const animalA of ANIMALS) {
+      for (const animalB of ANIMALS) {
+        if (animalA === animalB) continue
+        for (let game = 0; game < 30; game += 1) {
+          const result = simulateMatch(animalA, animalB, random, chooseMove)
+          totalTurns += result.turns
+          matches += 1
+        }
+      }
+    }
+    const averageTurns = totalTurns / matches
+    assert.ok(averageTurns > 7 && averageTurns < 20, `${name} averaged ${averageTurns} turns`)
+  }
+})
 
 test('seeded matchup simulation has no dominant animal or hard-counter matchup', () => {
   let state = 123456789
@@ -163,18 +212,23 @@ test('seeded matchup simulation has no dominant animal or hard-counter matchup',
   const wins = Object.fromEntries(ANIMALS.map((animal) => [animal.id, 0]))
   const games = Object.fromEntries(ANIMALS.map((animal) => [animal.id, 0]))
   const pairResults = new Map()
+  let totalTurns = 0
+  let totalGames = 0
 
   for (const animalA of ANIMALS) {
     for (const animalB of ANIMALS) {
       if (animalA === animalB) continue
       let playerOneWins = 0
       for (let game = 0; game < 600; game += 1) {
-        const winner = simulateMatch(animalA, animalB, random)
+        const result = simulateMatch(animalA, animalB, random)
+        const { winner } = result
         const winningAnimal = winner === 0 ? animalA : animalB
         wins[winningAnimal.id] += 1
         games[animalA.id] += 1
         games[animalB.id] += 1
         if (winner === 0) playerOneWins += 1
+        totalTurns += result.turns
+        totalGames += 1
       }
       pairResults.set(`${animalA.id}:${animalB.id}`, playerOneWins / 600)
     }
@@ -195,6 +249,9 @@ test('seeded matchup simulation has no dominant animal or hard-counter matchup',
       assert.ok(animalAWinRate > 0.41 && animalAWinRate < 0.59, `${animalA.name} vs ${animalB.name} was ${animalAWinRate}`)
     }
   }
+
+  const averageTurns = totalTurns / totalGames
+  assert.ok(averageTurns > 12 && averageTurns < 14, `random-strategy matches averaged ${averageTurns} turns`)
 })
 
 test('CPU turn progression can complete full matches with every animal', () => {
