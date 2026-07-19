@@ -50,20 +50,22 @@ fighter can drift from its declared archetype. The UI continues to show numerica
 Strength, Defense, and Speed alongside a descriptive role; accuracy and utility remain
 legible on move cards instead of adding six more selection-screen numbers.
 
-## Grounded rabbit blueprint
+## Grounded small-animal blueprint
 
-A rabbit belongs in the skirmisher archetype. It does not need implausible strength or
+A bunny belongs in the skirmisher archetype. It does not need implausible strength or
 magic: alertness wins initiative, lateral movement creates misses, repeated hind-leg
-kicks create low-damage pressure, and cover buys a setup turn.
+kicks create low-damage pressure, and cover buys a setup turn. The live fighter below
+keeps a low Strength rating while its accurate move ranges offset that penalty; size
+scaling, speed, evasion, and multi-hit pressure do the rest.
 
 ```js
-const rabbit = {
-  id: 'rabbit',
-  name: 'Rabbit',
+const bunny = {
+  id: 'bunny',
+  name: 'Bunny',
   detail: 'Alert evasive skirmisher',
   archetype: 'skirmisher',
-  health: 26,
-  strength: 3,
+  health: 24,
+  strength: 4,
   defense: 3,
   speed: 10,
   home: 'Bramble Meadow',
@@ -75,21 +77,21 @@ const rabbit = {
     initiative: -2,
   }),
   moves: [
-    { type: 'attack', name: 'Feinting Hop', minDamage: 3, maxDamage: 5,
-      accuracy: 0.99, evasionGain: 0.18, description: 'Sidestep and probe.' },
-    { type: 'attack', name: 'Double Kick', minDamage: 3, maxDamage: 4,
+    { type: 'attack', name: 'Feinting Hop', minDamage: 6, maxDamage: 8,
+      accuracy: 0.99, evasionGain: 0.16, description: 'Sidestep and probe.' },
+    { type: 'attack', name: 'Double Kick', minDamage: 4, maxDamage: 5,
       accuracy: 0.86, hits: 2, description: 'Two grounded hind-leg kicks.' },
-    { type: 'attack', name: 'Breakaway Kick', minDamage: 8, maxDamage: 11,
-      accuracy: 0.7, evasionGain: 0.2, description: 'Kick, then open distance.' },
+    { type: 'attack', name: 'Breakaway Kick', minDamage: 10, maxDamage: 14,
+      accuracy: 0.7, evasionGain: 0.18, description: 'Kick, then open distance.' },
     { type: 'defend', name: 'Bramble Cover', guard: 0.25, focus: 0.25,
-      evasionGain: 0.2, description: 'Use cover and watch for an opening.' },
+      evasionGain: 0.18, description: 'Use cover and watch for an opening.' },
   ],
 }
 ```
 
-This object already matches the battle engine's data contract. Before promotion to
-the live `ANIMALS` list it still needs a unique column, three visual assets, roster
-validation, seeded simulation tuning, and human playtesting.
+This object is the live Bunny profile. Its move ranges are the pre-Strength values;
+the selection screen still communicates the low Strength rating, while the battle UI
+makes the accurate, repeated, and evasive techniques explicit.
 
 ## Adding a fighter
 

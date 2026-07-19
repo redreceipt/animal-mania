@@ -101,7 +101,7 @@ export const ANIMALS = [
     id: 'polar-bear', name: 'Polar Bear', color: '#dbe8ef', detail: 'Cold opportunist', archetype: 'all-rounder', col: 9, health: 46, strength: 8, defense: 6, speed: 6, home: 'Aurora Ice Shelf',
     budget: { strength: 6, speed: 5, defense: 5, accuracy: 6, utility: 5, initiative: 3 },
     moves: [
-      attack('Frost Feint', 4, 6, 0.97, 'Reliable. Gain 10% evasion.', { evasionGain: 0.1 }),
+      attack('Frost Feint', 3, 5, 0.97, 'Reliable. Gain 10% evasion.', { evasionGain: 0.1 }),
       attack('Ice Claws', 7, 10, 0.84, 'Deals +2 to wounded foes.', { bonusBelowHalf: 2 }),
       attack('Glacier Crash', 12, 15, 0.64, 'Powerful hit that pierces 30% of guard.', { guardPierce: 0.3 }),
       defend('Snowdrift Guard', 0.55, 0.14, 'Guard, focus, and recover 1 HP.', { heal: 1 }),
@@ -205,6 +205,196 @@ export const ANIMALS = [
       attack('Sucker Grip', 8, 11, 0.78, 'Deals +3 through any guard.', { bonusVsGuard: 3 }),
       attack('Beak Bite', 11, 15, 0.62, 'Recover 3 HP on a hit.', { heal: 3 }),
       defend('Ink Screen', 0.6, 0.08, 'Guard and recover 2 HP.', { heal: 2 }),
+    ],
+  },
+  {
+    id: 'panda', name: 'Panda', color: '#d9d5c9', detail: 'Bamboo counterpuncher', archetype: 'survivor', col: 20, health: 48, strength: 8, defense: 8, speed: 5, home: 'Cloudbamboo Grove',
+    budget: { strength: 6, speed: 3, defense: 7, accuracy: 5, utility: 6, initiative: 3 },
+    moves: [
+      attack('Bamboo Jab', 4, 7, 0.95, 'Reliable. Builds +9% focus.', { focusGain: 0.09 }),
+      attack('Rolling Swipe', 7, 10, 0.8, 'Deals +2 through any guard.', { bonusVsGuard: 2 }),
+      attack('Shoulder Tumble', 11, 15, 0.63, 'Recover 3 HP on a hit.', { heal: 3 }),
+      defend('Bamboo Brace', 0.58, 0.09, 'Strong guard and recover 2 HP.', { heal: 2 }),
+    ],
+  },
+  {
+    id: 'hawk', name: 'Hawk', color: '#a66b35', detail: 'Precision harrier', archetype: 'skirmisher', col: 21, health: 29, strength: 5, defense: 4, speed: 10, home: 'Copperwind Mesa',
+    budget: { strength: 2, speed: 8, defense: 2, accuracy: 8, utility: 6, initiative: 4 },
+    moves: [
+      attack('Raking Pass', 4, 6, 0.99, 'Expose the foe: the next hit deals +1 damage.', { expose: 1 }),
+      attack('Talon Barrage', 4, 5, 0.87, 'Two precise chances that pierce 12% of guard.', { hits: 2, guardPierce: 0.12 }),
+      attack('Redtail Dive', 10, 14, 0.69, 'Strong. Gain 19% evasion.', { evasionGain: 0.19 }),
+      defend('Ride the Updraft', 0.28, 0.3, 'Use altitude for focus and evasion.', { evasionGain: 0.17 }),
+    ],
+  },
+  {
+    id: 'honey-badger', name: 'Honey Badger', color: '#9e947d', detail: 'Fearless scrapper', archetype: 'survivor', col: 22, health: 35, strength: 7, defense: 9, speed: 7, home: 'Termitebrush Hollow',
+    budget: { strength: 6, speed: 4, defense: 7, accuracy: 4, utility: 6, initiative: 3 },
+    moves: [
+      attack('Burrow Jab', 4, 6, 0.96, 'Reliable pressure attack.'),
+      attack('Fearless Rush', 8, 11, 0.8, 'Deals +3 to wounded foes.', { bonusBelowHalf: 3 }),
+      attack('Clamp and Twist', 12, 16, 0.62, 'Pierces 32% of guard.', { guardPierce: 0.32 }),
+      defend('Loose-Hide Roll', 0.57, 0.09, 'Guard, slip away, and recover 1 HP.', { evasionGain: 0.08, heal: 1 }),
+    ],
+  },
+  {
+    id: 'leopard', name: 'Leopard', color: '#d49a3a', detail: 'Explosive ambusher', archetype: 'skirmisher', col: 23, health: 39, strength: 5, defense: 4, speed: 9, home: 'Dappled Kopje',
+    budget: { strength: 4, speed: 8, defense: 3, accuracy: 6, utility: 5, initiative: 4 },
+    moves: [
+      attack('Spot-Step Feint', 5, 7, 0.97, 'Reliable. Gain 9% evasion.', { evasionGain: 0.09 }),
+      attack('Branch Ambush', 7, 10, 0.81, 'Deals +3 to wounded foes.', { bonusBelowHalf: 3 }),
+      attack('Rosette Rush', 11, 15, 0.58, 'Pierces 34% of guard.', { guardPierce: 0.34 }),
+      defend('Canopy Stalk', 0.4, 0.2, 'Guard, focus, and vanish into cover.', { evasionGain: 0.1 }),
+    ],
+  },
+  {
+    id: 'panther', name: 'Panther', color: '#393846', detail: 'Shadow tactician', archetype: 'tactician', col: 24, health: 40, strength: 6, defense: 6, speed: 8, home: 'Moonshade Jungle',
+    budget: { strength: 5, speed: 6, defense: 4, accuracy: 5, utility: 7, initiative: 3 },
+    moves: [
+      attack('Shadow Probe', 4, 6, 0.94, 'Expose the foe: the next hit deals +2 damage.', { expose: 2 }),
+      attack('Night Claws', 6, 9, 0.83, 'Deals +2 to wounded foes and pierces 12% of guard.', { bonusBelowHalf: 2, guardPierce: 0.12 }),
+      attack('Blackout Pounce', 10, 14, 0.61, 'Gain 12% evasion after landing.', { evasionGain: 0.12 }),
+      defend('Fade to Black', 0.4, 0.18, 'Guard, focus, and gain 10% evasion.', { evasionGain: 0.1 }),
+    ],
+  },
+  {
+    id: 'moose', name: 'Moose', color: '#765236', detail: 'Antlered juggernaut', archetype: 'bruiser', col: 25, health: 55, strength: 10, defense: 8, speed: 4, home: 'Mirrorlake Taiga',
+    budget: { strength: 8, speed: 2, defense: 8, accuracy: 4, utility: 5, initiative: 3 },
+    moves: [
+      attack('Antler Check', 5, 7, 0.94, 'Heavy, dependable pressure.'),
+      attack('Bog Charge', 8, 11, 0.76, 'Deals +3 through any guard.', { bonusVsGuard: 3 }),
+      attack('Broadside Rush', 14, 18, 0.54, 'Massive hit that pierces 40% of guard.', { guardPierce: 0.4 }),
+      defend('Taiga Stand', 0.68, 0.05, 'Root down behind a towering guard.'),
+    ],
+  },
+  {
+    id: 'yak', name: 'Yak', color: '#6f4933', detail: 'Highland survivor', archetype: 'survivor', col: 26, health: 53, strength: 9, defense: 9, speed: 3, home: 'Snowpass Plateau',
+    budget: { strength: 6, speed: 2, defense: 9, accuracy: 4, utility: 6, initiative: 3 },
+    moves: [
+      attack('Horn Nudge', 5, 8, 0.95, 'Reliable highland pressure.'),
+      attack('Shaggy Shove', 9, 12, 0.79, 'Deals +3 through any guard.', { bonusVsGuard: 3 }),
+      attack('Mountain Drive', 14, 18, 0.63, 'Recover 2 HP on a hit.', { heal: 2 }),
+      defend('Woolly Bulwark', 0.7, 0.04, 'The mountain coat absorbs the charge.', { heal: 1 }),
+    ],
+  },
+  {
+    id: 'bull', name: 'Bull', color: '#8c4430', detail: 'Headlong bruiser', archetype: 'bruiser', col: 27, health: 52, strength: 10, defense: 8, speed: 4, home: 'Dusthorn Dehesa',
+    budget: { strength: 9, speed: 2, defense: 7, accuracy: 4, utility: 5, initiative: 3 },
+    moves: [
+      attack('Horn Fake', 5, 8, 0.93, 'Reliable. Builds +7% focus.', { focusGain: 0.07 }),
+      attack('Dust Charge', 9, 12, 0.73, 'Pierces 28% of guard.', { guardPierce: 0.28 }),
+      attack('Redline Rush', 15, 19, 0.47, 'Deals +4 to wounded foes.', { bonusBelowHalf: 4 }),
+      defend('Hoof the Earth', 0.65, 0.07, 'Brace behind a stubborn guard.'),
+    ],
+  },
+  {
+    id: 'snow-leopard', name: 'Snow Leopard', color: '#b9b8ad', detail: 'Alpine ambusher', archetype: 'skirmisher', col: 28, health: 37, strength: 5, defense: 5, speed: 9, home: 'Ghostpeak Ledges',
+    budget: { strength: 4, speed: 8, defense: 3, accuracy: 6, utility: 5, initiative: 4 },
+    moves: [
+      attack('Snowstep', 5, 8, 0.98, 'Reliable. Gain 13% evasion.', { evasionGain: 0.13 }),
+      attack('Cliffside Combo', 4, 5, 0.82, 'Two separate chances to connect.', { hits: 2 }),
+      attack('Ghost Pounce', 11, 15, 0.66, 'Deals +3 to wounded foes.', { bonusBelowHalf: 3 }),
+      defend('Whiteout Stalk', 0.34, 0.24, 'Use the terrain for focus and evasion.', { evasionGain: 0.13 }),
+    ],
+  },
+  {
+    id: 'king-cobra', name: 'King Cobra', color: '#8b7040', detail: 'Venomous zoner', archetype: 'tactician', col: 29, health: 31, strength: 5, defense: 4, speed: 9, home: 'Monsoon Ruins',
+    budget: { strength: 3, speed: 7, defense: 3, accuracy: 6, utility: 8, initiative: 3 },
+    moves: [
+      attack('Hood Feint', 5, 7, 0.98, "Daze the foe: their next attack loses 11% accuracy.", { daze: 0.11 }),
+      attack('Venom Fang', 6, 9, 0.81, "Poison for 1 damage after each of the foe's next 4 moves.", { poison: { damage: 1, turns: 4 } }),
+      attack('Rising Strike', 11, 15, 0.67, 'Gain 15% evasion after landing.', { evasionGain: 0.15 }),
+      defend('Swaying Hood', 0.3, 0.27, 'Track the foe while swaying clear.', { evasionGain: 0.18 }),
+    ],
+  },
+  {
+    id: 'hammerhead-shark', name: 'Hammerhead Shark', color: '#63879a', detail: 'Wide-sense hunter', archetype: 'all-rounder', col: 30, health: 46, strength: 7, defense: 7, speed: 7, home: 'Seamount Passage',
+    budget: { strength: 6, speed: 5, defense: 5, accuracy: 6, utility: 5, initiative: 3 },
+    moves: [
+      attack('Wide Sweep', 4, 6, 0.97, 'Expose the foe: the next hit deals +2 damage.', { expose: 2 }),
+      attack('Head Ram', 8, 11, 0.81, 'Deals +2 through any guard.', { bonusVsGuard: 2 }),
+      attack('Sensor Rush', 12, 16, 0.62, 'Pierces 31% of guard.', { guardPierce: 0.31 }),
+      defend('Schooling Turn', 0.53, 0.14, 'Circle into guard and focus.'),
+    ],
+  },
+  {
+    id: 'alligator', name: 'Alligator', color: '#4f763f', detail: 'Swamp counterfighter', archetype: 'survivor', col: 31, health: 45, strength: 8, defense: 10, speed: 5, home: 'Cypress Bayou',
+    budget: { strength: 6, speed: 3, defense: 8, accuracy: 4, utility: 6, initiative: 3 },
+    moves: [
+      attack('Bayou Snap', 4, 7, 0.95, 'Reliable pressure attack.'),
+      attack('Tail Counter', 7, 10, 0.8, 'Deals +4 through any guard.', { bonusVsGuard: 4 }),
+      attack('Gator Roll', 11, 15, 0.63, 'Recover 2 HP on a hit.', { heal: 2 }),
+      defend('Muck Hide', 0.61, 0.07, 'Guard and recover 3 HP.', { heal: 3 }),
+    ],
+  },
+  {
+    id: 'warthog', name: 'Warthog', color: '#8b6848', detail: 'Scrappy charger', archetype: 'bruiser', col: 32, health: 43, strength: 8, defense: 7, speed: 5, home: 'Thornscrub Pan',
+    budget: { strength: 7, speed: 5, defense: 6, accuracy: 4, utility: 5, initiative: 3 },
+    moves: [
+      attack('Tusk Jab', 4, 7, 0.95, 'Reliable. Slips through 12% of guard.', { guardPierce: 0.12 }),
+      attack('Scrub Rush', 8, 11, 0.78, 'Deals +3 to wounded foes.', { bonusBelowHalf: 3 }),
+      attack('Mudburst Charge', 12, 16, 0.59, 'Pierces 36% of guard.', { guardPierce: 0.36 }),
+      defend('Dust Wallow', 0.54, 0.1, 'Guard and recover 2 HP.', { heal: 2 }),
+    ],
+  },
+  {
+    id: 'giraffe', name: 'Giraffe', color: '#d5a34b', detail: 'Long-range kicker', archetype: 'skirmisher', col: 33, health: 51, strength: 7, defense: 5, speed: 8, home: 'Umbrella Acacia Rise',
+    budget: { strength: 4, speed: 7, defense: 4, accuracy: 7, utility: 4, initiative: 4 },
+    moves: [
+      attack('Neck Check', 4, 6, 0.98, 'Reliable. Builds +10% focus.', { focusGain: 0.1 }),
+      attack('Stilt-Step Kicks', 4, 5, 0.81, 'Two long-range chances to connect.', { hits: 2 }),
+      attack('Towering Kick', 11, 15, 0.65, 'Strong. Gain 11% evasion.', { evasionGain: 0.11 }),
+      defend('High Lookout', 0.36, 0.23, 'See the attack coming and step aside.', { evasionGain: 0.1 }),
+    ],
+  },
+  {
+    id: 'skunk', name: 'Skunk', color: '#c9c6b9', detail: 'Scent-screen trickster', archetype: 'tactician', col: 34, health: 27, strength: 4, defense: 4, speed: 7, home: 'Fernwood Burrow',
+    budget: { strength: 3, speed: 6, defense: 4, accuracy: 6, utility: 8, initiative: 3 },
+    moves: [
+      attack('Warning Stomp', 5, 7, 0.99, "Daze the foe: their next attack loses 16% accuracy.", { daze: 0.16 }),
+      attack('Scent Screen', 7, 10, 0.88, 'Expose the distracted foe for +3 damage.', { expose: 3 }),
+      attack('Turnabout Bite', 11, 15, 0.7, 'Deals +3 to wounded foes.', { bonusBelowHalf: 3 }),
+      defend('Tail Warning', 0.24, 0.28, 'Keep distance with focus and evasion.', { evasionGain: 0.22 }),
+    ],
+  },
+  {
+    id: 'bunny', name: 'Bunny', color: '#cbb9a1', detail: 'Alert evasive kicker', archetype: 'skirmisher', col: 35, health: 24, strength: 4, defense: 3, speed: 9, home: 'Bramble Meadow',
+    budget: { strength: 2, speed: 9, defense: 3, accuracy: 8, utility: 6, initiative: 2 },
+    moves: [
+      attack('Feinting Hop', 6, 8, 0.99, 'Sidestep and gain 16% evasion.', { evasionGain: 0.16 }),
+      attack('Double Kick', 4, 5, 0.86, 'Two grounded hind-leg kicks.', { hits: 2 }),
+      attack('Breakaway Kick', 10, 14, 0.7, 'Kick, then gain 18% evasion.', { evasionGain: 0.18 }),
+      defend('Bramble Cover', 0.25, 0.25, 'Use cover and watch for an opening.', { evasionGain: 0.18 }),
+    ],
+  },
+  {
+    id: 'goat', name: 'Goat', color: '#bca981', detail: 'Sure-footed duelist', archetype: 'all-rounder', col: 36, health: 33, strength: 6, defense: 6, speed: 8, home: 'Highcrag Pasture',
+    budget: { strength: 4, speed: 6, defense: 5, accuracy: 6, utility: 5, initiative: 4 },
+    moves: [
+      attack('Horn Tap', 4, 6, 0.98, 'Reliable. Builds +11% focus.', { focusGain: 0.11 }),
+      attack('Cliffside Ram', 8, 11, 0.82, 'Pierces 22% of guard.', { guardPierce: 0.22 }),
+      attack('Bounding Bash', 11, 14, 0.66, 'Gain 13% evasion after landing.', { evasionGain: 0.13 }),
+      defend('Sure-Footed Stance', 0.43, 0.18, 'Brace, focus, and step clear.', { evasionGain: 0.08 }),
+    ],
+  },
+  {
+    id: 'dolphin', name: 'Dolphin', color: '#62a9bb', detail: 'Echolocating tactician', archetype: 'tactician', col: 37, health: 44, strength: 6, defense: 6, speed: 9, home: 'Sunlit Atoll',
+    budget: { strength: 4, speed: 7, defense: 4, accuracy: 6, utility: 6, initiative: 3 },
+    moves: [
+      attack('Echo Ping', 3, 5, 0.99, 'Expose the foe: the next hit deals +2 damage.', { expose: 2 }),
+      attack('Pod Rush', 3, 4, 0.84, 'Two coordinated chances to hit.', { hits: 2 }),
+      attack('Spiral Ram', 10, 14, 0.68, 'Gain 16% evasion after landing.', { evasionGain: 0.16 }),
+      defend('Slipstream', 0.32, 0.26, 'Use the current for focus and evasion.', { evasionGain: 0.16 }),
+    ],
+  },
+  {
+    id: 'dog', name: 'Dog', color: '#b97a43', detail: 'Tenacious team fighter', archetype: 'all-rounder', col: 38, health: 34, strength: 6, defense: 5, speed: 8, home: 'Hillside Farm',
+    budget: { strength: 4, speed: 6, defense: 4, accuracy: 7, utility: 5, initiative: 4 },
+    moves: [
+      attack('Nipping Feint', 4, 6, 0.98, "Daze the foe: their next attack loses 9% accuracy.", { daze: 0.09 }),
+      attack('Driving Bite', 7, 10, 0.84, 'Deals +2 to wounded foes.', { bonusBelowHalf: 2 }),
+      attack('Bounding Tackle', 11, 15, 0.67, 'Gain 12% evasion after landing.', { evasionGain: 0.12 }),
+      defend('Circle the Flock', 0.4, 0.2, 'Guard, focus, and recover 1 HP.', { heal: 1 }),
     ],
   },
 ]

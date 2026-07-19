@@ -143,6 +143,14 @@ export function seededRandom(seed) {
   return () => ((state = (1664525 * state + 1013904223) >>> 0) / 4294967296)
 }
 
+function seededMatchupRandom(seed, animalA, animalB) {
+  let matchupSeed = seed >>> 0
+  for (const character of `${animalA.id}:${animalB.id}`) {
+    matchupSeed = Math.imul(matchupSeed ^ character.charCodeAt(0), 16777619) >>> 0
+  }
+  return seededRandom(matchupSeed)
+}
+
 export function simulateMatch(animalA, animalB, random, chooseMove = (players, active, roll) => {
   const legalMoves = getLegalMoves(players[active])
   return legalMoves[Math.floor(roll() * legalMoves.length)]
@@ -168,7 +176,6 @@ export function analyzeRosterBalance(animals, {
   matchupRange = [0.41, 0.59],
   chooseMove,
 } = {}) {
-  const random = seededRandom(seed)
   const wins = Object.fromEntries(animals.map((animal) => [animal.id, 0]))
   const games = Object.fromEntries(animals.map((animal) => [animal.id, 0]))
   const orderedResults = new Map()
@@ -178,6 +185,7 @@ export function analyzeRosterBalance(animals, {
   for (const animalA of animals) {
     for (const animalB of animals) {
       if (animalA === animalB) continue
+      const random = seededMatchupRandom(seed, animalA, animalB)
       let playerOneWins = 0
       for (let game = 0; game < matchesPerOrder; game += 1) {
         const result = simulateMatch(animalA, animalB, random, chooseMove)
