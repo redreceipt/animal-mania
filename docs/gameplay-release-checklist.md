@@ -64,6 +64,52 @@ During every browser run:
 - Confirm the full page remains usable at each viewport height; scrolling is
   acceptable, clipped or unreachable controls are not.
 
+## Arcade visual fidelity
+
+Animal Mania's visual baseline is a cohesive, high-detail pixel-art arcade
+presentation: crisp hard-edged sprites, chunky readable silhouettes, richly
+textured side-view arenas, a limited high-contrast interface palette, pixel
+typography, and brief stepped motion. This art-direction description, rather
+than any particular animal or asset, is the standard.
+
+Consistency does not mean freezing the current quality forever. The baseline
+may improve through an intentional, reviewed art-direction update that is
+applied consistently across the affected roster, arenas, animations, and UI.
+Update this description when that new direction is adopted. A one-off element
+that is noticeably more detailed, smoother, flatter, or less polished than the
+rest is fidelity drift even when it looks good by itself.
+
+Review changed visuals in the production build at their rendered size, not only
+as source files. Compare them side by side with the current shipped set and
+check that:
+
+- Portraits, fighter sprites, and arenas keep a crisp pixel-art treatment,
+  deliberate hard edges, chunky silhouettes, and a consistent apparent level
+  of shading and texture. Do not mix in photorealistic, vector-smooth, or
+  visibly lower-resolution artwork.
+- Each animal's portrait and fighter sprite use the same recognizable colors,
+  markings, proportions, and outline weight. Transparent edges must stay clean
+  when the fighter is flipped or placed over every arena value range.
+- Arena settings retain the side-view arcade composition, readable ground
+  plane, compatible pixel density, and enough subject/background contrast for
+  both fighters. Lighting, perspective, and environmental detail must not make
+  one arena feel like a different game.
+- UI additions reuse the established navy, gold, cream, orange, red, green, and
+  mint system; pixel typography; square borders; hard shadows; and scanline
+  treatment unless an intentional style change is approved for the whole game.
+- Motion remains brief and stepped like the existing turn cue, health bar, card
+  hover, and attack lunge. Avoid smooth cinematic tweening or effects whose
+  detail overwhelms the sprites, and confirm `prefers-reduced-motion` still
+  removes nonessential animation.
+
+For an animal or arena addition, inspect the full roster once to catch relative
+drift, then render the new fighter as both the home and away combatant against
+at least two representative existing animals. For an animation or UI change,
+exercise every affected state at desktop and mobile sizes. Record the animals,
+arenas, states, and viewports checked in the pull request, along with
+side-by-side screenshots when visuals changed. Any unexplained fidelity drift
+in either direction blocks release.
+
 ## Mechanics and copy review
 
 Whenever mechanics change:
@@ -81,4 +127,5 @@ Whenever mechanics change:
 
 A gameplay pull request is ready to merge when all automated checks are green,
 the applicable manual matrix is recorded in the pull request, the browser
-console is clean, and mechanics documentation matches the shipped behavior.
+console is clean, arcade visual fidelity matches the documented art direction,
+and mechanics documentation matches the shipped behavior.
