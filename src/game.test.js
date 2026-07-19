@@ -4,6 +4,7 @@ import test from 'node:test'
 import {
   analyzeRosterBalance, createBudget, getArchetypeDrift, getBudgetTotal, validateRoster,
 } from './balance.js'
+import { getGroundOffsetPercent } from './fighter-image.js'
 import {
   ANIMALS, chooseCpuMove, createFighter, defenseMultiplier, getDamageRange, getLegalMoves,
   getOpeningActor, resolveAction,
@@ -58,6 +59,16 @@ test('every animal has a complete visual set and unique home arena', () => {
     assert.ok(existsSync(new URL(`../public/animals/${animal.id}-fighter.webp`, import.meta.url)), `${animal.name} needs a fighter image`)
     assert.ok(existsSync(new URL(`../public/animals/arena-${animal.id}.webp`, import.meta.url)), `${animal.name} needs a home arena image`)
   }
+})
+
+test('fighter artwork is shifted only when transparent padding exceeds the ground line', () => {
+  const pixels = new Uint8ClampedArray(4 * 4 * 4)
+  pixels[(1 * 4 + 2) * 4 + 3] = 255
+
+  assert.equal(getGroundOffsetPercent(pixels, 4, 4), 34)
+  pixels[(3 * 4 + 2) * 4 + 3] = 255
+  assert.equal(getGroundOffsetPercent(pixels, 4, 4), 0)
+  assert.equal(getGroundOffsetPercent(new Uint8ClampedArray(4 * 4 * 4), 4, 4), 0)
 })
 
 test('expanded roster includes the requested fighters in display order', () => {

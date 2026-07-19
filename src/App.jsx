@@ -3,6 +3,7 @@ import {
   ANIMALS, chooseCpuMove, createFighter, getDamageRange,
   getOpeningActor, resolveAction,
 } from './game.js'
+import { measureFighterGroundOffset } from './fighter-image.js'
 import { normalizeRoomCode, useOnlineRoom } from './useOnlineRoom.js'
 
 const initialSelection = [null, null]
@@ -35,18 +36,28 @@ function battleImages(homeId, awayId) {
 }
 
 function PixelAnimal({ animal, variant = 'portrait', flip = false }) {
-  const [loaded, setLoaded] = useState(false)
+  const src = animalImage(animal, variant)
+  const [imageState, setImageState] = useState({ src: null, groundOffset: 0 })
+  const loaded = imageState.src === src
+
+  function handleLoad(event) {
+    const groundOffset = variant === 'fighter' ? measureFighterGroundOffset(event.currentTarget) : 0
+    setImageState({ src, groundOffset })
+  }
 
   return (
-    <span className={`pixel-animal-frame ${variant} ${loaded ? 'loaded' : ''}`} style={{ '--animal-color': animal.color }}>
+    <span
+      className={`pixel-animal-frame ${variant} ${loaded ? 'loaded' : ''}`}
+      style={{ '--animal-color': animal.color, '--fighter-ground-offset': `${imageState.groundOffset}%` }}
+    >
       <img
         className={`pixel-animal ${loaded ? 'loaded' : ''} ${flip ? 'flip' : ''}`}
-        src={animalImage(animal, variant)}
+        src={src}
         alt={animal.name}
         width="444"
         height="444"
         decoding="async"
-        onLoad={() => setLoaded(true)}
+        onLoad={handleLoad}
         draggable="false"
       />
     </span>
