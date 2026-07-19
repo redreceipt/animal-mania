@@ -110,7 +110,8 @@ from both the move card and fighter HUD:
 
 - **Venom** deals its listed damage after each of the poisoned fighter's next moves.
   Reapplying venom keeps the stronger damage and longer remaining duration rather than
-  stacking both.
+  stacking both. Venom resolves after attack damage, so a simultaneous knockout defeats
+  the poisoned fighter.
 - **Exposure** adds its listed damage to the next landed hit, then clears. Misses and
   defensive moves do not consume it.
 - **Daze** lowers the accuracy of the fighter's next attack, then clears whether that

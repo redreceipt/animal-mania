@@ -221,6 +221,18 @@ test('venom can finish its poisoned fighter after that fighter acts', () => {
   assert.equal(result.winner, 0)
 })
 
+test('venom defeats its poisoned fighter when both fighters are knocked out', () => {
+  const tiger = createFighter(ANIMALS.find(({ id }) => id === 'tiger'))
+  const target = { ...createFighter(tiger.animal), health: 1 }
+  const poisonedTiger = { ...createFighter(tiger.animal), health: 1, poisoned: { damage: 1, turns: 1 } }
+  const result = resolveAction([target, poisonedTiger], 1, poisonedTiger.animal.moves[0], () => 0)
+
+  assert.deepEqual(result.players.map(({ health }) => health), [0, 0])
+  assert.equal(result.players[1].poisoned, null)
+  assert.equal(result.winner, 0)
+  assert.match(result.message, /Venom dealt 1 damage/)
+})
+
 test('CPU only chooses legal moves and waits for defense to recharge', () => {
   const cpu = createFighter(ANIMALS[0])
   const opponent = createFighter(ANIMALS[1])
