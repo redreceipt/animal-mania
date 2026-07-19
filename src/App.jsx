@@ -23,8 +23,8 @@ function Logo() {
 
 function AttributeLine({ animal }) {
   return (
-    <span className="animal-attributes" aria-label={`${animal.health} health, strength ${animal.strength}, speed ${animal.speed}`}>
-      <span>HP <b>{animal.health}</b></span><span>STR <b>{animal.strength}</b></span><span>SPD <b>{animal.speed}</b></span>
+    <span className="animal-attributes" aria-label={`${animal.health} health, strength ${animal.strength}, defense ${animal.defense}, speed ${animal.speed}`}>
+      <span>HP <b>{animal.health}</b></span><span>STR <b>{animal.strength}</b></span><span>DEF <b>{animal.defense}</b></span><span>SPD <b>{animal.speed}</b></span>
     </span>
   )
 }
@@ -258,7 +258,7 @@ function BattleScreen({ choices, singlePlayer, onReset }) {
         </div>
         <BattleLog entries={log} />
       </section>
-      <footer className="hint">Strength scales damage · Speed controls initiative · Choose with buttons or keys 1–4</footer>
+      <footer className="hint">Strength scales damage · Defense changes damage taken · Speed controls initiative · Choose with buttons or keys 1–4</footer>
     </main>
   )
 }
