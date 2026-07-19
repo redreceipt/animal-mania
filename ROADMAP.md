@@ -10,6 +10,21 @@ This roadmap tracks the next meaningful additions to Animal Mania. Priorities ma
 - Desktop and mobile layouts
 - Seeded matchup simulations for basic balance regression testing
 
+## Known bugs
+
+### Player selection does not fit shorter browser windows
+
+The full player-selection screen can exceed the visible window height, requiring vertical scrolling to move between the roster and the **Start showdown** button. This is especially noticeable in Firefox and makes it difficult to see both players' choices at once.
+
+Expected behavior:
+
+- The complete selection flow fits within the available viewport height whenever the window is large enough for a practical game layout.
+- Animal portraits, spacing, headings, and controls scale down together on short desktop and laptop windows.
+- Both player rosters and the **Start showdown** button remain visible without scrolling.
+- The layout continues to work at tall, short, narrow, and wide aspect ratios rather than targeting only standard device presets.
+- Firefox, Chrome, and Safari receive explicit responsive browser checks at multiple viewport heights.
+- When the viewport is genuinely too small to fit everything legibly, the fallback layout scrolls naturally without hiding or overlapping controls.
+
 ## Next
 
 ### Online multiplayer with shareable room codes
