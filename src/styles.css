@@ -114,7 +114,7 @@ button:disabled { filter: grayscale(1); opacity: .4; cursor: not-allowed; }
   .select-screen .player-heading { margin-bottom: clamp(7px, 1.5dvh, 16px); }
   .select-screen .roster { min-height: 0; grid-template-rows: repeat(2, minmax(0, 1fr)); gap: clamp(6px, 1.2dvh, 12px); }
   .select-screen .animal-card { min-height: 0; display: grid; grid-template-rows: minmax(0, 1fr) auto auto auto; align-items: center; overflow: hidden; padding: clamp(5px, 1.1dvh, 10px); }
-  .select-screen .pixel-animal.portrait { width: auto; max-width: 100%; height: 100%; min-height: 0; aspect-ratio: 1; justify-self: center; background-size: 800% 200%; }
+  .select-screen .pixel-animal.portrait { width: 100%; max-width: 100%; height: auto; max-height: 100%; min-height: 0; aspect-ratio: 1; place-self: center; background-size: 800% 200%; }
   .select-screen .animal-card strong { margin: clamp(4px, 1dvh, 9px) 0 clamp(3px, .8dvh, 7px); }
   .select-screen .animal-card .animal-attributes { margin-bottom: clamp(3px, .8dvh, 7px); }
   .select-screen .select-footer { padding-top: clamp(7px, 1.5dvh, 20px); }
