@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://animal-mania.vercel.app/sitemap.xml
