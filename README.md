@@ -1,6 +1,8 @@
 # Animal Mania
 
-A turn-based animal fighting game with tactical single-player and local two-player modes, inspired by classic creature battlers and 8-bit tactics games.
+A turn-based animal fighting game with tactical single-player, local two-player,
+and private online modes, inspired by classic creature battlers and 8-bit
+tactics games.
 
 ## Play
 
@@ -9,7 +11,25 @@ npm install
 npm run dev
 ```
 
-Choose single player to face a tactical CPU, or share one screen in local multiplayer. Pick a fighter, then use its four-move kit to outplay the opponent. Every animal has a distinct mix of damage, accuracy, defense, and utility.
+The development command runs Vite and the online WebSocket server together at
+`http://localhost:5173`. To run the production build locally:
+
+```bash
+npm run build
+npm start
+```
+
+Choose single player to face a tactical CPU, share one screen in local
+multiplayer, or create a private online room with a three-word code and join
+link. Pick a fighter, then use its four-move kit to outplay the opponent. Every
+animal has a distinct mix of damage, accuracy, defense, and utility.
+
+Online matches support two anonymous players. The Node server is authoritative
+for fighter selection, turns, random rolls, battle state, and rematches. A
+disconnected player can rejoin from the same browser session, and inactive
+rooms expire after 30 minutes. Rooms are held in process memory, so production
+deployments should use one long-lived server instance unless room persistence
+and cross-instance routing are added.
 
 ### Controls
 
