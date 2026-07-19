@@ -2,9 +2,29 @@ import assert from 'node:assert/strict'
 import { existsSync } from 'node:fs'
 import test from 'node:test'
 import {
+  analyzeRosterBalance, createBudget, getArchetypeDrift, getBudgetTotal, validateRoster,
+} from './balance.js'
+import {
   ANIMALS, chooseCpuMove, createFighter, defenseMultiplier, getDamageRange, getLegalMoves,
   getOpeningActor, resolveAction,
 } from './game.js'
+
+test('roster data satisfies the shared archetype and power-budget contract', () => {
+  assert.deepEqual(validateRoster(ANIMALS), [])
+  assert.ok(ANIMALS.every((animal) => getBudgetTotal(animal.budget) === 30))
+  assert.ok(ANIMALS.every((animal) => getArchetypeDrift(animal) <= 8))
+
+  const evasiveSkirmisher = createBudget('skirmisher', {
+    strength: -1,
+    speed: 1,
+    accuracy: 1,
+    utility: 1,
+    initiative: -2,
+  })
+  assert.equal(getBudgetTotal(evasiveSkirmisher), 30)
+  assert.equal(evasiveSkirmisher.speed, 9)
+  assert.equal(evasiveSkirmisher.strength, 2)
+})
 
 test('animals have defined attributes and mechanically different move kits', () => {
   const profiles = ANIMALS.map((animal) => JSON.stringify(animal.moves.map((move) => ({
@@ -224,54 +244,10 @@ test('all ordered matchups finish under common move strategies', () => {
 })
 
 test('seeded matchup simulation has no dominant animal or hard-counter matchup', () => {
-  let state = 123456789
-  const random = () => ((state = (1664525 * state + 1013904223) >>> 0) / 4294967296)
-  const wins = Object.fromEntries(ANIMALS.map((animal) => [animal.id, 0]))
-  const games = Object.fromEntries(ANIMALS.map((animal) => [animal.id, 0]))
-  const pairResults = new Map()
-  let totalTurns = 0
-  let totalGames = 0
-
-  for (const animalA of ANIMALS) {
-    for (const animalB of ANIMALS) {
-      if (animalA === animalB) continue
-      let playerOneWins = 0
-      for (let game = 0; game < 600; game += 1) {
-        const result = simulateMatch(animalA, animalB, random)
-        const { winner } = result
-        const winningAnimal = winner === 0 ? animalA : animalB
-        wins[winningAnimal.id] += 1
-        games[animalA.id] += 1
-        games[animalB.id] += 1
-        if (winner === 0) playerOneWins += 1
-        totalTurns += result.turns
-        totalGames += 1
-      }
-      pairResults.set(`${animalA.id}:${animalB.id}`, playerOneWins / 600)
-    }
-  }
-
-  const balanceFailures = []
-  for (const animal of ANIMALS) {
-    const winRate = wins[animal.id] / games[animal.id]
-    if (winRate <= 0.46 || winRate >= 0.54) balanceFailures.push(`${animal.name} overall win rate was ${winRate}`)
-  }
-
-  for (let first = 0; first < ANIMALS.length; first += 1) {
-    for (let second = first + 1; second < ANIMALS.length; second += 1) {
-      const animalA = ANIMALS[first]
-      const animalB = ANIMALS[second]
-      const aAsPlayerOne = pairResults.get(`${animalA.id}:${animalB.id}`)
-      const bAsPlayerOne = pairResults.get(`${animalB.id}:${animalA.id}`)
-      const animalAWinRate = (aAsPlayerOne + (1 - bAsPlayerOne)) / 2
-      if (animalAWinRate <= 0.41 || animalAWinRate >= 0.59) balanceFailures.push(`${animalA.name} vs ${animalB.name} was ${animalAWinRate}`)
-    }
-  }
-
-  assert.deepEqual(balanceFailures, [])
-
-  const averageTurns = totalTurns / totalGames
-  assert.ok(averageTurns > 12 && averageTurns < 14, `random-strategy matches averaged ${averageTurns} turns`)
+  const report = analyzeRosterBalance(ANIMALS, { matchesPerOrder: 600 })
+  assert.deepEqual(report.outliers, [])
+  assert.deepEqual(report.hardCounters, [])
+  assert.ok(report.averageTurns > 12 && report.averageTurns < 14, `random-strategy matches averaged ${report.averageTurns} turns`)
 })
 
 test('CPU turn progression can complete full matches with every animal', () => {

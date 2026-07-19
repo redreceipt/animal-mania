@@ -18,7 +18,7 @@ Choose single player to face a tactical CPU, or share one screen in local multip
 
 ## Battle rules
 
-- Twenty differently styled, evenly matched animals
+- Twenty data-driven, evenly matched animals using a shared 30-point balance budget
 - Animal HP ranges from 28 to 60 based on size and toughness
 - Small targets take lighter hits while large targets take heavier hits, keeping the wide HP range balanced without erasing its durability advantage
 - Strength modifies attack damage
@@ -53,12 +53,15 @@ Choose single player to face a tactical CPU, or share one screen in local multip
 - **Octopus — 41 HP / STR 8 / DEF 9 / SPD 5:** elusive grappler with strong defense, recovery, and anti-guard pressure
 
 The kits are intentionally asymmetric. Seeded matchup simulations keep overall random-strategy win rates close while allowing meaningful strengths and counters.
+See the [roster balance guide](docs/roster-balance.md) for the six-axis budget,
+archetypes, automated hard-counter audit, and a grounded rabbit blueprint.
 
 ## Quality checks
 
 ```bash
 npm ci
 npm test
+npm run balance
 npm run lint
 npm run build
 ```
