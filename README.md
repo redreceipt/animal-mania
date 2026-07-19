@@ -18,8 +18,8 @@ Choose single player to face a tactical CPU, or share one screen in local multip
 
 ## Battle rules
 
-- Ten differently styled, evenly matched animals
-- Animal HP ranges from 30 to 60 based on size and toughness
+- Twenty differently styled, evenly matched animals
+- Animal HP ranges from 28 to 60 based on size and toughness
 - Small targets take lighter hits while large targets take heavier hits, keeping the wide HP range balanced without erasing its durability advantage
 - Strength modifies attack damage
 - Defense persistently changes incoming damage by 1% per point from the neutral rating of 6; it applies separately from guard, so guard-piercing moves do not bypass Defense
@@ -41,6 +41,16 @@ Choose single player to face a tactical CPU, or share one screen in local multip
 - **Elephant — 60 HP / STR 9 / DEF 8 / SPD 5:** steady tactician with strong guard and anti-guard attacks
 - **Grizzly Bear — 50 HP / STR 9 / DEF 7 / SPD 4:** savage grappler with multi-hit pressure, evasive guard, and anti-guard attacks
 - **Polar Bear — 46 HP / STR 8 / DEF 6 / SPD 6:** cold opportunist with evasion, wounded-target pressure, and guard piercing
+- **Wolf — 38 HP / STR 7 / DEF 6 / SPD 7:** pack tactician with focus and wounded-target pressure
+- **Komodo Dragon — 45 HP / STR 8 / DEF 10 / SPD 5:** patient predator with recovery and anti-guard pressure
+- **Lion — 49 HP / STR 10 / DEF 7 / SPD 4:** regal finisher with the strongest guard and guard-piercing attacks
+- **Anaconda — 42 HP / STR 7 / DEF 6 / SPD 7:** coiling controller that builds focus and punishes wounded opponents
+- **Water Buffalo — 58 HP / STR 11 / DEF 8 / SPD 3:** marsh juggernaut with heavy guard, recovery, and powerful charges
+- **Shark — 47 HP / STR 8 / DEF 6 / SPD 6:** relentless striker with evasion, wounded-target pressure, and guard piercing
+- **Orca — 54 HP / STR 9 / DEF 8 / SPD 6:** ocean powerhouse with strong guard and anti-guard attacks
+- **Ostrich — 34 HP / STR 5 / DEF 4 / SPD 10:** fleet kicker with multi-hit attacks, evasion, and extra initiative
+- **Falcon — 28 HP / STR 5 / DEF 4 / SPD 10:** aerial daredevil with multi-hit attacks, high evasion, and extra initiative
+- **Octopus — 41 HP / STR 8 / DEF 9 / SPD 5:** elusive grappler with strong defense, recovery, and anti-guard pressure
 
 The kits are intentionally asymmetric. Seeded matchup simulations keep overall random-strategy win rates close while allowing meaningful strengths and counters.
 

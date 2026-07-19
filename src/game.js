@@ -97,6 +97,96 @@ export const ANIMALS = [
       defend('Snowdrift Guard', 0.55, 0.14, 'Guard, focus, and recover 1 HP.', { heal: 1 }),
     ],
   },
+  {
+    id: 'wolf', name: 'Wolf', color: '#7f8995', detail: 'Pack tactician', col: 10, health: 38, strength: 7, defense: 6, speed: 7, home: 'Moonpine Valley',
+    moves: [
+      attack('Driving Bite', 4, 6, 0.96, 'Reliable. Builds +13% focus.', { focusGain: 0.13 }),
+      attack('Pack Feint', 8, 11, 0.82, 'Deals +3 to wounded foes.', { bonusBelowHalf: 3 }),
+      attack('Hamstring Rush', 14, 18, 0.56, 'Deals +4 to wounded foes.', { bonusBelowHalf: 4 }),
+      defend('Circle Up', 0.45, 0.18, 'Guard and line up the next strike.'),
+    ],
+  },
+  {
+    id: 'komodo-dragon', name: 'Komodo Dragon', color: '#76694f', detail: 'Patient predator', col: 11, health: 45, strength: 8, defense: 10, speed: 5, home: 'Sundown Scrubland',
+    moves: [
+      attack('Claw Rake', 4, 7, 0.95, 'Reliable pressure attack.'),
+      attack('Tail Sweep', 8, 11, 0.78, 'Deals +3 through any guard.', { bonusVsGuard: 3 }),
+      attack('Ambush Bite', 11, 15, 0.62, 'Recover 3 HP on a hit.', { heal: 3 }),
+      defend('Burrow Brace', 0.6, 0.08, 'Guard and recover 2 HP.', { heal: 2 }),
+    ],
+  },
+  {
+    id: 'lion', name: 'Lion', color: '#d39235', detail: 'Regal finisher', col: 12, health: 49, strength: 10, defense: 7, speed: 4, home: 'Golden Grasslands',
+    moves: [
+      attack('Paw Strike', 5, 7, 0.92, 'Heavy and dependable.'),
+      attack('Mane Rush', 9, 12, 0.72, 'Ignores 25% of guard.', { guardPierce: 0.25 }),
+      attack('Throat Lunge', 15, 20, 0.46, 'Massive, guard-breaking hit.', { guardPierce: 0.45 }),
+      defend('Pride Stance', 0.69, 0.05, 'A commanding guard with a little focus.'),
+    ],
+  },
+  {
+    id: 'anaconda', name: 'Anaconda', color: '#768c3a', detail: 'Coiling controller', col: 13, health: 42, strength: 7, defense: 6, speed: 7, home: 'Emerald Backwater',
+    moves: [
+      attack('Snap Bite', 4, 6, 0.96, 'Reliable. Builds +12% focus.', { focusGain: 0.12 }),
+      attack('Coil Crush', 8, 11, 0.82, 'Deals +3 to wounded foes.', { bonusBelowHalf: 3 }),
+      attack('Constrict', 14, 18, 0.56, 'Deals +4 to wounded foes.', { bonusBelowHalf: 4 }),
+      defend('Tight Coil', 0.46, 0.18, 'Guard and line up the next strike.'),
+    ],
+  },
+  {
+    id: 'water-buffalo', name: 'Water Buffalo', color: '#665e56', detail: 'Marsh juggernaut', col: 14, health: 58, strength: 11, defense: 8, speed: 3, home: 'Monsoon Wetlands',
+    moves: [
+      attack('Horn Jab', 5, 7, 0.95, 'Short-range, dependable strike.'),
+      attack('Marsh Trample', 7, 10, 0.84, 'Deals +2 to wounded foes.', { bonusBelowHalf: 2 }),
+      attack('Floodplain Charge', 12, 16, 0.64, 'A fearsome all-or-nothing charge.'),
+      defend('Mud Brace', 0.67, 0.03, 'Heavy guard and recover 2 HP.', { heal: 2 }),
+    ],
+  },
+  {
+    id: 'shark', name: 'Shark', color: '#507f9b', detail: 'Relentless striker', col: 15, health: 47, strength: 8, defense: 6, speed: 6, home: 'Bluewater Reef',
+    moves: [
+      attack('Bite Feint', 4, 6, 0.97, 'Reliable. Gain 4% evasion.', { evasionGain: 0.04 }),
+      attack('Ramming Strike', 7, 10, 0.84, 'Deals +2 to wounded foes.', { bonusBelowHalf: 2 }),
+      attack('Breach Attack', 12, 15, 0.64, 'Powerful hit that pierces 30% of guard.', { guardPierce: 0.3 }),
+      defend('Countercurrent', 0.55, 0.14, 'Guard, focus, and recover 1 HP.', { heal: 1 }),
+    ],
+  },
+  {
+    id: 'orca', name: 'Orca', color: '#394b61', detail: 'Ocean powerhouse', col: 16, health: 54, strength: 9, defense: 8, speed: 6, home: 'Kelp Channel',
+    moves: [
+      attack('Tail Slap', 3, 5, 0.96, 'Reliable pressure attack.'),
+      attack('Wave Ram', 9, 12, 0.82, 'Deals +3 through any guard.', { bonusVsGuard: 3 }),
+      attack('Surge Breach', 12, 16, 0.62, 'Powerful hit that pierces 30% of guard.', { guardPierce: 0.3 }),
+      defend('Pod Circle', 0.62, 0.11, 'Strong guard with measured focus.'),
+    ],
+  },
+  {
+    id: 'ostrich', name: 'Ostrich', color: '#d6c2a1', detail: 'Fleet kicker', col: 17, health: 34, strength: 5, defense: 4, speed: 10, home: 'Acacia Flats',
+    moves: [
+      attack('Beak Jab', 4, 6, 0.99, 'Reliable. Gain 16% evasion.', { evasionGain: 0.16 }),
+      attack('Double Kick', 4, 5, 0.84, 'Two separate chances to connect.', { hits: 2 }),
+      attack('Sprint Kick', 10, 14, 0.68, 'Strong. Gain 18% evasion.', { evasionGain: 0.18 }),
+      defend('Wing Screen', 0.3, 0.28, 'Light guard, high focus and evasion.', { evasionGain: 0.15 }),
+    ],
+  },
+  {
+    id: 'falcon', name: 'Falcon', color: '#9c8062', detail: 'Aerial daredevil', col: 18, health: 28, strength: 5, defense: 4, speed: 10, home: 'Redstone Aerie',
+    moves: [
+      attack('Beak Strike', 4, 6, 0.98, 'Reliable. Gain 15% evasion.', { evasionGain: 0.15 }),
+      attack('Talon Flurry', 4, 5, 0.84, 'Two separate chances to hit.', { hits: 2 }),
+      attack('Stooping Dive', 10, 14, 0.68, 'Strong. Gain 18% evasion.', { evasionGain: 0.18 }),
+      defend('Thermal Ride', 0.3, 0.28, 'Light guard, high focus and evasion.', { evasionGain: 0.15 }),
+    ],
+  },
+  {
+    id: 'octopus', name: 'Octopus', color: '#b65f48', detail: 'Elusive grappler', col: 19, health: 41, strength: 8, defense: 9, speed: 5, home: 'Tidepool Grotto',
+    moves: [
+      attack('Arm Snap', 4, 6, 0.92, 'Reliable pressure attack.'),
+      attack('Sucker Grip', 8, 11, 0.78, 'Deals +3 through any guard.', { bonusVsGuard: 3 }),
+      attack('Beak Bite', 11, 15, 0.62, 'Recover 3 HP on a hit.', { heal: 3 }),
+      defend('Ink Screen', 0.6, 0.08, 'Guard and recover 2 HP.', { heal: 2 }),
+    ],
+  },
 ]
 
 export const strengthBonus = (strength) => Math.round((strength - 7) * 0.5)

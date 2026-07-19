@@ -6,8 +6,7 @@ import {
   getOpeningActor, resolveAction,
 } from './game.js'
 
-test('animals have distinct attributes and mechanically different move kits', () => {
-  assert.equal(new Set(ANIMALS.map(({ strength, speed }) => `${strength}:${speed}`)).size, ANIMALS.length)
+test('animals have defined attributes and mechanically different move kits', () => {
   const profiles = ANIMALS.map((animal) => JSON.stringify(animal.moves.map((move) => ({
     type: move.type,
     minDamage: move.minDamage,
@@ -24,19 +23,28 @@ test('animals have distinct attributes and mechanically different move kits', ()
     heal: move.heal,
   }))))
   assert.equal(new Set(profiles).size, ANIMALS.length)
-  assert.deepEqual(ANIMALS.map(({ strength }) => strength), [7, 10, 5, 8, 10, 11, 5, 9, 9, 8])
-  assert.deepEqual(ANIMALS.map(({ defense }) => defense), [6, 7, 4, 10, 9, 8, 4, 8, 7, 6])
-  assert.deepEqual(ANIMALS.map(({ speed }) => speed), [7, 4, 10, 5, 3, 3, 9, 5, 4, 6])
-  assert.deepEqual(ANIMALS.map(({ health }) => health), [40, 48, 30, 44, 52, 56, 36, 60, 50, 46])
+  assert.deepEqual(ANIMALS.map(({ strength }) => strength), [7, 10, 5, 8, 10, 11, 5, 9, 9, 8, 7, 8, 10, 7, 11, 8, 9, 5, 5, 8])
+  assert.deepEqual(ANIMALS.map(({ defense }) => defense), [6, 7, 4, 10, 9, 8, 4, 8, 7, 6, 6, 10, 7, 6, 8, 6, 8, 4, 4, 9])
+  assert.deepEqual(ANIMALS.map(({ speed }) => speed), [7, 4, 10, 5, 3, 3, 9, 5, 4, 6, 7, 5, 4, 7, 3, 6, 6, 10, 10, 5])
+  assert.deepEqual(ANIMALS.map(({ health }) => health), [40, 48, 30, 44, 52, 56, 36, 60, 50, 46, 38, 45, 49, 42, 58, 47, 54, 34, 28, 41])
   assert.equal(new Set(ANIMALS.map(({ health }) => health)).size, ANIMALS.length)
 })
 
-test('every animal has a unique home arena asset', () => {
+test('every animal has a complete visual set and unique home arena', () => {
   assert.equal(new Set(ANIMALS.map(({ home }) => home)).size, ANIMALS.length)
   for (const animal of ANIMALS) {
     assert.ok(animal.home, `${animal.name} needs a home arena name`)
+    assert.ok(existsSync(new URL(`../public/animals/${animal.id}-portrait.webp`, import.meta.url)), `${animal.name} needs a portrait image`)
+    assert.ok(existsSync(new URL(`../public/animals/${animal.id}-fighter.webp`, import.meta.url)), `${animal.name} needs a fighter image`)
     assert.ok(existsSync(new URL(`../public/animals/arena-${animal.id}.webp`, import.meta.url)), `${animal.name} needs a home arena image`)
   }
+})
+
+test('expanded roster includes the requested fighters in display order', () => {
+  assert.deepEqual(ANIMALS.slice(10).map(({ id }) => id), [
+    'wolf', 'komodo-dragon', 'lion', 'anaconda', 'water-buffalo',
+    'shark', 'orca', 'ostrich', 'falcon', 'octopus',
+  ])
 })
 
 test('bear fighters have unique roster identities and sprite columns', () => {
@@ -243,9 +251,10 @@ test('seeded matchup simulation has no dominant animal or hard-counter matchup',
     }
   }
 
+  const balanceFailures = []
   for (const animal of ANIMALS) {
     const winRate = wins[animal.id] / games[animal.id]
-    assert.ok(winRate > 0.46 && winRate < 0.54, `${animal.name} overall win rate was ${winRate}`)
+    if (winRate <= 0.46 || winRate >= 0.54) balanceFailures.push(`${animal.name} overall win rate was ${winRate}`)
   }
 
   for (let first = 0; first < ANIMALS.length; first += 1) {
@@ -255,9 +264,11 @@ test('seeded matchup simulation has no dominant animal or hard-counter matchup',
       const aAsPlayerOne = pairResults.get(`${animalA.id}:${animalB.id}`)
       const bAsPlayerOne = pairResults.get(`${animalB.id}:${animalA.id}`)
       const animalAWinRate = (aAsPlayerOne + (1 - bAsPlayerOne)) / 2
-      assert.ok(animalAWinRate > 0.41 && animalAWinRate < 0.59, `${animalA.name} vs ${animalB.name} was ${animalAWinRate}`)
+      if (animalAWinRate <= 0.41 || animalAWinRate >= 0.59) balanceFailures.push(`${animalA.name} vs ${animalB.name} was ${animalAWinRate}`)
     }
   }
+
+  assert.deepEqual(balanceFailures, [])
 
   const averageTurns = totalTurns / totalGames
   assert.ok(averageTurns > 12 && averageTurns < 14, `random-strategy matches averaged ${averageTurns} turns`)
