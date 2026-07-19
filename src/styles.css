@@ -128,7 +128,7 @@ button:disabled { filter: grayscale(1); opacity: .4; cursor: not-allowed; }
   .select-screen .player-select { min-height: 0; display: grid; grid-template-rows: auto minmax(0, 1fr); padding: clamp(8px, 1.7dvh, 16px); }
   .select-screen .player-select:has(.random-btn) { grid-template-rows: auto auto minmax(0, 1fr); }
   .select-screen .player-heading { margin-bottom: clamp(7px, 1.5dvh, 16px); }
-  .select-screen .roster { min-height: 0; grid-template-rows: repeat(2, minmax(0, 1fr)); gap: clamp(6px, 1.2dvh, 12px); }
+  .select-screen .roster { min-height: 0; grid-template-rows: repeat(4, minmax(0, 1fr)); gap: clamp(6px, 1.2dvh, 12px); }
   .select-screen .animal-card { min-height: 0; display: grid; grid-template-rows: minmax(0, 1fr) auto auto auto; align-items: center; overflow: hidden; padding: clamp(5px, 1.1dvh, 10px); }
   .select-screen .pixel-animal.portrait { width: 100%; max-width: 100%; height: auto; max-height: 100%; min-height: 0; aspect-ratio: 1; place-self: center; background-size: 1000% 200%; }
   .select-screen .animal-card strong { margin: clamp(4px, 1dvh, 9px) 0 clamp(3px, .8dvh, 7px); }
@@ -142,6 +142,10 @@ button:disabled { filter: grayscale(1); opacity: .4; cursor: not-allowed; }
 }
 @media (min-width: 561px) and (max-height: 519px) {
   .arcade-shell.select-screen { height: auto; min-height: 520px; }
+}
+@media (min-width: 561px) and (max-height: 760px) {
+  .select-screen .animal-card .animal-attributes,
+  .select-screen .animal-card small { display: none; }
 }
 @media (max-width: 850px) {
   #root { padding: 0; }
