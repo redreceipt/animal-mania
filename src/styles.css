@@ -39,7 +39,7 @@ button:focus-visible { outline: 4px solid white; outline-offset: 3px; }
 .player-heading b { color: var(--gold); }
 .random-btn { width: 100%; margin: 0 0 12px; border: 3px dashed #4aa1c5; background: #07131d; color: #9edcf2; padding: 9px; text-transform: uppercase; cursor: pointer; font-size: 7px; }
 .random-btn:hover, .random-btn.selected { border-style: solid; border-color: var(--gold); color: var(--gold); background: #12324a; }
-.roster { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+.roster { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 12px; }
 .animal-card { border: 3px solid #33566b; color: var(--cream); background: #07131d; padding: 10px 5px; min-width: 0; cursor: pointer; text-transform: uppercase; transition: transform 100ms steps(2), border-color 100ms; }
 .animal-card:hover { transform: translateY(-3px); border-color: var(--cream); }
 .animal-card.selected { border-color: var(--gold); background: #12324a; box-shadow: 0 0 0 4px var(--orange); }
@@ -48,9 +48,9 @@ button:focus-visible { outline: 4px solid white; outline-offset: 3px; }
 .animal-attributes { display: flex; justify-content: center; gap: 7px; color: #50bce5; font-size: 6px; line-height: 1.4; text-transform: uppercase; }
 .animal-attributes b { color: var(--gold); }
 .animal-card .animal-attributes { margin-bottom: 7px; }
-.pixel-animal { display: block; background-image: url('/animal-sprites-transparent-v3.png'); background-repeat: no-repeat; image-rendering: pixelated; }
-.pixel-animal.portrait { width: 100%; height: clamp(120px, 19vh, 185px); background-size: 800% auto; background-position: calc(var(--sprite-column) * 14.285714%) top; }
-.pixel-animal.fighter { width: 92%; aspect-ratio: 1; background-size: 800% 200%; background-position: calc(var(--sprite-column) * 14.285714%) 100%; align-self: end; }
+.pixel-animal { display: block; background-image: url('/animal-sprites-transparent-v4.png'); background-repeat: no-repeat; image-rendering: pixelated; }
+.pixel-animal.portrait { width: 100%; height: clamp(120px, 19vh, 185px); background-size: 1000% auto; background-position: calc(var(--sprite-column) * 11.111111%) top; }
+.pixel-animal.fighter { width: 92%; aspect-ratio: 1; background-size: 1000% 200%; background-position: calc(var(--sprite-column) * 11.111111%) 100%; align-self: end; }
 .pixel-animal.flip { transform: scaleX(-1); }
 .versus-mark { position: absolute; left: 50%; top: 51%; transform: translate(-50%, -50%) rotate(-5deg); color: var(--gold); font-size: clamp(30px, 5vw, 62px); text-shadow: 4px 4px 0 var(--red); z-index: 2; }
 .select-footer { text-align: center; padding-top: 20px; }
@@ -126,7 +126,7 @@ button:disabled { filter: grayscale(1); opacity: .4; cursor: not-allowed; }
   .select-screen .player-heading { margin-bottom: clamp(7px, 1.5dvh, 16px); }
   .select-screen .roster { min-height: 0; grid-template-rows: repeat(2, minmax(0, 1fr)); gap: clamp(6px, 1.2dvh, 12px); }
   .select-screen .animal-card { min-height: 0; display: grid; grid-template-rows: minmax(0, 1fr) auto auto auto; align-items: center; overflow: hidden; padding: clamp(5px, 1.1dvh, 10px); }
-  .select-screen .pixel-animal.portrait { width: 100%; max-width: 100%; height: auto; max-height: 100%; min-height: 0; aspect-ratio: 1; place-self: center; background-size: 800% 200%; }
+  .select-screen .pixel-animal.portrait { width: 100%; max-width: 100%; height: auto; max-height: 100%; min-height: 0; aspect-ratio: 1; place-self: center; background-size: 1000% 200%; }
   .select-screen .animal-card strong { margin: clamp(4px, 1dvh, 9px) 0 clamp(3px, .8dvh, 7px); }
   .select-screen .animal-card .animal-attributes { margin-bottom: clamp(3px, .8dvh, 7px); }
   .select-screen .select-footer { padding-top: clamp(7px, 1.5dvh, 20px); }
@@ -162,7 +162,7 @@ button:disabled { filter: grayscale(1); opacity: .4; cursor: not-allowed; }
   .animal-card { padding: 5px; }
   .animal-card strong { font-size: 6px; }
   .animal-card .animal-attributes { gap: 5px; margin-bottom: 0; font-size: 5px; }
-  .pixel-animal.portrait { height: auto; aspect-ratio: 1; background-size: 800% 200%; }
+  .pixel-animal.portrait { height: auto; aspect-ratio: 1; background-size: 1000% 200%; }
   .animal-card small { display: none; }
   .battle-screen { padding: 9px; gap: 7px; grid-template-rows: auto auto 220px auto auto auto; }
   .battle-header .logo { font-size: 21px; letter-spacing: -2px; }
