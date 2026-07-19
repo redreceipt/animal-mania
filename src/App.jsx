@@ -125,7 +125,8 @@ function StatusRow({ player }) {
 
 function FighterHud({ player, index, active, label }) {
   return (
-    <aside className={`fighter-hud p${index + 1} ${active ? 'active' : ''}`}>
+    <aside className={`fighter-hud p${index + 1} ${active ? 'active' : ''}`} aria-current={active ? 'step' : undefined}>
+      {active ? <span className="turn-indicator" aria-hidden="true">Active turn</span> : null}
       <div className="hud-identity">
         <span>{label ?? `Player ${index + 1}`}</span>
         <strong>{player.animal.name}</strong>
@@ -177,11 +178,17 @@ function BattleScreen({ choices, singlePlayer, onReset }) {
   const [message, setMessage] = useState(`${choices[opening.active].name}'s speed wins the opening move!`)
   const [log, setLog] = useState([{ id: 0, text: 'The showdown begins.' }])
   const [resolving, setResolving] = useState(false)
+  const [bonusTurn, setBonusTurn] = useState(false)
+  const [turnRevision, setTurnRevision] = useState(0)
   const activeMoves = players[active].animal.moves
   const victor = winner === null ? null : players[winner]
   const actorLabel = singlePlayer && active === 1 ? 'CPU' : `Player ${active + 1}`
   const winnerLabel = singlePlayer && winner === 1 ? 'CPU' : `Player ${winner + 1}`
-  const turnLabel = victor ? `${winnerLabel} wins!` : singlePlayer && active === 1 ? 'CPU is choosing…' : `${actorLabel} — choose a move`
+  const turnLabel = victor
+    ? `${winnerLabel} wins!`
+    : bonusTurn
+      ? `${actorLabel} — bonus turn!`
+      : singlePlayer && active === 1 ? 'CPU is choosing…' : `${actorLabel} — choose a move`
   const homeArena = choices[0]
 
   function resetBattle() {
@@ -192,6 +199,8 @@ function BattleScreen({ choices, singlePlayer, onReset }) {
     setMessage(`${choices[freshBattle.active].name}'s speed wins the opening move!`)
     setLog([{ id: 0, text: 'The showdown begins.' }])
     setResolving(false)
+    setBonusTurn(false)
+    setTurnRevision((current) => current + 1)
   }
 
   const chooseMove = useCallback((index, isCpuAction = false) => {
@@ -202,10 +211,13 @@ function BattleScreen({ choices, singlePlayer, onReset }) {
     const result = resolveAction(players, active, move)
     if (!result.log) { setMessage(result.message); return }
     setPlayers(result.players)
-    const speedBonus = result.winner === null && result.nextActive === active ? ` ${players[active].animal.name}'s speed earns another move!` : ''
+    const earnedBonusTurn = result.winner === null && result.nextActive === active
+    const speedBonus = earnedBonusTurn ? ` ${players[active].animal.name}'s speed earns another move!` : ''
     setMessage(`${result.message}${speedBonus}`)
     setLog((current) => [{ id: Date.now(), text: `${result.log}${speedBonus}` }, ...current].slice(0, 4))
     setResolving(true)
+    setBonusTurn(earnedBonusTurn)
+    setTurnRevision((current) => current + 1)
     if (result.winner !== null) setWinner(result.winner)
     else setActive(result.nextActive)
     window.setTimeout(() => setResolving(false), 360)
@@ -240,7 +252,7 @@ function BattleScreen({ choices, singlePlayer, onReset }) {
       <header className="battle-header"><Logo /><button className="text-btn" onClick={onReset}>Change fighters</button></header>
       <section className="hud-row">
         <FighterHud player={players[0]} index={0} active={active === 0 && !victor} label="Home · Player 1" />
-        <div className="turn-banner" aria-live="polite">{turnLabel}</div>
+        <div key={turnRevision} className={`turn-banner ${bonusTurn ? 'bonus' : ''}`} aria-live="polite">{turnLabel}</div>
         <FighterHud player={players[1]} index={1} active={active === 1 && !victor} label={singlePlayer ? 'Away · CPU' : 'Away · Player 2'} />
       </section>
       <section className="faceoff-arena" style={{ '--arena-image': `url('/animals/arena-${homeArena.id}.webp')` }} aria-label={`${players[0].animal.name} faces ${players[1].animal.name} at ${homeArena.home}`}>
