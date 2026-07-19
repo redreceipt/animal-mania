@@ -5,18 +5,49 @@ import {
 } from './game.js'
 
 const initialSelection = [null, null]
+const imagePromises = new Map()
+
+function animalImage(animal, variant) {
+  return `/animals/${animal.id}-${variant}.webp`
+}
+
+function preloadImage(src) {
+  if (imagePromises.has(src)) return imagePromises.get(src)
+  const promise = new Promise((resolve) => {
+    const image = new Image()
+    const finish = () => image.decode?.().catch(() => {}).finally(resolve) ?? resolve()
+    image.onload = finish
+    image.onerror = resolve
+    image.src = src
+  })
+  imagePromises.set(src, promise)
+  return promise
+}
+
+function battleImages(homeId, awayId) {
+  return [
+    `/animals/${homeId}-fighter.webp`,
+    `/animals/${awayId}-fighter.webp`,
+    `/animals/arena-${homeId}.webp`,
+  ]
+}
 
 function PixelAnimal({ animal, variant = 'portrait', flip = false }) {
+  const [loaded, setLoaded] = useState(false)
+
   return (
-    <img
-      className={`pixel-animal ${variant} ${flip ? 'flip' : ''}`}
-      src={`/animals/${animal.id}-${variant}.webp`}
-      alt={animal.name}
-      width="444"
-      height="444"
-      decoding="async"
-      draggable="false"
-    />
+    <span className={`pixel-animal-frame ${variant} ${loaded ? 'loaded' : ''}`} style={{ '--animal-color': animal.color }}>
+      <img
+        className={`pixel-animal ${loaded ? 'loaded' : ''} ${flip ? 'flip' : ''}`}
+        src={animalImage(animal, variant)}
+        alt={animal.name}
+        width="444"
+        height="444"
+        decoding="async"
+        onLoad={() => setLoaded(true)}
+        draggable="false"
+      />
+    </span>
   )
 }
 
@@ -55,20 +86,41 @@ function ModeScreen({ onChoose }) {
 function SelectScreen({ mode, onBack, onStart }) {
   const [selections, setSelections] = useState(initialSelection)
   const [randomOpponent, setRandomOpponent] = useState(false)
+  const [preparedAssetKey, setPreparedAssetKey] = useState(null)
   const singlePlayer = mode === 'single'
-  const ready = Boolean(selections[0] && (selections[1] || randomOpponent))
+  const homeId = selections[0]?.id
+  const awayId = selections[1]?.id
+  const battleAssetKey = homeId && awayId ? `${homeId}:${awayId}` : null
+  const ready = Boolean(battleAssetKey)
+  const battleAssetsReady = battleAssetKey === preparedAssetKey
+
+  function randomRival(home) {
+    const opponents = ANIMALS.filter((animal) => animal.id !== home?.id)
+    return opponents[Math.floor(Math.random() * opponents.length)]
+  }
 
   function select(player, animal) {
-    setSelections((current) => current.map((value, index) => index === player ? animal : value))
+    setSelections((current) => current.map((value, index) => {
+      if (index === player) return animal
+      if (player === 0 && index === 1 && randomOpponent) return randomRival(animal)
+      return value
+    }))
     if (player === 1) setRandomOpponent(false)
   }
 
   function startMatch() {
-    if (!ready) return
-    if (!randomOpponent) { onStart(selections); return }
-    const opponents = ANIMALS.filter((animal) => animal.id !== selections[0].id)
-    onStart([selections[0], opponents[Math.floor(Math.random() * opponents.length)]])
+    if (!ready || !battleAssetsReady) return
+    onStart(selections)
   }
+
+  useEffect(() => {
+    if (!homeId || !awayId) return undefined
+    let current = true
+    Promise.all(battleImages(homeId, awayId).map(preloadImage)).then(() => {
+      if (current) setPreparedAssetKey(`${homeId}:${awayId}`)
+    })
+    return () => { current = false }
+  }, [awayId, homeId])
 
   return (
     <main className="arcade-shell select-screen">
@@ -80,7 +132,7 @@ function SelectScreen({ mode, onBack, onStart }) {
               <span>{singlePlayer && player === 1 ? 'CPU opponent' : `Player ${player + 1}`}</span>
               <b>{player === 1 && randomOpponent ? 'Random!' : selections[player]?.name ?? 'Choose!'}</b>
             </div>
-            {singlePlayer && player === 1 ? <button className={`random-btn ${randomOpponent ? 'selected' : ''}`} onClick={() => { setSelections((current) => [current[0], null]); setRandomOpponent(true) }} aria-pressed={randomOpponent}>Surprise me · Random rival</button> : null}
+            {singlePlayer && player === 1 ? <button className={`random-btn ${randomOpponent ? 'selected' : ''}`} onClick={() => { setSelections((current) => [current[0], randomRival(current[0])]); setRandomOpponent(true) }} aria-pressed={randomOpponent}>Surprise me · Random rival</button> : null}
             <div className="roster" aria-label={`${singlePlayer && player === 1 ? 'CPU' : `Player ${player + 1}`} animal selection`}>
               {ANIMALS.map((animal) => {
                 const selected = selections[player]?.id === animal.id
@@ -99,8 +151,8 @@ function SelectScreen({ mode, onBack, onStart }) {
       </section>
       <div className="versus-mark" aria-hidden="true">VS</div>
       <footer className="select-footer">
-        <p>{ready ? `${selections[0].name} hosts at ${selections[0].home}. Ready!` : singlePlayer ? 'Choose your home fighter and a CPU rival' : 'Player 1 chooses the home fighter'}</p>
-        <div className="select-actions"><button className="secondary-btn" onClick={onBack}>Back</button><button className="primary-btn" disabled={!ready} onClick={startMatch}>Start showdown</button></div>
+        <p aria-live="polite">{ready ? `${selections[0].name} hosts at ${selections[0].home}. ${battleAssetsReady ? 'Ready!' : 'Preparing arena…'}` : singlePlayer ? 'Choose your home fighter and a CPU rival' : 'Player 1 chooses the home fighter'}</p>
+        <div className="select-actions"><button className="secondary-btn" onClick={onBack}>Back</button><button className="primary-btn" disabled={!ready || !battleAssetsReady} onClick={startMatch} aria-busy={ready && !battleAssetsReady}>{ready && !battleAssetsReady ? 'Preparing arena…' : 'Start showdown'}</button></div>
       </footer>
     </main>
   )
@@ -283,6 +335,11 @@ function BattleScreen({ choices, singlePlayer, onReset }) {
 export default function App() {
   const [mode, setMode] = useState(null)
   const [choices, setChoices] = useState(null)
+
+  useEffect(() => {
+    ANIMALS.forEach((animal) => preloadImage(animalImage(animal, 'portrait')))
+  }, [])
+
   if (!mode) return <ModeScreen onChoose={setMode} />
   if (!choices) return <SelectScreen mode={mode} onBack={() => setMode(null)} onStart={setChoices} />
   return <BattleScreen choices={choices} singlePlayer={mode === 'single'} onReset={() => setChoices(null)} />
