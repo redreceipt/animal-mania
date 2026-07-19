@@ -8,11 +8,14 @@ const initialSelection = [null, null]
 
 function PixelAnimal({ animal, variant = 'portrait', flip = false }) {
   return (
-    <span
+    <img
       className={`pixel-animal ${variant} ${flip ? 'flip' : ''}`}
-      style={{ '--sprite-column': animal.col }}
-      role="img"
-      aria-label={animal.name}
+      src={`/animals/${animal.id}-${variant}.webp`}
+      alt={animal.name}
+      width="444"
+      height="444"
+      decoding="async"
+      draggable="false"
     />
   )
 }
