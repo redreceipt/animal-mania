@@ -3,9 +3,11 @@ import {
   ANIMALS, chooseCpuMove, createFighter, getDamageRange,
   getOpeningActor, resolveAction,
 } from './game.js'
+import { normalizeRoomCode, useOnlineRoom } from './useOnlineRoom.js'
 
 const initialSelection = [null, null]
 const imagePromises = new Map()
+const linkedRoomCode = normalizeRoomCode(new URLSearchParams(window.location.search).get('room'))
 
 function animalImage(animal, variant) {
   return `/animals/${animal.id}-${variant}.webp`
@@ -78,7 +80,130 @@ function ModeScreen({ onChoose }) {
           <strong>Local multiplayer</strong>
           <small>Share the screen and settle the score</small>
         </button>
+        <button className="mode-card online" onClick={() => onChoose('online')}>
+          <span className="mode-icon" aria-hidden="true">↗</span>
+          <strong>Play online</strong>
+          <small>Create a private room or join with a code</small>
+        </button>
       </section>
+    </main>
+  )
+}
+
+function ConnectionNotice({ status, opponentConnected = true }) {
+  if (status === 'reconnecting') return <div className="connection-notice warning" role="status">Reconnecting to room…</div>
+  if (status === 'connecting') return <div className="connection-notice" role="status">Connecting to the wild…</div>
+  if (!opponentConnected) return <div className="connection-notice warning" role="status">Rival disconnected · waiting for them to reconnect</div>
+  return null
+}
+
+function OnlineLobby({ online, onBack }) {
+  const [code, setCode] = useState(linkedRoomCode)
+  const busy = online.status === 'connecting' || online.status === 'reconnecting'
+
+  function submit(event) {
+    event.preventDefault()
+    const normalized = normalizeRoomCode(code)
+    if (normalized) online.joinRoom(normalized)
+  }
+
+  return (
+    <main className="arcade-shell online-lobby">
+      <header className="game-header"><Logo /><p>Private online showdown</p></header>
+      <ConnectionNotice status={online.status} />
+      <section className="online-options" aria-label="Online room options">
+        <div className="online-option">
+          <span className="mode-icon" aria-hidden="true">+</span>
+          <h2>Create a room</h2>
+          <p>Get a memorable code and invite one rival. No account needed.</p>
+          <button className="primary-btn" onClick={online.createRoom} disabled={busy}>Create private room</button>
+        </div>
+        <form className="online-option" onSubmit={submit}>
+          <span className="mode-icon" aria-hidden="true">#</span>
+          <h2>Join a room</h2>
+          <label htmlFor="room-code">Room code</label>
+          <input
+            id="room-code"
+            value={code}
+            onChange={(event) => setCode(event.target.value)}
+            placeholder="brave-otter-maple"
+            autoCapitalize="none"
+            autoCorrect="off"
+            spellCheck="false"
+          />
+          <button className="primary-btn" disabled={busy || !code.trim()}>Join showdown</button>
+        </form>
+      </section>
+      {online.error ? <p className="online-error" role="alert">{online.error}</p> : null}
+      <button className="secondary-btn lobby-back" onClick={onBack}>Back</button>
+    </main>
+  )
+}
+
+function RoomShare({ code }) {
+  const [copied, setCopied] = useState(false)
+  const joinUrl = new URL(window.location.href)
+  joinUrl.searchParams.set('room', code)
+
+  async function copyLink() {
+    try {
+      await navigator.clipboard.writeText(joinUrl.toString())
+      setCopied(true)
+      window.setTimeout(() => setCopied(false), 1800)
+    } catch {
+      setCopied(false)
+    }
+  }
+
+  return (
+    <div className="room-share">
+      <span>Room code</span>
+      <strong>{code}</strong>
+      <input aria-label="Join link" readOnly value={joinUrl.toString()} onFocus={(event) => event.currentTarget.select()} />
+      <button className="secondary-btn" onClick={copyLink}>{copied ? 'Copied!' : 'Copy join link'}</button>
+    </div>
+  )
+}
+
+function OnlineSelectScreen({ online }) {
+  const { room, session } = online
+  const you = session.playerIndex
+  const rival = room.players[1 - you]
+  const selectedId = room.players[you]?.animalId
+  const rivalAnimal = ANIMALS.find((animal) => animal.id === rival?.animalId)
+
+  return (
+    <main className="arcade-shell online-select-screen">
+      <header className="game-header"><Logo /><p>Choose your online fighter</p></header>
+      <ConnectionNotice status={online.status} opponentConnected={rival?.connected ?? true} />
+      <RoomShare code={room.code} />
+      <section className="online-select-layout">
+        <div className="player-select">
+          <div className="player-heading"><span>You · Player {you + 1}</span><b>{ANIMALS.find((animal) => animal.id === selectedId)?.name ?? 'Choose!'}</b></div>
+          <div className="roster" aria-label="Your animal selection">
+            {ANIMALS.map((animal) => {
+              const selected = selectedId === animal.id
+              return (
+                <button className={`animal-card ${selected ? 'selected' : ''}`} key={animal.id} onClick={() => online.selectAnimal(animal.id)} aria-pressed={selected} disabled={online.status !== 'connected'}>
+                  <PixelAnimal animal={animal} />
+                  <strong>{animal.name}</strong>
+                  <AttributeLine animal={animal} />
+                  <small>{animal.detail}</small>
+                </button>
+              )
+            })}
+          </div>
+        </div>
+        <aside className="rival-waiting">
+          <span className="mode-icon" aria-hidden="true">{rival ? '2P' : '…'}</span>
+          <h2>{rival ? 'Rival connected' : 'Waiting for rival'}</h2>
+          {rivalAnimal ? <PixelAnimal animal={rivalAnimal} /> : null}
+          <strong>{rivalAnimal?.name ?? (rival ? 'Choosing a fighter…' : 'Share the code or link')}</strong>
+          <p>{selectedId ? 'Your fighter is locked in when both players choose.' : 'Choose your fighter while you wait.'}</p>
+        </aside>
+      </section>
+      {online.error ? <p className="online-error" role="alert">{online.error}</p> : null}
+      <footer className="select-actions"><button className="secondary-btn" onClick={online.leaveRoom}>Leave room</button></footer>
     </main>
   )
 }
@@ -332,15 +457,119 @@ function BattleScreen({ choices, singlePlayer, onReset }) {
   )
 }
 
+function hydrateOnlineFighter(fighter) {
+  return { ...fighter, animal: ANIMALS.find((animal) => animal.id === fighter.animalId) }
+}
+
+function OnlineBattleScreen({ online }) {
+  const { room, session } = online
+  const { battle } = room
+  const players = battle.players.map(hydrateOnlineFighter)
+  const you = session.playerIndex
+  const rivalIndex = 1 - you
+  const yourPlayer = players[you]
+  const yourTurn = battle.active === you && battle.winner === null
+  const rivalConnected = room.players[rivalIndex].connected
+  const roomConnected = online.status === 'connected'
+  const canAct = yourTurn && rivalConnected && roomConnected
+  const victor = battle.winner === null ? null : players[battle.winner]
+  const youWon = battle.winner === you
+  const rematchRequested = room.players[you].wantsRematch
+  const turnLabel = victor
+    ? (youWon ? 'You win!' : 'Rival wins!')
+    : battle.bonusTurn
+      ? `${battle.active === you ? 'You' : 'Rival'} — bonus turn!`
+      : yourTurn ? 'Your turn — choose a move' : 'Rival is choosing…'
+
+  const chooseMove = useCallback((index) => {
+    if (canAct) online.playMove(index, battle.revision)
+  }, [battle.revision, canAct, online])
+
+  useEffect(() => {
+    function keydown(event) {
+      if (event.repeat || !canAct) return
+      const index = Number(event.key) - 1
+      if (index >= 0 && index < 4) {
+        event.preventDefault()
+        chooseMove(index)
+      }
+    }
+    window.addEventListener('keydown', keydown)
+    return () => window.removeEventListener('keydown', keydown)
+  }, [canAct, chooseMove])
+
+  const homeArena = players[0].animal
+
+  return (
+    <main className="arcade-shell battle-screen online-battle-screen">
+      <header className="battle-header">
+        <Logo />
+        <div className="battle-room"><span>{room.code} · Round {room.round}</span><button className="text-btn" onClick={online.leaveRoom}>Leave room</button></div>
+      </header>
+      <div className="connection-slot"><ConnectionNotice status={online.status} opponentConnected={rivalConnected} /></div>
+      <section className="hud-row">
+        <FighterHud player={players[0]} index={0} active={battle.active === 0 && !victor} label={you === 0 ? 'Home · You' : 'Home · Rival'} />
+        <div key={`${room.round}:${battle.revision}`} className={`turn-banner ${battle.bonusTurn ? 'bonus' : ''}`} aria-live="polite">{turnLabel}</div>
+        <FighterHud player={players[1]} index={1} active={battle.active === 1 && !victor} label={you === 1 ? 'Away · You' : 'Away · Rival'} />
+      </section>
+      <section className="faceoff-arena" style={{ '--arena-image': `url('/animals/arena-${homeArena.id}.webp')` }} aria-label={`${players[0].animal.name} faces ${players[1].animal.name} at ${homeArena.home}`}>
+        <div className="arena-plaque"><span>Home arena</span><strong>{homeArena.home}</strong></div>
+        <div className="fighter-slot left"><PixelAnimal animal={players[0].animal} variant="fighter" /></div>
+        <div className="versus-spark" aria-hidden="true">VS</div>
+        <div className="fighter-slot right"><PixelAnimal animal={players[1].animal} variant="fighter" flip /></div>
+      </section>
+      <p className="battle-message" aria-live="polite">{battle.message}</p>
+      <section className="command-zone">
+        <div className="move-panel">
+          <h2>{victor ? `${victor.animal.name} rules the wild!` : `${yourTurn ? 'Your' : 'Waiting · your'} move set`}</h2>
+          {victor ? (
+            <div className="victory-actions">
+              <button className="primary-btn" onClick={online.requestRematch} disabled={rematchRequested || !roomConnected}>{rematchRequested ? 'Waiting for rival…' : 'Request rematch'}</button>
+              <button className="secondary-btn" onClick={online.leaveRoom}>Leave room</button>
+            </div>
+          ) : (
+            <div className="move-grid">
+              {yourPlayer.animal.moves.map((move, index) => (
+                <MoveButton
+                  key={move.name}
+                  animal={yourPlayer.animal}
+                  move={move}
+                  index={index}
+                  onChoose={() => chooseMove(index)}
+                  disabled={!canAct || (move.type === 'defend' && !yourPlayer.defenseReady)}
+                />
+              ))}
+            </div>
+          )}
+        </div>
+        <BattleLog entries={battle.log} />
+      </section>
+      {online.error ? <p className="online-error compact" role="alert">{online.error}</p> : null}
+      <footer className="hint">The server controls turns and rolls · Your room expires after 30 minutes without activity</footer>
+    </main>
+  )
+}
+
 export default function App() {
-  const [mode, setMode] = useState(null)
+  const [mode, setMode] = useState(linkedRoomCode ? 'online' : null)
   const [choices, setChoices] = useState(null)
+  const online = useOnlineRoom(linkedRoomCode)
 
   useEffect(() => {
     ANIMALS.forEach((animal) => preloadImage(animalImage(animal, 'portrait')))
   }, [])
 
+  function leaveOnline() {
+    online.leaveRoom()
+    setMode(null)
+  }
+
   if (!mode) return <ModeScreen onChoose={setMode} />
+  if (mode === 'online') {
+    if (!online.room) return <OnlineLobby online={online} onBack={leaveOnline} />
+    if (online.room.phase === 'waiting' || online.room.phase === 'selecting') return <OnlineSelectScreen online={online} />
+    return <OnlineBattleScreen online={online} />
+  }
   if (!choices) return <SelectScreen mode={mode} onBack={() => setMode(null)} onStart={setChoices} />
   return <BattleScreen choices={choices} singlePlayer={mode === 'single'} onReset={() => setChoices(null)} />
 }
