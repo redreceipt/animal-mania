@@ -23,10 +23,19 @@ test('animals have distinct attributes and mechanically different move kits', ()
     heal: move.heal,
   }))))
   assert.equal(new Set(profiles).size, ANIMALS.length)
-  assert.deepEqual(ANIMALS.map(({ strength }) => strength), [7, 10, 5, 8, 10, 11, 5, 9])
-  assert.deepEqual(ANIMALS.map(({ speed }) => speed), [7, 4, 10, 5, 3, 3, 9, 5])
-  assert.deepEqual(ANIMALS.map(({ health }) => health), [40, 48, 30, 44, 52, 56, 36, 60])
+  assert.deepEqual(ANIMALS.map(({ strength }) => strength), [7, 10, 5, 8, 10, 11, 5, 9, 9, 8])
+  assert.deepEqual(ANIMALS.map(({ speed }) => speed), [7, 4, 10, 5, 3, 3, 9, 5, 4, 6])
+  assert.deepEqual(ANIMALS.map(({ health }) => health), [40, 48, 30, 44, 52, 56, 36, 60, 50, 46])
   assert.equal(new Set(ANIMALS.map(({ health }) => health)).size, ANIMALS.length)
+})
+
+test('bear fighters have unique roster identities and sprite columns', () => {
+  const grizzly = ANIMALS.find(({ id }) => id === 'grizzly-bear')
+  const polar = ANIMALS.find(({ id }) => id === 'polar-bear')
+
+  assert.deepEqual({ name: grizzly.name, col: grizzly.col }, { name: 'Grizzly Bear', col: 8 })
+  assert.deepEqual({ name: polar.name, col: polar.col }, { name: 'Polar Bear', col: 9 })
+  assert.notDeepEqual(grizzly.moves, polar.moves)
 })
 
 test('fighters start at their animal health cap and healing respects it', () => {

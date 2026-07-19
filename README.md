@@ -18,7 +18,7 @@ Choose single player to face a tactical CPU, or share one screen in local multip
 
 ## Battle rules
 
-- Eight differently styled, evenly matched animals
+- Ten differently styled, evenly matched animals
 - Animal HP ranges from 30 to 60 based on size and toughness
 - Small targets take lighter hits while large targets take heavier hits, keeping the wide HP range balanced without erasing its durability advantage
 - Strength modifies attack damage
@@ -38,6 +38,8 @@ Choose single player to face a tactical CPU, or share one screen in local multip
 - **Hippo — 56 HP / STR 11 / SPD 3:** river powerhouse with punishing bites, strong guard, and recovery
 - **Horse — 36 HP / STR 5 / SPD 9:** fleet combo fighter with focus, evasion, and extra initiative
 - **Elephant — 60 HP / STR 9 / SPD 5:** steady tactician with strong guard and anti-guard attacks
+- **Grizzly Bear — 50 HP / STR 9 / SPD 4:** savage grappler with multi-hit pressure, evasive guard, and anti-guard attacks
+- **Polar Bear — 46 HP / STR 8 / SPD 6:** cold opportunist with evasion, wounded-target pressure, and guard piercing
 
 The kits are intentionally asymmetric. Seeded matchup simulations keep overall random-strategy win rates close while allowing meaningful strengths and counters.
 

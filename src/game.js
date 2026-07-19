@@ -79,6 +79,24 @@ export const ANIMALS = [
       defend('Memory Guard', 0.62, 0.1, 'Strong guard with measured focus.'),
     ],
   },
+  {
+    id: 'grizzly-bear', name: 'Grizzly Bear', color: '#9a582d', detail: 'Savage grappler', col: 8, health: 50, strength: 9, speed: 4,
+    moves: [
+      attack('Paw Swipe', 5, 7, 0.95, 'Reliable. Builds +8% focus.', { focusGain: 0.08 }),
+      attack('Mauling Rush', 4, 5, 0.82, 'Two separate chances to hit.', { hits: 2 }),
+      attack('Bear Hug', 12, 16, 0.58, 'Deals +3 through any guard.', { bonusVsGuard: 3 }),
+      defend('Den Up', 0.64, 0.05, 'Strong guard, 10% evasion, and recover 2 HP.', { evasionGain: 0.1, heal: 2 }),
+    ],
+  },
+  {
+    id: 'polar-bear', name: 'Polar Bear', color: '#dbe8ef', detail: 'Cold opportunist', col: 9, health: 46, strength: 8, speed: 6,
+    moves: [
+      attack('Frost Feint', 4, 6, 0.97, 'Reliable. Gain 10% evasion.', { evasionGain: 0.1 }),
+      attack('Ice Claws', 7, 10, 0.84, 'Deals +2 to wounded foes.', { bonusBelowHalf: 2 }),
+      attack('Glacier Crash', 12, 15, 0.64, 'Powerful hit that pierces 30% of guard.', { guardPierce: 0.3 }),
+      defend('Snowdrift Guard', 0.55, 0.14, 'Guard, focus, and recover 1 HP.', { heal: 1 }),
+    ],
+  },
 ]
 
 export const strengthBonus = (strength) => Math.round((strength - 7) * 0.5)
