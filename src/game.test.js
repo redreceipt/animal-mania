@@ -25,19 +25,31 @@ test('animals have distinct attributes and mechanically different move kits', ()
   assert.equal(new Set(profiles).size, ANIMALS.length)
   assert.deepEqual(ANIMALS.map(({ strength }) => strength), [7, 10, 5, 8, 10, 11, 5, 9])
   assert.deepEqual(ANIMALS.map(({ speed }) => speed), [7, 4, 10, 5, 3, 3, 9, 5])
-  assert.deepEqual(ANIMALS.map(({ health }) => health), [40, 41, 39, 40, 41, 41, 39, 41])
-  assert.deepEqual([...new Set(ANIMALS.map(({ health }) => health))].sort(), [39, 40, 41])
+  assert.deepEqual(ANIMALS.map(({ health }) => health), [40, 48, 30, 44, 52, 56, 36, 60])
+  assert.equal(new Set(ANIMALS.map(({ health }) => health)).size, ANIMALS.length)
 })
 
 test('fighters start at their animal health cap and healing respects it', () => {
   const eagle = createFighter(ANIMALS[2])
   const crocodile = createFighter(ANIMALS[3])
-  assert.equal(eagle.health, 39)
-  assert.equal(crocodile.health, 40)
+  assert.equal(eagle.health, 30)
+  assert.equal(crocodile.health, 44)
 
-  const woundedCrocodile = { ...crocodile, health: 39 }
+  const woundedCrocodile = { ...crocodile, health: 43 }
   const defense = resolveAction([woundedCrocodile, eagle], 0, ANIMALS[3].moves[3], () => 0)
-  assert.equal(defense.players[0].health, 40)
+  assert.equal(defense.players[0].health, 44)
+})
+
+test('size scaling keeps the wide health range from deciding damage races', () => {
+  const tiger = createFighter(ANIMALS[0])
+  const eagle = createFighter(ANIMALS[2])
+  const elephant = createFighter(ANIMALS[7])
+  const move = ANIMALS[0].moves[0]
+
+  const eagleHit = resolveAction([tiger, eagle], 0, move, () => 0)
+  const elephantHit = resolveAction([tiger, elephant], 0, move, () => 0)
+  assert.equal(eagle.health - eagleHit.players[1].health, 3)
+  assert.equal(elephant.health - elephantHit.players[1].health, 6)
 })
 
 test('strength changes displayed and resolved damage ranges', () => {
