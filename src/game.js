@@ -122,7 +122,7 @@ export const ANIMALS = [
     budget: { strength: 6, speed: 3, defense: 8, accuracy: 4, utility: 6, initiative: 3 },
     moves: [
       attack('Claw Rake', 4, 7, 0.95, 'Reliable pressure attack.'),
-      attack('Venom Bite', 6, 9, 0.825, "Poison for 1 damage after each of the foe's next 3 moves.", { poison: { damage: 1, turns: 3 } }),
+      attack('Venom Bite', 6, 9, 0.78, "Poison for 1 damage after each of the foe's next 3 moves.", { poison: { damage: 1, turns: 3 } }),
       attack('Ambush Bite', 11, 15, 0.62, 'Recover 3 HP on a hit.', { heal: 3 }),
       defend('Burrow Brace', 0.6, 0.08, 'Guard and recover 2 HP.', { heal: 2 }),
     ],
