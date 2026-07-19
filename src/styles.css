@@ -50,6 +50,7 @@ button:focus-visible { outline: 4px solid white; outline-offset: 3px; }
 .animal-card .animal-attributes { width: 100%; min-width: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 3px clamp(3px, .5vw, 8px); margin-bottom: 7px; }
 .animal-card .animal-attributes > span { min-width: 0; display: inline-flex; justify-content: center; align-items: baseline; gap: 1px; white-space: nowrap; }
 .pixel-animal-frame { display: grid; place-items: center; overflow: hidden; background: repeating-linear-gradient(135deg, color-mix(in srgb, var(--animal-color) 24%, #07131d) 0 8px, #07131d 8px 16px); }
+.pixel-animal-frame.loaded { background: transparent; }
 .pixel-animal-frame.portrait { width: 100%; height: clamp(120px, 19vh, 185px); }
 .pixel-animal-frame.fighter { width: 92%; height: auto; aspect-ratio: 1; align-self: end; background: transparent; }
 .pixel-animal { display: block; width: 100%; height: 100%; object-fit: contain; image-rendering: pixelated; opacity: 0; user-select: none; transition: opacity 120ms steps(2); }

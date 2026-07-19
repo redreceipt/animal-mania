@@ -36,7 +36,7 @@ function PixelAnimal({ animal, variant = 'portrait', flip = false }) {
   const [loaded, setLoaded] = useState(false)
 
   return (
-    <span className={`pixel-animal-frame ${variant}`} style={{ '--animal-color': animal.color }}>
+    <span className={`pixel-animal-frame ${variant} ${loaded ? 'loaded' : ''}`} style={{ '--animal-color': animal.color }}>
       <img
         className={`pixel-animal ${loaded ? 'loaded' : ''} ${flip ? 'flip' : ''}`}
         src={animalImage(animal, variant)}
