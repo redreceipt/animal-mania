@@ -67,7 +67,7 @@ npm run build
 ```
 
 Gameplay pull requests must also complete the browser, viewport, input, console,
-and documentation checks in the
+arcade visual-fidelity, and documentation checks in the
 [gameplay release quality checklist](docs/gameplay-release-checklist.md). The
 pull request template records the results so the same release bar is applied to
 future gameplay changes.

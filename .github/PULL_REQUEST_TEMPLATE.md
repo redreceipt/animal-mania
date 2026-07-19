@@ -21,6 +21,8 @@ commands, scenarios, and the browser/viewport matrix.
 - [ ] Desktop and mobile layouts pass.
 - [ ] Multiple viewport heights pass, including a short desktop window (`1280 × 600`).
 - [ ] Responsive changes pass in Chrome, Firefox, and Safari (record versions above).
+- [ ] Animal, animation, arena, and UI fidelity matches the launch arcade baseline; changed visuals were compared side by side at rendered size.
+- [ ] Motion keeps the established stepped arcade timing, and reduced-motion behavior passes.
 - [ ] `npm run build` succeeds from a clean install.
 - [ ] Checked flows produce no browser console errors or warnings.
 - [ ] Move descriptions and `README.md` battle rules match any mechanics changes.
