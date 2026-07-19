@@ -85,8 +85,11 @@ button:disabled { filter: grayscale(1); opacity: .4; cursor: not-allowed; }
 .focus-status { color: var(--gold); }
 .evasion-status { color: #a7dc7b; }
 .turn-banner { background: var(--navy); border: 3px solid var(--cream); color: var(--gold); padding: 13px 18px; text-align: center; text-transform: uppercase; font-size: clamp(9px, 1.15vw, 14px); line-height: 1.3; white-space: nowrap; }
-.faceoff-arena { position: relative; min-height: 0; display: grid; grid-template-columns: 1fr 100px 1fr; align-items: end; overflow: hidden; border: 4px solid var(--line); background: #24563a url('/animals/arena-forest.webp') center / cover no-repeat; box-shadow: inset 0 -8px 0 rgb(2 14 23 / .4); }
+.faceoff-arena { position: relative; min-height: 0; display: grid; grid-template-columns: 1fr 100px 1fr; align-items: end; overflow: hidden; border: 4px solid var(--line); background: #24563a var(--arena-image) center / cover no-repeat; box-shadow: inset 0 -8px 0 rgb(2 14 23 / .4); }
 .faceoff-arena::after { content: ''; position: absolute; inset: auto 0 0; height: 6px; background: #182e1c; }
+.arena-plaque { position: absolute; z-index: 2; top: 8px; left: 50%; display: grid; gap: 4px; min-width: 190px; transform: translateX(-50%); border: 2px solid var(--gold); background: rgb(3 20 31 / .88); padding: 6px 12px; color: white; text-align: center; text-transform: uppercase; box-shadow: 3px 3px 0 rgb(1 9 14 / .65); }
+.arena-plaque span { color: #91aaa8; font-size: 5px; }
+.arena-plaque strong { color: var(--gold); font-size: 7px; line-height: 1.3; }
 .fighter-slot { height: 100%; min-width: 0; display: flex; align-items: end; justify-content: center; z-index: 1; }
 .fighter-slot .pixel-animal.fighter { width: min(320px, 78%); aspect-ratio: 1; filter: drop-shadow(8px 9px 0 rgb(1 12 13 / .5)); transition: transform 200ms steps(3); }
 .fighter-slot.right .pixel-animal { transform: scaleX(-1); }
@@ -178,6 +181,8 @@ button:disabled { filter: grayscale(1); opacity: .4; cursor: not-allowed; }
   .health-track { height: 14px; }
   .turn-banner { padding: 9px; font-size: 7px; }
   .faceoff-arena { grid-template-columns: 1fr 35px 1fr; }
+  .arena-plaque { top: 5px; min-width: 150px; padding: 5px 8px; }
+  .arena-plaque strong { font-size: 6px; }
   .fighter-slot .pixel-animal.fighter { width: 100%; }
   .versus-spark { font-size: 13px; }
   .battle-message { min-height: 48px; padding: 8px; font-size: 6px; }

@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict'
+import { existsSync } from 'node:fs'
 import test from 'node:test'
 import {
   ANIMALS, chooseCpuMove, createFighter, defenseMultiplier, getDamageRange, getLegalMoves,
@@ -28,6 +29,14 @@ test('animals have distinct attributes and mechanically different move kits', ()
   assert.deepEqual(ANIMALS.map(({ speed }) => speed), [7, 4, 10, 5, 3, 3, 9, 5, 4, 6])
   assert.deepEqual(ANIMALS.map(({ health }) => health), [40, 48, 30, 44, 52, 56, 36, 60, 50, 46])
   assert.equal(new Set(ANIMALS.map(({ health }) => health)).size, ANIMALS.length)
+})
+
+test('every animal has a unique home arena asset', () => {
+  assert.equal(new Set(ANIMALS.map(({ home }) => home)).size, ANIMALS.length)
+  for (const animal of ANIMALS) {
+    assert.ok(animal.home, `${animal.name} needs a home arena name`)
+    assert.ok(existsSync(new URL(`../public/animals/arena-${animal.id}.webp`, import.meta.url)), `${animal.name} needs a home arena image`)
+  }
 })
 
 test('bear fighters have unique roster identities and sprite columns', () => {

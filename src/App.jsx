@@ -99,7 +99,7 @@ function SelectScreen({ mode, onBack, onStart }) {
       </section>
       <div className="versus-mark" aria-hidden="true">VS</div>
       <footer className="select-footer">
-        <p>{ready ? `${selections[0].name} versus ${randomOpponent ? 'a mystery rival' : selections[1].name}. Ready!` : singlePlayer ? 'Choose your fighter and a CPU rival' : 'Each player chooses one fighter'}</p>
+        <p>{ready ? `${selections[0].name} hosts at ${selections[0].home}. Ready!` : singlePlayer ? 'Choose your home fighter and a CPU rival' : 'Player 1 chooses the home fighter'}</p>
         <div className="select-actions"><button className="secondary-btn" onClick={onBack}>Back</button><button className="primary-btn" disabled={!ready} onClick={startMatch}>Start showdown</button></div>
       </footer>
     </main>
@@ -182,6 +182,7 @@ function BattleScreen({ choices, singlePlayer, onReset }) {
   const actorLabel = singlePlayer && active === 1 ? 'CPU' : `Player ${active + 1}`
   const winnerLabel = singlePlayer && winner === 1 ? 'CPU' : `Player ${winner + 1}`
   const turnLabel = victor ? `${winnerLabel} wins!` : singlePlayer && active === 1 ? 'CPU is choosing…' : `${actorLabel} — choose a move`
+  const homeArena = choices[0]
 
   function resetBattle() {
     const freshBattle = makeBattle(choices)
@@ -238,11 +239,12 @@ function BattleScreen({ choices, singlePlayer, onReset }) {
     <main className={`arcade-shell battle-screen ${resolving ? 'resolving' : ''}`}>
       <header className="battle-header"><Logo /><button className="text-btn" onClick={onReset}>Change fighters</button></header>
       <section className="hud-row">
-        <FighterHud player={players[0]} index={0} active={active === 0 && !victor} />
+        <FighterHud player={players[0]} index={0} active={active === 0 && !victor} label="Home · Player 1" />
         <div className="turn-banner" aria-live="polite">{turnLabel}</div>
-        <FighterHud player={players[1]} index={1} active={active === 1 && !victor} label={singlePlayer ? 'CPU opponent' : undefined} />
+        <FighterHud player={players[1]} index={1} active={active === 1 && !victor} label={singlePlayer ? 'Away · CPU' : 'Away · Player 2'} />
       </section>
-      <section className="faceoff-arena" aria-label={`${players[0].animal.name} faces ${players[1].animal.name}`}>
+      <section className="faceoff-arena" style={{ '--arena-image': `url('/animals/arena-${homeArena.id}.webp')` }} aria-label={`${players[0].animal.name} faces ${players[1].animal.name} at ${homeArena.home}`}>
+        <div className="arena-plaque"><span>Home arena</span><strong>{homeArena.home}</strong></div>
         <div className="fighter-slot left"><PixelAnimal animal={players[0].animal} variant="fighter" /></div>
         <div className="versus-spark" aria-hidden="true">VS</div>
         <div className="fighter-slot right"><PixelAnimal animal={players[1].animal} variant="fighter" flip /></div>
