@@ -20,8 +20,8 @@ test('animals have distinct attributes and mechanically different move kits', ()
     heal: move.heal,
   }))))
   assert.equal(new Set(profiles).size, ANIMALS.length)
-  assert.deepEqual(ANIMALS.map(({ strength }) => strength), [7, 10, 5, 8])
-  assert.deepEqual(ANIMALS.map(({ speed }) => speed), [7, 4, 10, 5])
+  assert.deepEqual(ANIMALS.map(({ strength }) => strength), [7, 10, 5, 8, 10, 11, 5, 9])
+  assert.deepEqual(ANIMALS.map(({ speed }) => speed), [7, 4, 10, 5, 3, 3, 9, 5])
 })
 
 test('strength changes displayed and resolved damage ranges', () => {

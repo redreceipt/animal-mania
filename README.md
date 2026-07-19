@@ -18,7 +18,7 @@ Both players share one screen. Pick a fighter, then use its four-move kit to out
 
 ## Battle rules
 
-- Four differently styled, evenly matched animals
+- Eight differently styled, evenly matched animals
 - 40 HP each
 - Strength modifies attack damage
 - Speed decides the opening move and controls initiative; fast fighters occasionally act twice in succession
@@ -33,6 +33,10 @@ Both players share one screen. Pick a fighter, then use its four-move kit to out
 - **Gorilla — STR 10 / SPD 4:** slow bruiser with the hardest hits, strongest guard, and guard-piercing attacks
 - **Eagle — STR 5 / SPD 10:** swift trickster with multi-hit attacks, evasion, and extra initiative
 - **Crocodile — STR 8 / SPD 5:** armored survivor with healing and anti-guard pressure
+- **Rhino — STR 10 / SPD 3:** relentless charger with heavy guard-piercing attacks
+- **Hippo — STR 11 / SPD 3:** river powerhouse with punishing bites, strong guard, and recovery
+- **Horse — STR 5 / SPD 9:** fleet combo fighter with focus, evasion, and extra initiative
+- **Elephant — STR 9 / SPD 5:** steady tactician with strong guard and anti-guard attacks
 
 The kits are intentionally asymmetric. Seeded matchup simulations keep overall random-strategy win rates close while allowing meaningful strengths and counters.
 

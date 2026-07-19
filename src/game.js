@@ -45,6 +45,42 @@ export const ANIMALS = [
       defend('Scaled Stance', 0.6, 0.08, 'Guard and recover 2 HP.', { heal: 2 }),
     ],
   },
+  {
+    id: 'rhino', name: 'Rhino', color: '#8d98a5', detail: 'Relentless charger', col: 4, strength: 10, speed: 3,
+    moves: [
+      attack('Horn Feint', 5, 8, 0.93, 'Reliable. Slips through 15% of guard.', { guardPierce: 0.15 }),
+      attack('Stampede', 9, 11, 0.78, 'Deals +2 through any guard.', { bonusVsGuard: 2 }),
+      attack('Horn Charge', 13, 17, 0.6, 'Heavy charge that pierces 35% of guard.', { guardPierce: 0.35 }),
+      defend('Thick Hide', 0.66, 0.06, 'Powerful guard with a little focus.'),
+    ],
+  },
+  {
+    id: 'hippo', name: 'Hippo', color: '#80708f', detail: 'River powerhouse', col: 5, strength: 11, speed: 3,
+    moves: [
+      attack('Jaw Jab', 4, 6, 0.95, 'Short-range, dependable bite.'),
+      attack('River Rush', 7, 10, 0.84, 'Deals +2 to wounded foes.', { bonusBelowHalf: 2 }),
+      attack('Crushing Bite', 12, 16, 0.64, 'A fearsome all-or-nothing chomp.'),
+      defend('Mud Wall', 0.675, 0.03, 'Heavy guard and recover 2 HP.', { heal: 2 }),
+    ],
+  },
+  {
+    id: 'horse', name: 'Horse', color: '#c56c2d', detail: 'Fleet combo fighter', col: 6, strength: 5, speed: 9,
+    moves: [
+      attack('Hoof Flick', 5, 7, 0.97, 'Reliable. Builds +10% focus.', { focusGain: 0.1 }),
+      attack('Gallop Combo', 4, 5, 0.8, 'Two separate chances to connect.', { hits: 2 }),
+      attack('Rear Kick', 11, 15, 0.7, 'Strong. Gain 12% evasion.', { evasionGain: 0.12 }),
+      defend('Second Wind', 0.35, 0.2, 'Light guard with focus and evasion.', { evasionGain: 0.1 }),
+    ],
+  },
+  {
+    id: 'elephant', name: 'Elephant', color: '#718da2', detail: 'Steady tactician', col: 7, strength: 9, speed: 5,
+    moves: [
+      attack('Trunk Tap', 5, 7, 0.96, 'Reliable pressure attack.'),
+      attack('Tusk Sweep', 8, 11, 0.82, 'Deals +3 through any guard.', { bonusVsGuard: 3 }),
+      attack('Earthshaker', 13, 17, 0.62, 'Powerful hit that pierces 30% of guard.', { guardPierce: 0.3 }),
+      defend('Memory Guard', 0.62, 0.1, 'Strong guard with measured focus.'),
+    ],
+  },
 ]
 
 export const strengthBonus = (strength) => Math.round((strength - 7) * 0.5)
