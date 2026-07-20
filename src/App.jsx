@@ -3,6 +3,7 @@ import {
   ANIMALS, chooseCpuMove, createFighter, getDamageRange,
   getOpeningActor, resolveAction,
 } from './game.js'
+import { analytics } from './analytics.js'
 import { measureFighterGroundOffset } from './fighter-image.js'
 import { normalizeRoomCode, useOnlineRoom } from './useOnlineRoom.js'
 
@@ -165,6 +166,7 @@ function RoomShare({ code }) {
     try {
       await navigator.clipboard.writeText(joinUrl.toString())
       setCopied(true)
+      analytics.onlineRoomLinkCopied()
       window.setTimeout(() => setCopied(false), 1800)
     } catch {
       setCopied(false)
@@ -191,7 +193,14 @@ function OnlineSelectScreen({ online }) {
 
   function selectFighter(animalId, randomized = false) {
     setRandomSelection(randomized)
-    online.selectAnimal(animalId)
+    if (online.selectAnimal(animalId)) {
+      analytics.fighterSelected({
+        mode: 'online',
+        fighter: animalId,
+        player: 'self',
+        selection: randomized ? 'random' : 'manual',
+      })
+    }
   }
 
   return (
@@ -253,20 +262,41 @@ function SelectScreen({ mode, onBack, onStart }) {
       return value
     }))
     setRandomSelections((current) => current.map((random, index) => index === player ? false : random))
+    analytics.fighterSelected({
+      mode,
+      fighter: animal.id,
+      player: singlePlayer && player === 1 ? 'cpu' : player === 0 ? 'home' : 'away',
+      selection: 'manual',
+    })
   }
 
   function randomize(player) {
+    const selected = randomFighter(player)
+    const rerolledCpu = player === 0 && singlePlayer && randomSelections[1]
+      ? randomFighter(1, selected)
+      : null
     setSelections((current) => {
       const next = [...current]
-      next[player] = randomFighter(player, current[0])
-      if (player === 0 && singlePlayer && randomSelections[1]) next[1] = randomFighter(1, next[0])
+      next[player] = selected
+      if (rerolledCpu) next[1] = rerolledCpu
       return next
     })
     setRandomSelections((current) => current.map((random, index) => index === player ? true : random))
+    analytics.fighterSelected({
+      mode,
+      fighter: selected.id,
+      player: singlePlayer && player === 1 ? 'cpu' : player === 0 ? 'home' : 'away',
+      selection: 'random',
+    })
   }
 
   function startMatch() {
     if (!ready || !battleAssetsReady) return
+    analytics.matchStarted({
+      mode,
+      homeFighter: selections[0].id,
+      awayFighter: selections[1].id,
+    })
     onStart(selections)
   }
 
@@ -397,6 +427,8 @@ function BattleScreen({ choices, singlePlayer, onReset }) {
   const [resolving, setResolving] = useState(false)
   const [bonusTurn, setBonusTurn] = useState(false)
   const [turnRevision, setTurnRevision] = useState(0)
+  const [turnCount, setTurnCount] = useState(0)
+  const mode = singlePlayer ? 'single' : 'local'
   const activeMoves = players[active].animal.moves
   const victor = winner === null ? null : players[winner]
   const actorLabel = singlePlayer && active === 1 ? 'CPU' : `Player ${active + 1}`
@@ -409,6 +441,7 @@ function BattleScreen({ choices, singlePlayer, onReset }) {
   const homeArena = choices[0]
 
   function resetBattle() {
+    analytics.rematchStarted(mode)
     const freshBattle = makeBattle(choices)
     setPlayers(freshBattle.players)
     setActive(freshBattle.active)
@@ -417,16 +450,25 @@ function BattleScreen({ choices, singlePlayer, onReset }) {
     setLog([{ id: 0, text: 'The showdown begins.' }])
     setResolving(false)
     setBonusTurn(false)
+    setTurnCount(0)
     setTurnRevision((current) => current + 1)
   }
 
-  const chooseMove = useCallback((index, isCpuAction = false) => {
+  const chooseMove = useCallback((index, isCpuAction = false, input = 'button') => {
     if (resolving || victor) return
     if (singlePlayer && active === 1 && !isCpuAction) return
     const move = activeMoves[index]
     if (!move || (move.type === 'defend' && !players[active].defenseReady)) return
     const result = resolveAction(players, active, move)
     if (!result.log) { setMessage(result.message); return }
+    analytics.moveUsed({
+      mode,
+      fighter: players[active].animal.id,
+      move: move.name,
+      moveType: move.type,
+      actor: singlePlayer && active === 1 ? 'cpu' : active === 0 ? 'home' : 'away',
+      input: isCpuAction ? 'cpu' : input,
+    })
     setPlayers(result.players)
     const earnedBonusTurn = result.winner === null && result.nextActive === active
     const speedBonus = earnedBonusTurn ? ` ${players[active].animal.name}'s speed earns another move!` : ''
@@ -434,17 +476,27 @@ function BattleScreen({ choices, singlePlayer, onReset }) {
     setLog((current) => [{ id: Date.now(), text: `${result.log}${speedBonus}` }, ...current].slice(0, 4))
     setResolving(true)
     setBonusTurn(earnedBonusTurn)
+    setTurnCount((current) => current + 1)
     setTurnRevision((current) => current + 1)
-    if (result.winner !== null) setWinner(result.winner)
-    else setActive(result.nextActive)
+    if (result.winner !== null) {
+      const loser = 1 - result.winner
+      analytics.matchCompleted({
+        mode,
+        winnerFighter: result.players[result.winner].animal.id,
+        loserFighter: result.players[loser].animal.id,
+        winnerSide: result.winner === 0 ? 'home' : 'away',
+        turns: turnCount + 1,
+      })
+      setWinner(result.winner)
+    } else setActive(result.nextActive)
     window.setTimeout(() => setResolving(false), 360)
-  }, [active, activeMoves, players, resolving, singlePlayer, victor])
+  }, [active, activeMoves, mode, players, resolving, singlePlayer, turnCount, victor])
 
   useEffect(() => {
     if (!singlePlayer || active !== 1 || resolving || winner !== null) return undefined
     const timer = window.setTimeout(() => {
       const move = chooseCpuMove(players, 1)
-      chooseMove(activeMoves.indexOf(move), true)
+      chooseMove(activeMoves.indexOf(move), true, 'cpu')
     }, 650)
     return () => window.clearTimeout(timer)
   }, [active, activeMoves, chooseMove, players, resolving, singlePlayer, winner])
@@ -455,7 +507,7 @@ function BattleScreen({ choices, singlePlayer, onReset }) {
       const index = Number(event.key) - 1
       if (index >= 0 && index < 4) {
         event.preventDefault()
-        chooseMove(index)
+        chooseMove(index, false, 'keyboard')
       }
     }
     window.addEventListener('keydown', keydown)
@@ -558,9 +610,20 @@ function OnlineBattleScreen({ online }) {
       ? `${battle.active === you ? 'You' : 'Rival'} — bonus turn!`
       : yourTurn ? 'Your turn — choose a move' : 'Rival is choosing…'
 
-  const chooseMove = useCallback((index) => {
-    if (canAct) online.playMove(index, battle.revision)
-  }, [battle.revision, canAct, online])
+  const chooseMove = useCallback((index, input = 'button') => {
+    const move = yourPlayer.animal.moves[index]
+    if (canAct && move && online.playMove(index, battle.revision)) {
+      analytics.moveUsed({
+        mode: 'online',
+        fighter: yourPlayer.animal.id,
+        move: move.name,
+        moveType: move.type,
+        actor: 'self',
+        input,
+        round: room.round,
+      })
+    }
+  }, [battle.revision, canAct, online, room.round, yourPlayer])
 
   useEffect(() => {
     function keydown(event) {
@@ -568,7 +631,7 @@ function OnlineBattleScreen({ online }) {
       const index = Number(event.key) - 1
       if (index >= 0 && index < 4) {
         event.preventDefault()
-        chooseMove(index)
+        chooseMove(index, 'keyboard')
       }
     }
     window.addEventListener('keydown', keydown)
@@ -638,12 +701,27 @@ export default function App() {
     setMode(null)
   }
 
-  if (!mode) return <ModeScreen onChoose={setMode} />
+  function chooseMode(nextMode) {
+    analytics.modeSelected(nextMode)
+    setMode(nextMode)
+  }
+
+  function exitSelection() {
+    analytics.selectionExited(mode)
+    setMode(null)
+  }
+
+  function changeFighters() {
+    analytics.fightersChanged(mode)
+    setChoices(null)
+  }
+
+  if (!mode) return <ModeScreen onChoose={chooseMode} />
   if (mode === 'online') {
     if (!online.room) return <OnlineLobby online={online} onBack={leaveOnline} />
     if (online.room.phase === 'waiting' || online.room.phase === 'selecting') return <OnlineSelectScreen online={online} />
     return <OnlineBattleScreen online={online} />
   }
-  if (!choices) return <SelectScreen mode={mode} onBack={() => setMode(null)} onStart={setChoices} />
-  return <BattleScreen choices={choices} singlePlayer={mode === 'single'} onReset={() => setChoices(null)} />
+  if (!choices) return <SelectScreen mode={mode} onBack={exitSelection} onStart={setChoices} />
+  return <BattleScreen choices={choices} singlePlayer={mode === 'single'} onReset={changeFighters} />
 }
