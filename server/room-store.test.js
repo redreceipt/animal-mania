@@ -126,6 +126,35 @@ test('a rematch starts only after the receiving player explicitly accepts', () =
   assert.equal(room.rematch, null)
 })
 
+test('players can change fighters after a match without leaving the room', () => {
+  const store = makeStore()
+  const { host, guest } = startMatch(store)
+  const tokens = [host.token, guest.token]
+  let room = store.snapshot(host.code)
+
+  expectRoomError('MATCH_NOT_FINISHED', () => store.changeFighters(host.code, host.token))
+  for (let turn = 0; turn < 100 && room.phase !== 'finished'; turn += 1) {
+    room = store.playMove(host.code, tokens[room.battle.active], 0, room.battle.revision)
+  }
+
+  room = store.requestRematch(host.code, host.token)
+  assert.equal(room.rematch.status, 'pending')
+  room = store.changeFighters(host.code, guest.token)
+  assert.equal(room.code, host.code)
+  assert.equal(room.phase, 'selecting')
+  assert.equal(room.round, 1)
+  assert.deepEqual(room.players.map(({ animalId }) => animalId), [null, null])
+  assert.equal(room.battle, null)
+  assert.equal(room.rematch, null)
+
+  room = store.selectAnimal(host.code, host.token, 'lion')
+  assert.equal(room.phase, 'selecting')
+  room = store.selectAnimal(host.code, guest.token, 'panther')
+  assert.equal(room.phase, 'battle')
+  assert.equal(room.round, 2)
+  assert.deepEqual(room.battle.players.map(({ animalId }) => animalId), ['lion', 'panther'])
+})
+
 test('inactive private rooms expire and can no longer be joined', () => {
   let now = 1_000
   const store = makeStore({ now: () => now, ttlMs: 500 })

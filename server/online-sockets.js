@@ -63,6 +63,8 @@ export function attachOnlineSockets(webSockets) {
           room = rooms.acceptRematch(session.code, session.token)
         } else if (message.type === 'rematch-decline') {
           room = rooms.declineRematch(session.code, session.token)
+        } else if (message.type === 'change-fighters') {
+          room = rooms.changeFighters(session.code, session.token)
         }
         else throw new RoomError('BAD_REQUEST', 'Unknown room action.')
         broadcast(session.code, room)

@@ -579,6 +579,7 @@ function RematchControls({ online, rematch, playerIndex, connected }) {
         <div className="victory-actions">
           <button className="primary-btn" onClick={online.acceptRematch} disabled={!connected}>Accept rematch</button>
           <button className="secondary-btn" onClick={online.declineRematch} disabled={!connected}>Decline</button>
+          <button className="secondary-btn" onClick={online.changeFighters} disabled={!connected}>Change fighters</button>
         </div>
       </div>
     )
@@ -597,6 +598,7 @@ function RematchControls({ online, rematch, playerIndex, connected }) {
       <p className="rematch-status" role="status" aria-live="polite">{status}</p>
       <div className="victory-actions">
         <button className="primary-btn" onClick={online.requestRematch} disabled={requestedByYou || !connected}>{requestedByYou ? 'Waiting for rival…' : declinedYourRequest ? 'Request again' : 'Request rematch'}</button>
+        <button className="secondary-btn" onClick={online.changeFighters} disabled={!connected}>Change fighters</button>
         <button className="secondary-btn" onClick={online.leaveRoom}>Leave room</button>
       </div>
     </div>
