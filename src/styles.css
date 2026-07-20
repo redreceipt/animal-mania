@@ -99,7 +99,7 @@ button:disabled { filter: grayscale(1); opacity: .4; cursor: not-allowed; }
 .battle-screen.online-battle-screen { grid-template-rows: auto auto auto minmax(220px, 1fr) auto auto auto; }
 .online-battle-screen .connection-slot { min-height: 0; }
 .online-battle-screen .connection-notice { margin-bottom: 0; }
-.battle-screen { min-height: auto; height: min(880px, calc(100vh - 36px)); display: grid; grid-template-rows: auto auto minmax(220px, 1fr) auto auto auto; gap: 10px; }
+.battle-screen { min-height: min(880px, calc(100vh - 36px)); display: grid; grid-template-rows: auto auto minmax(220px, 1fr) auto auto auto; gap: 10px; }
 .battle-header { display: flex; align-items: center; justify-content: space-between; min-height: 45px; }
 .battle-header .logo { font-size: clamp(24px, 2.9vw, 42px); }
 .text-btn { color: var(--cream); background: transparent; border: 2px solid var(--line); padding: 10px 12px; cursor: pointer; font-size: 8px; text-transform: uppercase; }
