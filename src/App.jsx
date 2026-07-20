@@ -1,10 +1,11 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import {
   ANIMALS, chooseCpuMove, createFighter, getDamageRange,
   getOpeningActor, resolveAction,
 } from './game.js'
 import { analytics } from './analytics.js'
 import { measureFighterGroundOffset } from './fighter-image.js'
+import { createMoveAnimation, MOVE_ANIMATION_MS } from './move-animation.js'
 import { normalizeRoomCode, useOnlineRoom } from './useOnlineRoom.js'
 
 const initialSelection = [null, null]
@@ -423,6 +424,31 @@ function BattleLog({ entries }) {
   )
 }
 
+function BattleArena({ players, homeArena, action }) {
+  const actionClasses = action
+    ? `action-${action.style} actor-p${action.actor + 1} outcome-${action.outcome}`
+    : ''
+
+  return (
+    <section
+      className={`faceoff-arena ${actionClasses}`}
+      style={{
+        '--arena-image': `url('/animals/arena-${homeArena.id}.webp')`,
+        '--move-animation-duration': `${MOVE_ANIMATION_MS}ms`,
+      }}
+      aria-label={`${players[0].animal.name} faces ${players[1].animal.name} at ${homeArena.home}`}
+      data-animation={action?.style}
+      data-outcome={action?.outcome}
+    >
+      <div className="arena-plaque"><span>Home arena</span><strong>{homeArena.home}</strong></div>
+      <div className="fighter-slot left"><PixelAnimal animal={players[0].animal} variant="fighter" /></div>
+      <div className="versus-spark" aria-hidden="true">VS</div>
+      <div className="fighter-slot right"><PixelAnimal animal={players[1].animal} variant="fighter" flip /></div>
+      {action ? <div className="move-flash" aria-hidden="true">{action.glyph}</div> : null}
+    </section>
+  )
+}
+
 function BattleScreen({ choices, singlePlayer, onReset }) {
   const [opening] = useState(() => makeBattle(choices))
   const [players, setPlayers] = useState(opening.players)
@@ -431,6 +457,8 @@ function BattleScreen({ choices, singlePlayer, onReset }) {
   const [message, setMessage] = useState(`${choices[opening.active].name}'s speed wins the opening move!`)
   const [log, setLog] = useState([{ id: 0, text: 'The showdown begins.' }])
   const [resolving, setResolving] = useState(false)
+  const [actionAnimation, setActionAnimation] = useState(null)
+  const actionTimer = useRef(null)
   const [bonusTurn, setBonusTurn] = useState(false)
   const [turnRevision, setTurnRevision] = useState(0)
   const [turnCount, setTurnCount] = useState(0)
@@ -450,9 +478,11 @@ function BattleScreen({ choices, singlePlayer, onReset }) {
 
   useEffect(() => {
     window.scrollTo(0, 0)
+    return () => window.clearTimeout(actionTimer.current)
   }, [])
 
   function resetBattle() {
+    window.clearTimeout(actionTimer.current)
     analytics.rematchStarted(mode)
     const freshBattle = makeBattle(choices)
     setPlayers(freshBattle.players)
@@ -461,6 +491,7 @@ function BattleScreen({ choices, singlePlayer, onReset }) {
     setMessage(`${choices[freshBattle.active].name}'s speed wins the opening move!`)
     setLog([{ id: 0, text: 'The showdown begins.' }])
     setResolving(false)
+    setActionAnimation(null)
     setBonusTurn(false)
     setTurnCount(0)
     setTurnRevision((current) => current + 1)
@@ -482,6 +513,12 @@ function BattleScreen({ choices, singlePlayer, onReset }) {
       input: isCpuAction ? 'cpu' : input,
     })
     setPlayers(result.players)
+    setActionAnimation(createMoveAnimation({
+      move,
+      moveIndex: index,
+      actor: active,
+      damage: players[1 - active].health - result.players[1 - active].health,
+    }))
     const earnedBonusTurn = result.winner === null && result.nextActive === active
     const speedBonus = earnedBonusTurn ? ` ${players[active].animal.name}'s speed earns another move!` : ''
     setMessage(`${result.message}${speedBonus}`)
@@ -501,7 +538,10 @@ function BattleScreen({ choices, singlePlayer, onReset }) {
       })
       setWinner(result.winner)
     } else setActive(result.nextActive)
-    window.setTimeout(() => setResolving(false), 360)
+    actionTimer.current = window.setTimeout(() => {
+      setResolving(false)
+      setActionAnimation(null)
+    }, MOVE_ANIMATION_MS)
   }, [active, activeMoves, mode, players, resolving, singlePlayer, turnCount, victor])
 
   useEffect(() => {
@@ -529,19 +569,14 @@ function BattleScreen({ choices, singlePlayer, onReset }) {
   const commandHint = victor ? `${victor.animal.name} rules the wild!` : `${players[active].animal.name}'s move set`
 
   return (
-    <main className={`arcade-shell battle-screen ${resolving ? 'resolving' : ''}`}>
+    <main className="arcade-shell battle-screen">
       <header className="battle-header"><Logo /><button className="text-btn" onClick={onReset}>Change fighters</button></header>
       <section className={`hud-row ${victor ? '' : 'has-active-turn'}`}>
         <FighterHud player={players[0]} index={0} active={active === 0 && !victor} label="Home · Player 1" />
         <div key={turnRevision} className={`turn-banner p${active + 1} ${bonusTurn ? 'bonus' : ''}`} role="status" aria-live="polite" aria-atomic="true">{turnLabel}</div>
         <FighterHud player={players[1]} index={1} active={active === 1 && !victor} label={singlePlayer ? 'Away · CPU' : 'Away · Player 2'} />
       </section>
-      <section className="faceoff-arena" style={{ '--arena-image': `url('/animals/arena-${homeArena.id}.webp')` }} aria-label={`${players[0].animal.name} faces ${players[1].animal.name} at ${homeArena.home}`}>
-        <div className="arena-plaque"><span>Home arena</span><strong>{homeArena.home}</strong></div>
-        <div className="fighter-slot left"><PixelAnimal animal={players[0].animal} variant="fighter" /></div>
-        <div className="versus-spark" aria-hidden="true">VS</div>
-        <div className="fighter-slot right"><PixelAnimal animal={players[1].animal} variant="fighter" flip /></div>
-      </section>
+      <BattleArena players={players} homeArena={homeArena} action={actionAnimation} />
       <p className="battle-message" aria-live="polite">{message}</p>
       <section className="command-zone">
         <div className={`move-panel ${victor ? '' : `turn-p${active + 1}`} ${bonusTurn ? 'bonus-turn' : ''}`}>
@@ -612,10 +647,12 @@ function OnlineBattleScreen({ online }) {
   const you = session.playerIndex
   const rivalIndex = 1 - you
   const yourPlayer = players[you]
+  const [actionAnimation, setActionAnimation] = useState(null)
+  const lastSeenAction = useRef({ round: room.round, revision: battle.revision })
   const yourTurn = battle.active === you && battle.winner === null
   const rivalConnected = room.players[rivalIndex].connected
   const roomConnected = online.status === 'connected'
-  const canAct = yourTurn && rivalConnected && roomConnected
+  const canAct = yourTurn && rivalConnected && roomConnected && !actionAnimation
   const victor = battle.winner === null ? null : players[battle.winner]
   const youWon = battle.winner === you
   const turnLabel = victor
@@ -626,6 +663,31 @@ function OnlineBattleScreen({ online }) {
   useEffect(() => {
     window.scrollTo(0, 0)
   }, [])
+
+  const lastAction = battle.lastAction
+  const lastActionMove = lastAction
+    ? players[lastAction.actor]?.animal.moves[lastAction.moveIndex]
+    : null
+
+  useEffect(() => {
+    if (lastSeenAction.current.round !== room.round) {
+      lastSeenAction.current = { round: room.round, revision: battle.revision }
+      setActionAnimation(null)
+      return undefined
+    }
+    if (battle.revision <= lastSeenAction.current.revision) return undefined
+    lastSeenAction.current.revision = battle.revision
+    if (!lastAction || !lastActionMove) return undefined
+
+    setActionAnimation(createMoveAnimation({
+      move: lastActionMove,
+      moveIndex: lastAction.moveIndex,
+      actor: lastAction.actor,
+      outcome: lastAction.outcome,
+    }))
+    const timer = window.setTimeout(() => setActionAnimation(null), MOVE_ANIMATION_MS)
+    return () => window.clearTimeout(timer)
+  }, [battle.revision, lastAction, lastActionMove, room.round])
 
   const chooseMove = useCallback((index, input = 'button') => {
     const move = yourPlayer.animal.moves[index]
@@ -669,12 +731,7 @@ function OnlineBattleScreen({ online }) {
         <div key={`${room.round}:${battle.revision}`} className={`turn-banner p${battle.active + 1} ${battle.bonusTurn ? 'bonus' : ''}`} role="status" aria-live="polite" aria-atomic="true">{turnLabel}</div>
         <FighterHud player={players[1]} index={1} active={battle.active === 1 && !victor} label={you === 1 ? 'Away · You' : 'Away · Rival'} />
       </section>
-      <section className="faceoff-arena" style={{ '--arena-image': `url('/animals/arena-${homeArena.id}.webp')` }} aria-label={`${players[0].animal.name} faces ${players[1].animal.name} at ${homeArena.home}`}>
-        <div className="arena-plaque"><span>Home arena</span><strong>{homeArena.home}</strong></div>
-        <div className="fighter-slot left"><PixelAnimal animal={players[0].animal} variant="fighter" /></div>
-        <div className="versus-spark" aria-hidden="true">VS</div>
-        <div className="fighter-slot right"><PixelAnimal animal={players[1].animal} variant="fighter" flip /></div>
-      </section>
+      <BattleArena players={players} homeArena={homeArena} action={actionAnimation} />
       <p className="battle-message" aria-live="polite">{battle.message}</p>
       <section className="command-zone">
         <div className={`move-panel ${yourTurn ? `turn-p${you + 1}` : ''} ${battle.bonusTurn ? 'bonus-turn' : ''}`}>

@@ -153,6 +153,8 @@ export class RoomStore {
     }
 
     const acting = room.battle.active
+    const defending = 1 - acting
+    const defenderHealth = room.battle.players[defending].health
     const result = resolveAction(room.battle.players, acting, move, this.random)
     if (!result.log) throw new RoomError('INVALID_MOVE', result.message)
     const earnedBonusTurn = result.winner === null && result.nextActive === acting
@@ -165,6 +167,13 @@ export class RoomStore {
     room.battle.message = `${result.message}${speedBonus}`
     room.battle.bonusTurn = earnedBonusTurn
     room.battle.revision += 1
+    room.battle.lastAction = {
+      actor: acting,
+      moveIndex,
+      outcome: move.type === 'defend'
+        ? 'guard'
+        : result.players[defending].health < defenderHealth ? 'hit' : 'miss',
+    }
     room.battle.log = [
       { id: room.battle.revision, text: `${result.log}${speedBonus}` },
       ...room.battle.log,
@@ -229,6 +238,7 @@ export class RoomStore {
         message: room.battle.message,
         bonusTurn: room.battle.bonusTurn,
         revision: room.battle.revision,
+        lastAction: room.battle.lastAction && { ...room.battle.lastAction },
         log: room.battle.log,
       },
     }
@@ -285,6 +295,7 @@ export class RoomStore {
       message: `${animals[active].name}'s speed wins the opening move!`,
       bonusTurn: false,
       revision: 0,
+      lastAction: null,
       log: [{ id: 0, text: `Round ${room.round} begins.` }],
     }
   }

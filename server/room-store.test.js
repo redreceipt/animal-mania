@@ -50,6 +50,7 @@ test('the server starts a match only after both players select valid fighters', 
   assert.equal(room.round, 1)
   assert.deepEqual(room.battle.players.map(({ animalId }) => animalId), ['tiger', 'gorilla'])
   assert.equal(room.battle.active, 0)
+  assert.equal(room.battle.lastAction, null)
 })
 
 test('authoritative actions reject out-of-turn, invalid, and client-modified battle state', () => {
@@ -65,6 +66,7 @@ test('authoritative actions reject out-of-turn, invalid, and client-modified bat
   const resolved = store.playMove(host.code, host.token, 0, 0)
   assert.ok(resolved.battle.players[1].health < 48)
   assert.equal(resolved.battle.revision, 1)
+  assert.deepEqual(resolved.battle.lastAction, { actor: 0, moveIndex: 0, outcome: 'hit' })
   assert.match(resolved.battle.message, /Tiger used Quick Pounce/)
   expectRoomError('STALE_ACTION', () => store.playMove(host.code, host.token, 0, 0))
 })
@@ -79,6 +81,14 @@ test('authoritative online battles serialize move statuses', () => {
   assert.equal(room.battle.active, 0)
   const resolved = store.playMove(host.code, host.token, 1, 0)
   assert.deepEqual(resolved.battle.players[1].poisoned, { damage: 1, turns: 3 })
+})
+
+test('authoritative online battles identify defensive move animations', () => {
+  const store = makeStore()
+  const { host } = startMatch(store)
+  const resolved = store.playMove(host.code, host.token, 3, 0)
+
+  assert.deepEqual(resolved.battle.lastAction, { actor: 0, moveIndex: 3, outcome: 'guard' })
 })
 
 test('disconnects pause play and reconnect tokens restore the same player seat', () => {
