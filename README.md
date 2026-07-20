@@ -98,6 +98,12 @@ The kits are intentionally asymmetric. Seeded matchup simulations keep overall r
 See the [roster balance guide](docs/roster-balance.md) for the six-axis budget,
 archetypes, automated hard-counter audit, and a grounded small-animal blueprint.
 
+## Analytics
+
+Vercel Web Analytics records privacy-safe pageviews and core gameplay events.
+See the [product analytics guide](docs/analytics.md) for the event taxonomy and
+the data that must never be included in event properties.
+
 ## Quality checks
 
 ```bash

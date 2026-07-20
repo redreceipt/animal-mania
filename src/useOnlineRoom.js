@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
+import { analytics } from './analytics.js'
 
 const SESSION_PREFIX = 'animal-mania-room:'
 
@@ -34,7 +35,7 @@ function roomUrl(code) {
 export function useOnlineRoom(initialCode = '') {
   const [target, setTarget] = useState(() => {
     const code = normalizeRoomCode(initialCode)
-    return code ? { action: 'join', code } : null
+    return code ? { action: 'join', code, source: 'link' } : null
   })
   const [room, setRoom] = useState(null)
   const [session, setSession] = useState(null)
@@ -42,6 +43,7 @@ export function useOnlineRoom(initialCode = '') {
   const [error, setError] = useState(null)
   const socketRef = useRef(null)
   const sessionRef = useRef(null)
+  const roomRef = useRef(null)
 
   useEffect(() => {
     if (!target) return undefined
@@ -50,6 +52,37 @@ export function useOnlineRoom(initialCode = '') {
     let socket
     let attempts = 0
     let fatal = false
+
+    function receiveRoom(nextRoom, playerIndex, trackTransitions = false) {
+      const previousRoom = roomRef.current
+
+      if (trackTransitions && nextRoom.phase === 'battle'
+        && (previousRoom?.phase !== 'battle' || previousRoom.round !== nextRoom.round)) {
+        analytics.matchStarted({
+          mode: 'online',
+          homeFighter: nextRoom.battle.players[0].animalId,
+          awayFighter: nextRoom.battle.players[1].animalId,
+          round: nextRoom.round,
+        })
+      }
+
+      if (trackTransitions && nextRoom.phase === 'finished' && previousRoom?.phase !== 'finished') {
+        const winnerIndex = nextRoom.battle.winner
+        const loserIndex = 1 - winnerIndex
+        analytics.matchCompleted({
+          mode: 'online',
+          winnerFighter: nextRoom.battle.players[winnerIndex].animalId,
+          loserFighter: nextRoom.battle.players[loserIndex].animalId,
+          winnerSide: winnerIndex === 0 ? 'home' : 'away',
+          result: winnerIndex === playerIndex ? 'win' : 'loss',
+          turns: nextRoom.battle.revision,
+          round: nextRoom.round,
+        })
+      }
+
+      roomRef.current = nextRoom
+      setRoom(nextRoom)
+    }
 
     function connect() {
       if (!active) return
@@ -87,22 +120,32 @@ export function useOnlineRoom(initialCode = '') {
           return
         }
         if (message.type === 'joined') {
+          const firstConnection = !sessionRef.current
           sessionRef.current = message.session
           setSession(message.session)
-          setRoom(message.room)
+          receiveRoom(message.room, message.session.playerIndex)
           setStatus('connected')
           setError(null)
           attempts = 0
           rememberSession(message.session)
           window.history.replaceState({}, '', roomUrl(message.session.code))
+          if (firstConnection) {
+            if (target.action === 'create') analytics.onlineRoomCreated()
+            else analytics.onlineRoomJoined(target.source ?? 'code')
+          }
         } else if (message.type === 'state') {
-          setRoom(message.room)
+          receiveRoom(message.room, message.you, true)
           setSession((current) => current && ({ ...current, playerIndex: message.you }))
           setStatus('connected')
         } else if (message.type === 'error') {
           setError(message.message)
+          analytics.onlineRoomError({
+            errorCode: message.code,
+            stage: roomRef.current?.phase ?? target.action,
+          })
           if (['ROOM_NOT_FOUND', 'ROOM_FULL', 'ROOM_EXPIRED', 'NOT_A_PLAYER'].includes(message.code)) {
             fatal = true
+            roomRef.current = null
             setRoom(null)
             setStatus('error')
             socket.close()
@@ -135,6 +178,7 @@ export function useOnlineRoom(initialCode = '') {
 
   const createRoom = useCallback(() => {
     sessionRef.current = null
+    roomRef.current = null
     setSession(null)
     setRoom(null)
     setError(null)
@@ -144,15 +188,18 @@ export function useOnlineRoom(initialCode = '') {
   const joinRoom = useCallback((value) => {
     const code = normalizeRoomCode(value)
     sessionRef.current = null
+    roomRef.current = null
     setSession(null)
     setRoom(null)
     setError(null)
-    setTarget({ action: 'join', code })
+    setTarget({ action: 'join', code, source: 'code' })
   }, [])
 
   const leaveRoom = useCallback(() => {
+    analytics.onlineRoomLeft(roomRef.current?.phase ?? 'lobby')
     setTarget(null)
     sessionRef.current = null
+    roomRef.current = null
     setSession(null)
     setRoom(null)
     setError(null)
@@ -172,6 +219,26 @@ export function useOnlineRoom(initialCode = '') {
     return true
   }, [])
 
+  const selectAnimal = useCallback((animalId) => send({ type: 'select', animalId }), [send])
+  const playMove = useCallback((moveIndex, revision) => send({
+    type: 'act', moveIndex, revision,
+  }), [send])
+  const requestRematch = useCallback(() => {
+    const sent = send({ type: 'rematch-request' })
+    if (sent) analytics.onlineRematchRequested()
+    return sent
+  }, [send])
+  const acceptRematch = useCallback(() => {
+    const sent = send({ type: 'rematch-accept' })
+    if (sent) analytics.onlineRematchResponded('accepted')
+    return sent
+  }, [send])
+  const declineRematch = useCallback(() => {
+    const sent = send({ type: 'rematch-decline' })
+    if (sent) analytics.onlineRematchResponded('declined')
+    return sent
+  }, [send])
+
   return {
     room,
     session,
@@ -180,10 +247,10 @@ export function useOnlineRoom(initialCode = '') {
     createRoom,
     joinRoom,
     leaveRoom,
-    selectAnimal: useCallback((animalId) => send({ type: 'select', animalId }), [send]),
-    playMove: useCallback((moveIndex, revision) => send({ type: 'act', moveIndex, revision }), [send]),
-    requestRematch: useCallback(() => send({ type: 'rematch-request' }), [send]),
-    acceptRematch: useCallback(() => send({ type: 'rematch-accept' }), [send]),
-    declineRematch: useCallback(() => send({ type: 'rematch-decline' }), [send]),
+    selectAnimal,
+    playMove,
+    requestRematch,
+    acceptRematch,
+    declineRematch,
   }
 }
