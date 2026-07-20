@@ -28,6 +28,8 @@ jobs:
             script: lint
           - name: Build
             script: build
+          - name: Animal art
+            script: art:check
 
     steps:
       - name: Check out repository

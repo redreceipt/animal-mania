@@ -97,6 +97,9 @@ land on different instances.
 The kits are intentionally asymmetric. Seeded matchup simulations keep overall random-strategy win rates close while allowing meaningful strengths and counters.
 See the [roster balance guide](docs/roster-balance.md) for the six-axis budget,
 archetypes, automated hard-counter audit, and a grounded small-animal blueprint.
+See the [animal art style guide](docs/animal-art-style-guide.md) for the low-fi
+arcade visual contract, canonical references, normalization workflow, and
+full-roster review process.
 
 ## Analytics
 
@@ -110,12 +113,13 @@ the data that must never be included in event properties.
 npm ci
 npm test
 npm run balance
+npm run art:check
 npm run lint
 npm run build
 ```
 
 Gameplay pull requests must also complete the browser, viewport, input, console,
-arcade visual-fidelity, and documentation checks in the
+arcade visual-fidelity, animal-art, and documentation checks in the
 [gameplay release quality checklist](docs/gameplay-release-checklist.md). The
 pull request template records the results so the same release bar is applied to
 future gameplay changes.
