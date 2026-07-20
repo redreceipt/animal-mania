@@ -24,3 +24,11 @@ test('attack reactions distinguish hits from misses while defense braces', () =>
   assert.equal(createMoveAnimation({ move: quick, moveIndex: 0, actor: 0, damage: 0 }).outcome, 'miss')
   assert.equal(createMoveAnimation({ move: guard, moveIndex: 3, actor: 1 }).outcome, 'guard')
 })
+
+test('move effects use readable arcade callouts', () => {
+  assert.deepEqual(ANIMALS[0].moves.map((move, moveIndex) => createMoveAnimation({
+    move,
+    moveIndex,
+    actor: 0,
+  }).glyph), ['QUICK', 'COMBO', 'POWER', 'GUARD'])
+})

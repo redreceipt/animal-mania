@@ -2,10 +2,10 @@ export const MOVE_ANIMATION_MS = 520
 
 const ATTACK_STYLES = ['quick', 'combo', 'power']
 const GLYPHS = {
-  quick: '✦',
-  combo: '×2',
-  power: '!!',
-  guard: '◆',
+  quick: 'QUICK',
+  combo: 'COMBO',
+  power: 'POWER',
+  guard: 'GUARD',
 }
 
 export function createMoveAnimation({ move, moveIndex, actor, damage = 0, outcome }) {
