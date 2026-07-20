@@ -374,7 +374,7 @@ function StatusRow({ player }) {
 function FighterHud({ player, index, active, label }) {
   return (
     <aside className={`fighter-hud p${index + 1} ${active ? 'active' : ''}`} aria-current={active ? 'step' : undefined}>
-      {active ? <span className="turn-indicator" aria-hidden="true">Active turn</span> : null}
+      {active ? <span className="turn-indicator" aria-hidden="true">Go!</span> : null}
       <div className="hud-identity">
         <span>{label ?? `Player ${index + 1}`}</span>
         <strong>{player.animal.name}</strong>
@@ -385,6 +385,20 @@ function FighterHud({ player, index, active, label }) {
         <StatusRow player={player} />
       </div>
     </aside>
+  )
+}
+
+function ArenaFighter({ player, side, active, turnOwner, turnAction, turnRevision }) {
+  return (
+    <div className={`fighter-slot ${side} ${active ? 'active-turn' : 'waiting-turn'}`}>
+      {active ? (
+        <div key={turnRevision} className="turn-marker" aria-hidden="true">
+          <strong>{turnOwner}</strong>
+          <span>{turnAction}</span>
+        </div>
+      ) : null}
+      <PixelAnimal animal={player.animal} variant="fighter" flip={side === 'right'} />
+    </div>
   )
 }
 
@@ -442,9 +456,18 @@ function BattleScreen({ choices, singlePlayer, onReset }) {
   const turnLabel = victor
     ? `${winnerLabel} wins!`
     : bonusTurn
-      ? `${actorLabel} — bonus turn!`
+      ? singlePlayer && active === 1
+        ? 'CPU goes again…'
+        : `${actorLabel} goes again — choose another move!`
       : singlePlayer && active === 1 ? 'CPU is choosing…' : `${actorLabel} — choose a move`
+  const turnAction = bonusTurn
+    ? singlePlayer && active === 1 ? 'Goes again' : 'Go again!'
+    : singlePlayer && active === 1 ? 'Thinking…' : 'Go!'
   const homeArena = choices[0]
+
+  useEffect(() => {
+    window.scrollTo(0, 0)
+  }, [])
 
   function resetBattle() {
     analytics.rematchStarted(mode)
@@ -525,21 +548,21 @@ function BattleScreen({ choices, singlePlayer, onReset }) {
   return (
     <main className={`arcade-shell battle-screen ${resolving ? 'resolving' : ''}`}>
       <header className="battle-header"><Logo /><button className="text-btn" onClick={onReset}>Change fighters</button></header>
-      <section className="hud-row">
+      <section className={`hud-row ${victor ? '' : 'has-active-turn'}`}>
         <FighterHud player={players[0]} index={0} active={active === 0 && !victor} label="Home · Player 1" />
-        <div key={turnRevision} className={`turn-banner ${bonusTurn ? 'bonus' : ''}`} aria-live="polite">{turnLabel}</div>
+        <div key={turnRevision} className={`turn-banner p${active + 1} ${bonusTurn ? 'bonus' : ''}`} role="status" aria-live="polite" aria-atomic="true">{turnLabel}</div>
         <FighterHud player={players[1]} index={1} active={active === 1 && !victor} label={singlePlayer ? 'Away · CPU' : 'Away · Player 2'} />
       </section>
-      <section className="faceoff-arena" style={{ '--arena-image': `url('/animals/arena-${homeArena.id}.webp')` }} aria-label={`${players[0].animal.name} faces ${players[1].animal.name} at ${homeArena.home}`}>
+      <section className={`faceoff-arena turn-p${active + 1}`} style={{ '--arena-image': `url('/animals/arena-${homeArena.id}.webp')` }} aria-label={`${players[0].animal.name} faces ${players[1].animal.name} at ${homeArena.home}`}>
         <div className="arena-plaque"><span>Home arena</span><strong>{homeArena.home}</strong></div>
-        <div className="fighter-slot left"><PixelAnimal animal={players[0].animal} variant="fighter" /></div>
+        <ArenaFighter player={players[0]} side="left" active={active === 0 && !victor} turnOwner="Player 1" turnAction={turnAction} turnRevision={turnRevision} />
         <div className="versus-spark" aria-hidden="true">VS</div>
-        <div className="fighter-slot right"><PixelAnimal animal={players[1].animal} variant="fighter" flip /></div>
+        <ArenaFighter player={players[1]} side="right" active={active === 1 && !victor} turnOwner={singlePlayer ? 'CPU' : 'Player 2'} turnAction={turnAction} turnRevision={turnRevision} />
       </section>
       <p className="battle-message" aria-live="polite">{message}</p>
       <section className="command-zone">
-        <div className="move-panel">
-          <h2>{victor ? commandHint : `${actorLabel} · ${commandHint}`}</h2>
+        <div className={`move-panel ${victor ? '' : `turn-p${active + 1}`} ${bonusTurn ? 'bonus-turn' : ''}`}>
+          <h2>{victor ? commandHint : bonusTurn ? `${actorLabel} · Go again! · ${commandHint}` : `${actorLabel} · ${commandHint}`}</h2>
           {victor ? (
             <div className="victory-actions"><button className="primary-btn" onClick={resetBattle}>Rematch</button><button className="secondary-btn" onClick={onReset}>Change fighters</button></div>
           ) : (
@@ -613,8 +636,15 @@ function OnlineBattleScreen({ online }) {
   const turnLabel = victor
     ? (youWon ? 'You win!' : 'Rival wins!')
     : battle.bonusTurn
-      ? `${battle.active === you ? 'You' : 'Rival'} — bonus turn!`
+      ? yourTurn ? 'You go again — choose another move!' : 'Rival goes again…'
       : yourTurn ? 'Your turn — choose a move' : 'Rival is choosing…'
+  const turnAction = battle.bonusTurn
+    ? yourTurn ? 'Go again!' : 'Goes again'
+    : yourTurn ? 'Go!' : 'Their turn'
+
+  useEffect(() => {
+    window.scrollTo(0, 0)
+  }, [])
 
   const chooseMove = useCallback((index, input = 'button') => {
     const move = yourPlayer.animal.moves[index]
@@ -653,21 +683,21 @@ function OnlineBattleScreen({ online }) {
         <div className="battle-room"><span>{room.code} · Round {room.round}</span><button className="text-btn" onClick={online.leaveRoom}>Leave room</button></div>
       </header>
       <div className="connection-slot"><ConnectionNotice status={online.status} opponentConnected={rivalConnected} /></div>
-      <section className="hud-row">
+      <section className={`hud-row ${victor ? '' : 'has-active-turn'}`}>
         <FighterHud player={players[0]} index={0} active={battle.active === 0 && !victor} label={you === 0 ? 'Home · You' : 'Home · Rival'} />
-        <div key={`${room.round}:${battle.revision}`} className={`turn-banner ${battle.bonusTurn ? 'bonus' : ''}`} aria-live="polite">{turnLabel}</div>
+        <div key={`${room.round}:${battle.revision}`} className={`turn-banner p${battle.active + 1} ${battle.bonusTurn ? 'bonus' : ''}`} role="status" aria-live="polite" aria-atomic="true">{turnLabel}</div>
         <FighterHud player={players[1]} index={1} active={battle.active === 1 && !victor} label={you === 1 ? 'Away · You' : 'Away · Rival'} />
       </section>
-      <section className="faceoff-arena" style={{ '--arena-image': `url('/animals/arena-${homeArena.id}.webp')` }} aria-label={`${players[0].animal.name} faces ${players[1].animal.name} at ${homeArena.home}`}>
+      <section className={`faceoff-arena turn-p${battle.active + 1}`} style={{ '--arena-image': `url('/animals/arena-${homeArena.id}.webp')` }} aria-label={`${players[0].animal.name} faces ${players[1].animal.name} at ${homeArena.home}`}>
         <div className="arena-plaque"><span>Home arena</span><strong>{homeArena.home}</strong></div>
-        <div className="fighter-slot left"><PixelAnimal animal={players[0].animal} variant="fighter" /></div>
+        <ArenaFighter player={players[0]} side="left" active={battle.active === 0 && !victor} turnOwner={you === 0 ? 'You' : 'Rival'} turnAction={turnAction} turnRevision={`${room.round}:${battle.revision}`} />
         <div className="versus-spark" aria-hidden="true">VS</div>
-        <div className="fighter-slot right"><PixelAnimal animal={players[1].animal} variant="fighter" flip /></div>
+        <ArenaFighter player={players[1]} side="right" active={battle.active === 1 && !victor} turnOwner={you === 1 ? 'You' : 'Rival'} turnAction={turnAction} turnRevision={`${room.round}:${battle.revision}`} />
       </section>
       <p className="battle-message" aria-live="polite">{battle.message}</p>
       <section className="command-zone">
-        <div className="move-panel">
-          <h2>{victor ? `${victor.animal.name} rules the wild!` : `${yourTurn ? 'Your' : 'Waiting · your'} move set`}</h2>
+        <div className={`move-panel ${yourTurn ? `turn-p${you + 1}` : ''} ${battle.bonusTurn ? 'bonus-turn' : ''}`}>
+          <h2>{victor ? `${victor.animal.name} rules the wild!` : battle.bonusTurn ? `${yourTurn ? 'You go again! · Choose your move' : 'Rival goes again · Your move set waits'}` : `${yourTurn ? 'Your' : 'Waiting · your'} move set`}</h2>
           {victor ? (
             <RematchControls online={online} rematch={room.rematch} playerIndex={you} connected={roomConnected} />
           ) : (
