@@ -1,6 +1,7 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { Analytics } from '@vercel/analytics/react'
+import { SpeedInsights } from '@vercel/speed-insights/react'
 import '@fontsource/press-start-2p'
 import './styles.css'
 import App from './App.jsx'
@@ -16,5 +17,6 @@ createRoot(document.getElementById('root')).render(
   <StrictMode>
     <App />
     {import.meta.env.VERCEL && <Analytics beforeSend={redactRoomCode} />}
+    {import.meta.env.VERCEL && <SpeedInsights />}
   </StrictMode>,
 )
