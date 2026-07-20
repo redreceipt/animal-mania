@@ -388,20 +388,6 @@ function FighterHud({ player, index, active, label }) {
   )
 }
 
-function ArenaFighter({ player, side, active, turnOwner, turnAction, turnRevision }) {
-  return (
-    <div className={`fighter-slot ${side} ${active ? 'active-turn' : 'waiting-turn'}`}>
-      {active ? (
-        <div key={turnRevision} className="turn-marker" aria-hidden="true">
-          <strong>{turnOwner}</strong>
-          <span>{turnAction}</span>
-        </div>
-      ) : null}
-      <PixelAnimal animal={player.animal} variant="fighter" flip={side === 'right'} />
-    </div>
-  )
-}
-
 function MoveButton({ animal, move, index, onChoose, disabled }) {
   const defensive = move.type === 'defend'
   const range = getDamageRange(animal, move)
@@ -460,9 +446,6 @@ function BattleScreen({ choices, singlePlayer, onReset }) {
         ? 'CPU goes again…'
         : `${actorLabel} goes again — choose another move!`
       : singlePlayer && active === 1 ? 'CPU is choosing…' : `${actorLabel} — choose a move`
-  const turnAction = bonusTurn
-    ? singlePlayer && active === 1 ? 'Goes again' : 'Go again!'
-    : singlePlayer && active === 1 ? 'Thinking…' : 'Go!'
   const homeArena = choices[0]
 
   useEffect(() => {
@@ -553,11 +536,11 @@ function BattleScreen({ choices, singlePlayer, onReset }) {
         <div key={turnRevision} className={`turn-banner p${active + 1} ${bonusTurn ? 'bonus' : ''}`} role="status" aria-live="polite" aria-atomic="true">{turnLabel}</div>
         <FighterHud player={players[1]} index={1} active={active === 1 && !victor} label={singlePlayer ? 'Away · CPU' : 'Away · Player 2'} />
       </section>
-      <section className={`faceoff-arena turn-p${active + 1}`} style={{ '--arena-image': `url('/animals/arena-${homeArena.id}.webp')` }} aria-label={`${players[0].animal.name} faces ${players[1].animal.name} at ${homeArena.home}`}>
+      <section className="faceoff-arena" style={{ '--arena-image': `url('/animals/arena-${homeArena.id}.webp')` }} aria-label={`${players[0].animal.name} faces ${players[1].animal.name} at ${homeArena.home}`}>
         <div className="arena-plaque"><span>Home arena</span><strong>{homeArena.home}</strong></div>
-        <ArenaFighter player={players[0]} side="left" active={active === 0 && !victor} turnOwner="Player 1" turnAction={turnAction} turnRevision={turnRevision} />
+        <div className="fighter-slot left"><PixelAnimal animal={players[0].animal} variant="fighter" /></div>
         <div className="versus-spark" aria-hidden="true">VS</div>
-        <ArenaFighter player={players[1]} side="right" active={active === 1 && !victor} turnOwner={singlePlayer ? 'CPU' : 'Player 2'} turnAction={turnAction} turnRevision={turnRevision} />
+        <div className="fighter-slot right"><PixelAnimal animal={players[1].animal} variant="fighter" flip /></div>
       </section>
       <p className="battle-message" aria-live="polite">{message}</p>
       <section className="command-zone">
@@ -638,10 +621,6 @@ function OnlineBattleScreen({ online }) {
     : battle.bonusTurn
       ? yourTurn ? 'You go again — choose another move!' : 'Rival goes again…'
       : yourTurn ? 'Your turn — choose a move' : 'Rival is choosing…'
-  const turnAction = battle.bonusTurn
-    ? yourTurn ? 'Go again!' : 'Goes again'
-    : yourTurn ? 'Go!' : 'Their turn'
-
   useEffect(() => {
     window.scrollTo(0, 0)
   }, [])
@@ -688,11 +667,11 @@ function OnlineBattleScreen({ online }) {
         <div key={`${room.round}:${battle.revision}`} className={`turn-banner p${battle.active + 1} ${battle.bonusTurn ? 'bonus' : ''}`} role="status" aria-live="polite" aria-atomic="true">{turnLabel}</div>
         <FighterHud player={players[1]} index={1} active={battle.active === 1 && !victor} label={you === 1 ? 'Away · You' : 'Away · Rival'} />
       </section>
-      <section className={`faceoff-arena turn-p${battle.active + 1}`} style={{ '--arena-image': `url('/animals/arena-${homeArena.id}.webp')` }} aria-label={`${players[0].animal.name} faces ${players[1].animal.name} at ${homeArena.home}`}>
+      <section className="faceoff-arena" style={{ '--arena-image': `url('/animals/arena-${homeArena.id}.webp')` }} aria-label={`${players[0].animal.name} faces ${players[1].animal.name} at ${homeArena.home}`}>
         <div className="arena-plaque"><span>Home arena</span><strong>{homeArena.home}</strong></div>
-        <ArenaFighter player={players[0]} side="left" active={battle.active === 0 && !victor} turnOwner={you === 0 ? 'You' : 'Rival'} turnAction={turnAction} turnRevision={`${room.round}:${battle.revision}`} />
+        <div className="fighter-slot left"><PixelAnimal animal={players[0].animal} variant="fighter" /></div>
         <div className="versus-spark" aria-hidden="true">VS</div>
-        <ArenaFighter player={players[1]} side="right" active={battle.active === 1 && !victor} turnOwner={you === 1 ? 'You' : 'Rival'} turnAction={turnAction} turnRevision={`${room.round}:${battle.revision}`} />
+        <div className="fighter-slot right"><PixelAnimal animal={players[1].animal} variant="fighter" flip /></div>
       </section>
       <p className="battle-message" aria-live="polite">{battle.message}</p>
       <section className="command-zone">
