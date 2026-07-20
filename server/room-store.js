@@ -200,6 +200,15 @@ export class RoomStore {
     return this.snapshot(room)
   }
 
+  changeFighters(rawCode, token) {
+    const { room } = this.#finishedMatchMember(rawCode, token)
+    for (const player of room.players) player.animalId = null
+    room.battle = null
+    room.rematch = null
+    this.#touch(room)
+    return this.snapshot(room)
+  }
+
   snapshot(roomOrCode) {
     const room = typeof roomOrCode === 'string' ? this.rooms.get(roomOrCode) : roomOrCode
     if (!room) return null

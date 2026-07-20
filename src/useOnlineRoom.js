@@ -238,6 +238,11 @@ export function useOnlineRoom(initialCode = '') {
     if (sent) analytics.onlineRematchResponded('declined')
     return sent
   }, [send])
+  const changeFighters = useCallback(() => {
+    const sent = send({ type: 'change-fighters' })
+    if (sent) analytics.fightersChanged('online')
+    return sent
+  }, [send])
 
   return {
     room,
@@ -252,5 +257,6 @@ export function useOnlineRoom(initialCode = '') {
     requestRematch,
     acceptRematch,
     declineRematch,
+    changeFighters,
   }
 }
