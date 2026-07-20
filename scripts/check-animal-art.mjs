@@ -10,6 +10,7 @@ import {
   CHARACTER_PIXEL_SCALE,
   CHARACTER_SIZE,
   CHARACTER_VARIANTS,
+  FIGHTER_STYLE_ANCHOR_IDS,
   LEGACY_CHARACTER_IDS,
   MAX_CHARACTER_COLORS,
   arenaAssetPath,
@@ -19,11 +20,24 @@ import {
 const failures = []
 const hashes = new Map()
 const legacyIds = new Set(LEGACY_CHARACTER_IDS)
+const animalIds = new Set(ANIMALS.map(({ id }) => id))
 const legacyBaseline = JSON.parse(
   await readFile(new URL('./legacy-animal-art-baseline.json', import.meta.url), 'utf8'),
 )
 
 const fail = (path, message) => failures.push(`${path}: ${message}`)
+
+for (const id of FIGHTER_STYLE_ANCHOR_IDS) {
+  if (!animalIds.has(id)) {
+    fail('scripts/animal-art-spec.mjs', `fighter style anchor ${id} is not in the roster`)
+  }
+  if (!legacyIds.has(id)) {
+    fail(
+      'scripts/animal-art-spec.mjs',
+      `fighter style anchor ${id} must remain a frozen legacy asset until a full-roster direction change`,
+    )
+  }
+}
 
 const recordUniqueAsset = async (path, family) => {
   const digest = createHash('sha256').update(await readFile(path)).digest('hex')

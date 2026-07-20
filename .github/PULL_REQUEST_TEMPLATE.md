@@ -40,10 +40,12 @@ requests, mark it `N/A`. Follow the
 
 - [ ] Character assets were passed through `npm run art:normalize`; `npm run art:check` passes.
 - [ ] `npm run art:sheet` was reviewed at full-roster scale against the canonical references.
+- [ ] Every changed fighter passes all five combat-character questions: action reads from silhouette, body is tense rather than neutral wildlife, major shapes have attack/guard roles, species features are exaggerated, and the result belongs beside Tiger/Gorilla/Grizzly Bear/Polar Bear.
+- [ ] Upright, winged, and aquatic/limbless fighters follow the documented body grammar; any exception is explained with rendered-size evidence below.
 - [ ] Portrait and fighter share identity, palette, markings, outline weight, and apparent detail.
 - [ ] Fighter framing, clean transparency, and arena contrast pass in the production build as both home and away combatants.
 - [ ] No photorealism, smooth rendering, microtexture, cinematic lighting, or one-off detail drift was introduced.
 
 ### Animal art evidence or N/A explanation
 
-<!-- List references, review-sheet paths/screenshots, matchups, arenas, and viewports checked. -->
+<!-- List references, five combat-character answers per changed fighter, review-sheet paths/screenshots, matchups, arenas, and viewports checked. -->

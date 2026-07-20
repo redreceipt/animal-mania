@@ -89,6 +89,11 @@ check that:
   treatment, deliberate hard edges, chunky silhouettes, broad value groups,
   and a consistent apparent level of shading and texture. Do not mix in
   photorealistic, vector-smooth, microtextured, painterly, or 3D artwork.
+- Fighter intent must read from the silhouette at rendered size. Compare every
+  changed fighter directly with Tiger, Gorilla, Grizzly Bear, and Polar Bear;
+  reject neutral walking, standing, perching, grazing, or swimming anatomy even
+  when the palette and pixel grid pass. Apply the body-specific combat grammar
+  and five-question gate in the animal art style guide.
 - Each animal's portrait and fighter sprite use the same recognizable colors,
   markings, proportions, and outline weight. Transparent edges must stay clean
   when the fighter is flipped or placed over every arena value range.

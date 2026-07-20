@@ -6,6 +6,7 @@ import sharp from 'sharp'
 import { ANIMALS } from '../src/game.js'
 import {
   CHARACTER_VARIANTS,
+  FIGHTER_STYLE_ANCHOR_IDS,
   LEGACY_CHARACTER_IDS,
   arenaAssetPath,
   characterAssetPath,
@@ -22,22 +23,33 @@ if (!outputArgument) {
 const outputDirectory = resolve(outputArgument)
 
 const legacyIds = new Set(LEGACY_CHARACTER_IDS)
+const fighterStyleAnchorIds = new Set(FIGHTER_STYLE_ANCHOR_IDS)
 const background = '#111827'
 const textColor = '#f8fafc'
 const strictColor = '#facc15'
+const fighterStyleAnchorColor = '#67e8f9'
 
 const escapeXml = (value) => value
   .replaceAll('&', '&amp;')
   .replaceAll('<', '&lt;')
   .replaceAll('>', '&gt;')
 
-const labelSvg = (width, height, animal) => Buffer.from(`
+const labelSvg = (width, height, animal, isFighterStyleAnchor = false) => Buffer.from(`
   <svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg">
     <rect width="100%" height="100%" fill="${background}"/>
     <text x="50%" y="18" text-anchor="middle" font-family="Arial, sans-serif"
-      font-size="13" fill="${legacyIds.has(animal.id) ? textColor : strictColor}">
+      font-size="13" fill="${isFighterStyleAnchor
+        ? fighterStyleAnchorColor
+        : legacyIds.has(animal.id) ? textColor : strictColor}">
       ${escapeXml(animal.name)}
     </text>
+  </svg>
+`)
+
+const anchorFrameSvg = (width, height) => Buffer.from(`
+  <svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg">
+    <rect x="2" y="2" width="${width - 4}" height="${height - 4}" fill="none"
+      stroke="${fighterStyleAnchorColor}" stroke-width="3"/>
   </svg>
 `)
 
@@ -77,6 +89,7 @@ const createSheet = async ({ title, legend, output, columns, tileWidth, tileHeig
 }
 
 const createCharacterTile = (variant, tileWidth, tileHeight) => async (animal) => {
+  const isFighterStyleAnchor = variant === 'fighter' && fighterStyleAnchorIds.has(animal.id)
   const image = await sharp(characterAssetPath(animal.id, variant))
     .resize(tileWidth - 16, tileHeight - 36, {
       fit: 'contain',
@@ -90,7 +103,8 @@ const createCharacterTile = (variant, tileWidth, tileHeight) => async (animal) =
     create: { width: tileWidth, height: tileHeight, channels: 4, background },
   }).composite([
     { input: image, left: 8, top: 2 },
-    { input: labelSvg(tileWidth, 28, animal), left: 0, top: tileHeight - 30 },
+    { input: labelSvg(tileWidth, 28, animal, isFighterStyleAnchor), left: 0, top: tileHeight - 30 },
+    ...(isFighterStyleAnchor ? [{ input: anchorFrameSvg(tileWidth, tileHeight), left: 0, top: 0 }] : []),
   ]).png().toBuffer()
 }
 
@@ -115,7 +129,9 @@ for (const variant of CHARACTER_VARIANTS) {
   const tileHeight = 196
   await createSheet({
     title: `${variant[0].toUpperCase()}${variant.slice(1)} roster`,
-    legend: 'Cream: frozen legacy reference  |  Gold: exact character grid contract',
+    legend: variant === 'fighter'
+      ? 'Cyan frame: fixed combat-style anchor  |  Cream: frozen legacy  |  Gold: exact grid contract'
+      : 'Cream: frozen legacy reference  |  Gold: exact character grid contract',
     output: resolve(outputDirectory, `${variant}s.png`),
     columns: 7,
     tileWidth,

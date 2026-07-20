@@ -14,14 +14,18 @@ dedicated, full-roster art-direction pull request.
 
 Use several shipped references together instead of copying one animal. The
 legacy set establishes the brand; the grid-enforced set demonstrates the
-required production treatment for new work.
+required production treatment for new work. Tiger, Gorilla, Grizzly Bear, and
+Polar Bear are the fixed combat-style anchors. Their frozen files define the
+required stance readability, exaggeration, and attitude even though they
+predate the exact logical-pixel rule.
 
-| Shape problem | Legacy brand reference | Grid-enforced production reference |
+| Shape problem | Fixed or legacy brand reference | Grid-enforced production reference |
 | --- | --- | --- |
-| Upright power | [Tiger fighter](../public/animals/tiger-fighter.webp), [Gorilla fighter](../public/animals/gorilla-fighter.webp) | [Panda fighter](../public/animals/panda-fighter.webp), [Honey Badger fighter](../public/animals/honey-badger-fighter.webp) |
+| Primary combat grammar | [Tiger fighter](../public/animals/tiger-fighter.webp), [Gorilla fighter](../public/animals/gorilla-fighter.webp), [Grizzly Bear fighter](../public/animals/grizzly-bear-fighter.webp), [Polar Bear fighter](../public/animals/polar-bear-fighter.webp) | [Panther fighter](../public/animals/panther-fighter.webp), [Bull fighter](../public/animals/bull-fighter.webp) |
+| Compact or tailed scrapper | [Tiger fighter](../public/animals/tiger-fighter.webp), [Wolf fighter](../public/animals/wolf-fighter.webp) | [Dog fighter](../public/animals/dog-fighter.webp), [Skunk fighter](../public/animals/skunk-fighter.webp) |
+| Winged body | [Eagle fighter](../public/animals/eagle-fighter.webp), [Ostrich fighter](../public/animals/ostrich-fighter.webp) | [Hawk fighter](../public/animals/hawk-fighter.webp) |
 | Long or armored body | [Crocodile fighter](../public/animals/crocodile-fighter.webp), [Anaconda fighter](../public/animals/anaconda-fighter.webp) | [Alligator fighter](../public/animals/alligator-fighter.webp), [King Cobra fighter](../public/animals/king-cobra-fighter.webp) |
-| Four-legged silhouette | [Wolf fighter](../public/animals/wolf-fighter.webp), [Water Buffalo fighter](../public/animals/water-buffalo-fighter.webp) | [Leopard fighter](../public/animals/leopard-fighter.webp), [Yak fighter](../public/animals/yak-fighter.webp) |
-| Aquatic or unusual anatomy | [Orca fighter](../public/animals/orca-fighter.webp), [Ostrich fighter](../public/animals/ostrich-fighter.webp) | [Dolphin fighter](../public/animals/dolphin-fighter.webp), [Hammerhead Shark fighter](../public/animals/hammerhead-shark-fighter.webp) |
+| Aquatic or limbless body | [Shark fighter](../public/animals/shark-fighter.webp), [Orca fighter](../public/animals/orca-fighter.webp), [Anaconda fighter](../public/animals/anaconda-fighter.webp) | [Dolphin fighter](../public/animals/dolphin-fighter.webp), [Hammerhead Shark fighter](../public/animals/hammerhead-shark-fighter.webp), [King Cobra fighter](../public/animals/king-cobra-fighter.webp) |
 | Portrait crop and attitude | [Tiger portrait](../public/animals/tiger-portrait.webp), [Wolf portrait](../public/animals/wolf-portrait.webp) | [Giraffe portrait](../public/animals/giraffe-portrait.webp), [Warthog portrait](../public/animals/warthog-portrait.webp) |
 
 Generate the complete comparison boards before review:
@@ -32,9 +36,10 @@ npm run art:sheet
 
 This writes fighter, portrait, and arena sheets to `.art-review/`. On the two
 character boards, cream labels mark frozen legacy references and gold labels
-mark assets under the exact grid contract. The arena board uses the same colors
-to distinguish the original and recent roster cohorts. Review the sheets at
-100% and at the size used by the game.
+mark assets under the exact grid contract. The fighter board also frames the
+four fixed combat-style anchors in cyan. The arena board uses cream and gold to
+distinguish the original and recent roster cohorts. Review the sheets at 100%
+and at the size used by the game.
 
 ## Character art contract
 
@@ -71,6 +76,39 @@ npm run art:check
 
 The source must already have a clean transparent background. The normalizer is
 not a background-removal tool.
+
+### Fighter combat-character gate
+
+Passing the file checks is necessary but not sufficient. A fighter fails if it
+still looks like a realistic animal that was merely made smaller, pixelated,
+or given an angry face. At actual card size, a reviewer must be able to answer
+**yes** to every question below within five seconds:
+
+1. Does the silhouette communicate guard, strike, lunge, coil, or another
+   immediate combat action without relying on facial detail?
+2. Is there a clear line of action and visible body tension rather than a
+   neutral walk, stand, perch, graze, or swim?
+3. Do at least two major shapes have combat jobs, such as an attacking paw and
+   guarding paw, a striking wing and guarding wing, or a threatening head and
+   countercurved tail?
+4. Are the head, shoulders, paws, claws, hooves, horns, wings, or other
+   signature features exaggerated enough to read beside Tiger, Gorilla, and
+   the Bears?
+5. Does the result feel like a character from the same fighting game rather
+   than a wildlife illustration in the same pixel format?
+
+Use the body grammar that fits the species:
+
+| Body type | Required combat grammar | Automatic rejection |
+| --- | --- | --- |
+| Mammal or reptile that can rear | Lift the torso; plant or bend the hind legs; assign the forelimbs clear offense/guard roles; broaden the shoulders and striking shapes. | Ordinary quadruped walk, stalk, or charge with no guard; realistic body with only an angry face. |
+| Bird | Plant or clearly direct the talons; use asymmetrical wing shapes as strike and guard; keep the beak and gaze on the attack line. | Perched bird, neutral standing bird, decorative symmetrical wings, or ordinary flight. |
+| Aquatic, serpentine, or genuinely limbless | Keep the authentic body plan; use a tense C- or S-shaped attack arc, threatening head, and counterdirected fins, coil, or tail. | Straight documentary swim, scenic leap, loose resting coil, or invented humanoid legs. |
+
+Symmetry, relaxed joints, evenly distributed weight, and a level spine usually
+signal neutral wildlife. Prefer asymmetry, compression, forward pressure, and
+one dominant attack direction. Species recognition is mandatory, but realism
+never overrides the combat read.
 
 ### Fighter framing
 
@@ -115,16 +153,23 @@ belong after it.
 
 > Low-fi 1990s arcade fighting-game animal sprite. Chunky hand-authored pixel
 > art with visible square clusters, hard stair-stepped edges, a dark continuous
-> outline, simplified anatomy, broad shadow shapes, and a restrained palette.
-> Preserve a clear silhouette and only identity-carrying surface markings.
+> outline, simplified exaggerated anatomy, broad shadow shapes, and a
+> restrained palette. It must read as a playable combat character at thumbnail
+> size, not as wildlife art. Preserve a clear silhouette and only
+> identity-carrying surface markings.
 > No photorealism, individual hair or scale microtexture, smooth vector curves,
 > painterly blending, 3D rendering, rim light, glow, props, text, scenery, or
 > cast shadow.
 
+After that block, specify the line of action, planted or airborne base, which
+major shape attacks, which major shape guards, the exaggerated species feature,
+and the neutral wildlife pose to reject. “Fighting pose” by itself is not a
+sufficient direction.
+
 Generate on a flat key color that does not occur in the subject, remove it to
 clean transparency, then use the repository normalizer. A prompt is not proof
-of compliance; the normalized asset, full-roster sheet, and production render
-are the proof.
+of compliance; the normalized asset, five-second combat-character gate,
+full-roster sheet, and production render are the proof.
 
 ## Required review workflow
 
@@ -133,8 +178,10 @@ are the proof.
 2. Create the fighter and portrait as a matched pair. Create the arena against
    the arena sheet, not in isolation.
 3. Normalize both character assets and run `npm run art:check`.
-4. Run `npm run art:sheet`; inspect the whole roster for relative detail,
-   palette, outline, crop, and lighting drift.
+4. Run `npm run art:sheet`; place the candidate beside the cyan-framed combat
+   anchors and inspect the whole roster for combat silhouette, exaggeration,
+   relative detail, palette, outline, crop, and lighting drift. Record the
+   five combat-character answers for every changed fighter.
 5. In the production build, render the new fighter as home and away against at
    least two legacy animals and over both a light and a dark arena. Check
    desktop and mobile at actual rendered size.

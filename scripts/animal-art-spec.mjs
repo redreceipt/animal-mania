@@ -5,6 +5,16 @@ export const LOGICAL_CHARACTER_SIZE = 111
 export const CHARACTER_PIXEL_SCALE = CHARACTER_SIZE / LOGICAL_CHARACTER_SIZE
 export const MAX_CHARACTER_COLORS = 64
 
+// These shipped fighters are the fixed brand anchors for combat silhouette,
+// exaggeration, and attitude. Changing this set is an art-direction change for
+// the whole roster, not a way to approve one outlying sprite.
+export const FIGHTER_STYLE_ANCHOR_IDS = [
+  'tiger',
+  'gorilla',
+  'grizzly-bear',
+  'polar-bear',
+]
+
 export const ARENA_WIDTH = 1942
 export const ARENA_HEIGHT = 809
 
