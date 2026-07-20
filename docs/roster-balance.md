@@ -98,9 +98,14 @@ makes the accurate, repeated, and evasive techniques explicit.
 1. Choose the closest archetype and copy its budget with `createBudget`.
 2. Describe recognizable behavior, then express it with existing move effects.
 3. Transfer points rather than only adding strengths; keep the total near 30.
-4. Add the animal object and portrait, fighter, and arena WebP assets.
-5. Run `npm test`, `npm run balance`, `npm run lint`, and `npm run build`.
-6. Review flagged matchups, then playtest the most extreme pairings before tuning.
+4. Build the matched portrait, fighter, and arena assets under the
+   [animal art style guide](animal-art-style-guide.md); normalize both character
+   files with `npm run art:normalize`.
+5. Add the animal object and its three WebP assets.
+6. Run `npm test`, `npm run balance`, `npm run art:check`, `npm run art:sheet`,
+   `npm run lint`, and `npm run build`.
+7. Review the full-roster art sheets and flagged matchups, then playtest the most
+   extreme pairings before tuning.
 
 Adding an animal remains a data-and-assets change. The battle engine only needs a new
 mechanic when recognizable behavior cannot be expressed by the existing move effects.

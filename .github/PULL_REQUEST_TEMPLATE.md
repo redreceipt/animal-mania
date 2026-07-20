@@ -9,7 +9,7 @@
 ## Gameplay release checklist
 
 Complete this section for changes to mechanics, balance, move copy, battle
-rules, controls, or responsive gameplay UI. For other changes, mark the section
+rules, controls, animal/arena art, or responsive gameplay UI. For other changes, mark the section
 `N/A` and explain why. See the
 [gameplay release quality checklist](https://github.com/redreceipt/animal-mania/blob/main/docs/gameplay-release-checklist.md) for
 commands, scenarios, and the browser/viewport matrix.
@@ -31,3 +31,19 @@ commands, scenarios, and the browser/viewport matrix.
 ### N/A explanations or follow-ups
 
 <!-- Explain unchecked items. Link a follow-up issue for any accepted gap. -->
+
+## Animal art checklist
+
+Complete this section for portrait, fighter, or arena changes. For other pull
+requests, mark it `N/A`. Follow the
+[animal art style guide](https://github.com/redreceipt/animal-mania/blob/main/docs/animal-art-style-guide.md).
+
+- [ ] Character assets were passed through `npm run art:normalize`; `npm run art:check` passes.
+- [ ] `npm run art:sheet` was reviewed at full-roster scale against the canonical references.
+- [ ] Portrait and fighter share identity, palette, markings, outline weight, and apparent detail.
+- [ ] Fighter framing, clean transparency, and arena contrast pass in the production build as both home and away combatants.
+- [ ] No photorealism, smooth rendering, microtexture, cinematic lighting, or one-off detail drift was introduced.
+
+### Animal art evidence or N/A explanation
+
+<!-- List references, review-sheet paths/screenshots, matchups, arenas, and viewports checked. -->
