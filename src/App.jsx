@@ -11,9 +11,10 @@ const initialSelection = [null, null]
 const imagePromises = new Map()
 const linkedRoomCode = normalizeRoomCode(new URLSearchParams(window.location.search).get('room'))
 const globeIcon = (
-  <svg className="globe-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true" focusable="false">
-    <circle cx="12" cy="12" r="9" />
-    <path d="M3 12h18M12 3c3 3.3 3 14.7 0 18M12 3c-3 3.3-3 14.7 0 18" />
+  <svg className="globe-icon" viewBox="0 0 12 12" shapeRendering="crispEdges" aria-hidden="true" focusable="false">
+    <path className="globe-outline" d="M4 0h4v1h2v1h1v1h1v6h-1v1h-1v1H8v1H4v-1H2v-1H1V9H0V3h1V2h1V1h2z" />
+    <path className="globe-ocean" d="M4 2h4v1h2v1h1v4h-1v1H8v1H4V9H2V8H1V4h1V3h2z" />
+    <path className="globe-land" d="M2 3h3v1h1v1H5v1H4v2H3v2H2V8H1V5h1zm5 0h2v1h2v1h-1v1H8v1h1v1h1v2H8V9H7V7H6V5h1z" />
   </svg>
 )
 
