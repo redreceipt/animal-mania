@@ -10,6 +10,12 @@ import { normalizeRoomCode, useOnlineRoom } from './useOnlineRoom.js'
 const initialSelection = [null, null]
 const imagePromises = new Map()
 const linkedRoomCode = normalizeRoomCode(new URLSearchParams(window.location.search).get('room'))
+const globeIcon = (
+  <svg className="globe-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true" focusable="false">
+    <circle cx="12" cy="12" r="9" />
+    <path d="M3 12h18M12 3c3 3.3 3 14.7 0 18M12 3c-3 3.3-3 14.7 0 18" />
+  </svg>
+)
 
 function animalImage(animal, variant) {
   return `/animals/${animal.id}-${variant}.webp`
@@ -98,7 +104,7 @@ function ModeScreen({ onChoose }) {
           <small>Share the screen and settle the score</small>
         </button>
         <button className="mode-card online" onClick={() => onChoose('online')}>
-          <span className="mode-icon" aria-hidden="true">↗</span>
+          <span className="mode-icon" aria-hidden="true">{globeIcon}</span>
           <strong>Play online</strong>
           <small>Create a private room or join with a code</small>
         </button>
