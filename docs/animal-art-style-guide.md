@@ -46,9 +46,11 @@ and at the size used by the game.
 Every new or redrawn fighter and portrait must satisfy all of these rules:
 
 - **Canvas:** `444 x 444` lossless WebP with transparency.
-- **Logical pixels:** compose on a `111 x 111` logical canvas, then enlarge
-  exactly 4x with nearest-neighbor sampling. Every visible source pixel is a
-  hard `4 x 4` block in the final file.
+- **Logical pixels:** compose on a `222 x 222` logical canvas, then enlarge
+  exactly 2x with nearest-neighbor sampling. Every visible source pixel is a
+  hard `2 x 2` block in the final file. The retired 4x grid is too coarse at
+  battle size and makes fighters look out of focus beside the legacy anchors;
+  an asset that still conforms entirely to that grid fails validation.
 - **Palette:** no more than 64 RGBA colors; 12–32 is the preferred working
   range. Use broad value groups, not gradients or noise.
 - **Alpha:** only fully transparent or fully opaque pixels. Remove matte,

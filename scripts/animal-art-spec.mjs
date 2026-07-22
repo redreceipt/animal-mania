@@ -1,8 +1,9 @@
 import { fileURLToPath } from 'node:url'
 
 export const CHARACTER_SIZE = 444
-export const LOGICAL_CHARACTER_SIZE = 111
+export const LOGICAL_CHARACTER_SIZE = 222
 export const CHARACTER_PIXEL_SCALE = CHARACTER_SIZE / LOGICAL_CHARACTER_SIZE
+export const DEPRECATED_CHARACTER_PIXEL_SCALE = 4
 export const MAX_CHARACTER_COLORS = 64
 
 // These shipped fighters are the fixed brand anchors for combat silhouette,

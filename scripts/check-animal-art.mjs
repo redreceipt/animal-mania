@@ -10,6 +10,7 @@ import {
   CHARACTER_PIXEL_SCALE,
   CHARACTER_SIZE,
   CHARACTER_VARIANTS,
+  DEPRECATED_CHARACTER_PIXEL_SCALE,
   FIGHTER_STYLE_ANCHOR_IDS,
   LEGACY_CHARACTER_IDS,
   MAX_CHARACTER_COLORS,
@@ -59,6 +60,19 @@ const inspectPixels = async (path) => {
   let top = info.height
   let bottom = -1
   let followsLogicalGrid = true
+  let followsDeprecatedLogicalGrid = true
+
+  const pixelMatchesAnchor = (x, y, scale, index) => {
+    const anchorX = x - (x % scale)
+    const anchorY = y - (y % scale)
+    const anchor = (anchorY * info.width + anchorX) * 4
+    return (
+      data[index] === data[anchor]
+      && data[index + 1] === data[anchor + 1]
+      && data[index + 2] === data[anchor + 2]
+      && data[index + 3] === data[anchor + 3]
+    )
+  }
 
   for (let y = 0; y < info.height; y += 1) {
     for (let x = 0; x < info.width; x += 1) {
@@ -83,23 +97,24 @@ const inspectPixels = async (path) => {
         hotMagentaPixels += 1
       }
 
-      if (x % CHARACTER_PIXEL_SCALE !== 0 || y % CHARACTER_PIXEL_SCALE !== 0) {
-        const anchorX = x - (x % CHARACTER_PIXEL_SCALE)
-        const anchorY = y - (y % CHARACTER_PIXEL_SCALE)
-        const anchor = (anchorY * info.width + anchorX) * 4
-        if (
-          red !== data[anchor]
-          || green !== data[anchor + 1]
-          || blue !== data[anchor + 2]
-          || alpha !== data[anchor + 3]
-        ) followsLogicalGrid = false
-      }
+      if (
+        followsLogicalGrid
+        && (x % CHARACTER_PIXEL_SCALE !== 0 || y % CHARACTER_PIXEL_SCALE !== 0)
+        && !pixelMatchesAnchor(x, y, CHARACTER_PIXEL_SCALE, index)
+      ) followsLogicalGrid = false
+
+      if (
+        followsDeprecatedLogicalGrid
+        && (x % DEPRECATED_CHARACTER_PIXEL_SCALE !== 0 || y % DEPRECATED_CHARACTER_PIXEL_SCALE !== 0)
+        && !pixelMatchesAnchor(x, y, DEPRECATED_CHARACTER_PIXEL_SCALE, index)
+      ) followsDeprecatedLogicalGrid = false
     }
   }
 
   return {
     alphas,
     colors: colors.size,
+    followsDeprecatedLogicalGrid,
     followsLogicalGrid,
     hotMagentaPixels,
     visiblePixels,
@@ -139,6 +154,12 @@ const checkCharacter = async (animal, variant) => {
     }
     if (!pixels.followsLogicalGrid) {
       fail(path, `${CHARACTER_PIXEL_SCALE} x ${CHARACTER_PIXEL_SCALE} logical-pixel grid is broken`)
+    }
+    if (pixels.followsDeprecatedLogicalGrid) {
+      fail(
+        path,
+        `${DEPRECATED_CHARACTER_PIXEL_SCALE} x ${DEPRECATED_CHARACTER_PIXEL_SCALE} coarse grid is deprecated; refine to the ${CHARACTER_PIXEL_SCALE} x ${CHARACTER_PIXEL_SCALE} fidelity grid`,
+      )
     }
     if (pixels.colors > MAX_CHARACTER_COLORS) {
       fail(path, `uses ${pixels.colors} RGBA colors; maximum is ${MAX_CHARACTER_COLORS}`)
