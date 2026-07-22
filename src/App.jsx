@@ -426,7 +426,7 @@ function BattleLog({ entries }) {
 
 function BattleArena({ players, homeArena, action }) {
   const actionClasses = action
-    ? `action-${action.style} actor-p${action.actor + 1} outcome-${action.outcome}`
+    ? `action-${action.animation} actor-p${action.actor + 1} outcome-${action.outcome}`
     : ''
 
   return (
@@ -437,7 +437,7 @@ function BattleArena({ players, homeArena, action }) {
         '--move-animation-duration': `${MOVE_ANIMATION_MS}ms`,
       }}
       aria-label={`${players[0].animal.name} faces ${players[1].animal.name} at ${homeArena.home}`}
-      data-animation={action?.style}
+      data-animation={action?.animation}
       data-outcome={action?.outcome}
     >
       <div className="arena-plaque"><span>Home arena</span><strong>{homeArena.home}</strong></div>

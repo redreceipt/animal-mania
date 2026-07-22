@@ -18,11 +18,27 @@ test('every move slot has a distinct, brief arcade animation', () => {
   assert.ok(MOVE_ANIMATION_MS <= 600)
 })
 
-test('attack reactions distinguish hits from misses while defense braces', () => {
+test('missed attacks replace the successful move animation with miss feedback', () => {
   const [quick, , , guard] = ANIMALS[0].moves
-  assert.equal(createMoveAnimation({ move: quick, moveIndex: 0, actor: 0, damage: 4 }).outcome, 'hit')
-  assert.equal(createMoveAnimation({ move: quick, moveIndex: 0, actor: 0, damage: 0 }).outcome, 'miss')
-  assert.equal(createMoveAnimation({ move: guard, moveIndex: 3, actor: 1 }).outcome, 'guard')
+  const missedAttackAnimations = ANIMALS[0].moves.slice(0, 3).map((move, moveIndex) => (
+    createMoveAnimation({ move, moveIndex, actor: 0, damage: 0 }).animation
+  ))
+  const hit = createMoveAnimation({ move: quick, moveIndex: 0, actor: 0, damage: 4 })
+  const miss = createMoveAnimation({ move: quick, moveIndex: 0, actor: 0, damage: 0 })
+  const onlineMiss = createMoveAnimation({ move: quick, moveIndex: 0, actor: 0, damage: 4, outcome: 'miss' })
+  const defense = createMoveAnimation({ move: guard, moveIndex: 3, actor: 1 })
+
+  assert.deepEqual(missedAttackAnimations, ['miss', 'miss', 'miss'])
+  assert.deepEqual(
+    { style: hit.style, animation: hit.animation, glyph: hit.glyph, outcome: hit.outcome },
+    { style: 'quick', animation: 'quick', glyph: 'QUICK', outcome: 'hit' },
+  )
+  assert.deepEqual(
+    { style: miss.style, animation: miss.animation, glyph: miss.glyph, outcome: miss.outcome },
+    { style: 'quick', animation: 'miss', glyph: 'MISS!', outcome: 'miss' },
+  )
+  assert.equal(onlineMiss.animation, 'miss')
+  assert.equal(defense.animation, 'guard')
 })
 
 test('move effects use readable arcade callouts', () => {
@@ -30,5 +46,6 @@ test('move effects use readable arcade callouts', () => {
     move,
     moveIndex,
     actor: 0,
+    damage: move.type === 'attack' ? 1 : 0,
   }).glyph), ['QUICK', 'COMBO', 'POWER', 'GUARD'])
 })
