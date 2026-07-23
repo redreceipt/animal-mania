@@ -110,6 +110,27 @@ makes the accurate, repeated, and evasive techniques explicit.
 Adding an animal remains a data-and-assets change. The battle engine only needs a new
 mechanic when recognizable behavior cannot be expressed by the existing move effects.
 
+## Group fighters
+
+A swarm or school is represented as one fighter with one health pool and one place in the turn
+order. This keeps targeting, status effects, online synchronization, and victory rules
+identical to the rest of the roster. Individual group members are expressed through
+existing multi-hit attacks: every hit gets its own accuracy roll, but the group never gains extra
+turns just because it contains multiple creatures.
+
+Killer Bee Swarm is the first test of this model. Low Health, Strength, and Defense pay
+for high Speed, three independent sting chances, venom, and evasive dispersal. Those
+tradeoffs let a swarm feel numerous without multiplying its action economy or hiding how
+an opponent can defeat it. Piranha School applies the same model to an aquatic group with
+two-hit pressure and wounded-target finishing power, demonstrating that the rule is not
+insect-specific.
+
+Black Widow and Scorpion cover the solitary-bug side of the pilot without special engine
+rules. The widow spends its utility budget on web exposure, venom, and evasive cover;
+the scorpion spends more on armor and guard, then trades speed for daze and a piercing
+venom strike. Together, the four issue 87 fighters prove that future insects, arachnids,
+and small-animal groups can stay inside the same roster contract.
+
 ## Status setup effects
 
 Status moves trade immediate power for a later advantage and should remain readable

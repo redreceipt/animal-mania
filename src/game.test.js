@@ -75,7 +75,7 @@ test('fighter artwork is shifted only when transparent padding exceeds the groun
 })
 
 test('first roster expansion remains in display order', () => {
-  assert.deepEqual(ANIMALS.slice(10).map(({ id }) => id), [
+  assert.deepEqual(ANIMALS.slice(10, 39).map(({ id }) => id), [
     'wolf', 'komodo-dragon', 'lion', 'anaconda', 'water-buffalo',
     'shark', 'orca', 'ostrich', 'falcon', 'octopus', 'panda', 'hawk',
     'honey-badger', 'leopard', 'panther', 'moose', 'yak', 'bull',
@@ -90,7 +90,7 @@ test('issue 36 fighters use grounded tactics to offset small-animal power', () =
     'bull', 'snow-leopard', 'king-cobra', 'hammerhead-shark', 'alligator',
     'warthog', 'giraffe', 'skunk', 'bunny', 'goat', 'dolphin', 'dog',
   ]
-  assert.deepEqual(ANIMALS.slice(-requestedIds.length).map(({ id }) => id), requestedIds)
+  assert.deepEqual(ANIMALS.slice(20, 20 + requestedIds.length).map(({ id }) => id), requestedIds)
 
   const smallerFighters = ANIMALS.filter(({ id }) => [
     'hawk', 'king-cobra', 'skunk', 'bunny', 'goat', 'dog',
@@ -103,6 +103,39 @@ test('issue 36 fighters use grounded tactics to offset small-animal power', () =
     ))
     assert.ok(tacticalMoves.length >= 2, `${animal.name} needs multiple tactical answers`)
   }
+})
+
+test('issue 87 pilot covers swarm, web, armor, and aquatic group tactics', () => {
+  const swarm = ANIMALS.find(({ id }) => id === 'killer-bee-swarm')
+  const widow = ANIMALS.find(({ id }) => id === 'black-widow')
+  const scorpion = ANIMALS.find(({ id }) => id === 'scorpion')
+  const piranhas = ANIMALS.find(({ id }) => id === 'piranha-school')
+
+  assert.deepEqual(ANIMALS.slice(-4).map(({ id }) => id), [
+    'killer-bee-swarm', 'black-widow', 'scorpion', 'piranha-school',
+  ])
+  assert.equal(swarm.col, 39)
+  assert.ok(swarm.health < 30)
+  assert.ok(swarm.strength <= 4)
+  assert.ok(swarm.defense <= 3)
+  assert.equal(swarm.speed, 9)
+  assert.equal(swarm.moves.find(({ name }) => name === 'Swarm Rush')?.hits, 3)
+  assert.deepEqual(swarm.moves.find(({ name }) => name === 'Venom Cascade')?.poison, { damage: 1, turns: 3 })
+  assert.ok(swarm.moves.some(({ daze }) => daze))
+  assert.ok(swarm.moves.some(({ evasionGain }) => evasionGain))
+
+  assert.ok(widow.health < 30)
+  assert.ok(widow.moves.some(({ expose }) => expose))
+  assert.deepEqual(widow.moves.find(({ name }) => name === 'Venom Bite')?.poison, { damage: 1, turns: 4 })
+
+  assert.ok(scorpion.defense >= 8)
+  assert.ok(scorpion.moves.some(({ daze }) => daze))
+  assert.ok(scorpion.moves.some(({ guardPierce }) => guardPierce))
+  assert.ok(scorpion.moves.some(({ poison }) => poison))
+
+  assert.equal(piranhas.moves.find(({ name }) => name === 'School Rush')?.hits, 2)
+  assert.ok(piranhas.moves.some(({ bonusBelowHalf }) => bonusBelowHalf))
+  assert.ok(piranhas.moves.some(({ evasionGain }) => evasionGain))
 })
 
 test('bear fighters have unique roster identities and sprite columns', () => {
