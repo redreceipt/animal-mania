@@ -77,7 +77,7 @@ test('fighter artwork is shifted only when transparent padding exceeds the groun
 test('first roster expansion remains in display order', () => {
   assert.deepEqual(ANIMALS.slice(10, 39).map(({ id }) => id), [
     'wolf', 'komodo-dragon', 'lion', 'anaconda', 'water-buffalo',
-    'shark', 'orca', 'ostrich', 'falcon', 'octopus', 'panda', 'hawk',
+    'great-white-shark', 'orca', 'ostrich', 'falcon', 'octopus', 'panda', 'hawk',
     'honey-badger', 'leopard', 'panther', 'moose', 'yak', 'bull',
     'snow-leopard', 'king-cobra', 'hammerhead-shark', 'alligator',
     'warthog', 'giraffe', 'skunk', 'bunny', 'goat', 'dolphin', 'dog',
@@ -111,7 +111,7 @@ test('issue 87 pilot covers swarm, web, armor, and aquatic group tactics', () =>
   const scorpion = ANIMALS.find(({ id }) => id === 'scorpion')
   const piranhas = ANIMALS.find(({ id }) => id === 'piranha-school')
 
-  assert.deepEqual(ANIMALS.slice(-4).map(({ id }) => id), [
+  assert.deepEqual(ANIMALS.slice(39, 43).map(({ id }) => id), [
     'killer-bee-swarm', 'black-widow', 'scorpion', 'piranha-school',
   ])
   assert.equal(swarm.col, 39)
@@ -136,6 +136,29 @@ test('issue 87 pilot covers swarm, web, armor, and aquatic group tactics', () =>
   assert.equal(piranhas.moves.find(({ name }) => name === 'School Rush')?.hits, 2)
   assert.ok(piranhas.moves.some(({ bonusBelowHalf }) => bonusBelowHalf))
   assert.ok(piranhas.moves.some(({ evasionGain }) => evasionGain))
+})
+
+test('issue 86 adds the requested fighters and upgrades the generic shark and crocodile', () => {
+  const requestedIds = [
+    'poison-tree-frog', 'walrus', 'narwhal', 'coyote', 'giant-squid', 'hyena',
+    'giant-manta-ray', 'sea-turtle', 'black-mamba', 'bull-shark',
+    'inland-taipan', 'gila-monster', 'copperhead', 'rattlesnake',
+  ]
+
+  assert.deepEqual(ANIMALS.slice(-requestedIds.length).map(({ id }) => id), requestedIds)
+  assert.equal(ANIMALS[3].id, 'saltwater-crocodile')
+  assert.equal(ANIMALS[3].name, 'Saltwater Crocodile')
+  assert.equal(ANIMALS[15].id, 'great-white-shark')
+  assert.equal(ANIMALS[15].name, 'Great White Shark')
+
+  const venomousIds = [
+    'poison-tree-frog', 'black-mamba', 'inland-taipan', 'gila-monster',
+    'copperhead', 'rattlesnake',
+  ]
+  for (const id of venomousIds) {
+    const animal = ANIMALS.find((candidate) => candidate.id === id)
+    assert.ok(animal.moves.some(({ poison }) => poison), `${animal.name} needs a venom move`)
+  }
 })
 
 test('bear fighters have unique roster identities and sprite columns', () => {
