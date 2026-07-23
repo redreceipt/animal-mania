@@ -1,9 +1,10 @@
-import { memo, useCallback, useEffect, useRef, useState, useTransition } from 'react'
+import { memo, useCallback, useDeferredValue, useEffect, useRef, useState, useTransition } from 'react'
 import {
   ANIMALS, chooseCpuMove, createFighter, getDamageRange,
   getOpeningActor, resolveAction,
 } from './game.js'
 import { analytics } from './analytics.js'
+import { searchAnimals } from './animal-search.js'
 import { measureFighterGroundOffset } from './fighter-image.js'
 import { createMoveAnimation, MOVE_ANIMATION_MS } from './move-animation.js'
 import { normalizeRoomCode, useOnlineRoom } from './useOnlineRoom.js'
@@ -166,18 +167,43 @@ const AnimalRoster = memo(function AnimalRoster({
   onSelect,
   selectedId,
 }) {
+  const [query, setQuery] = useState('')
+  const deferredQuery = useDeferredValue(query)
+  const visibleAnimals = searchAnimals(ANIMALS, deferredQuery)
+  const resultLabel = deferredQuery.trim()
+    ? `${visibleAnimals.length} found`
+    : `${ANIMALS.length} fighters`
+
   return (
-    <div className="roster" aria-label={label}>
-      {ANIMALS.map((animal) => (
-        <AnimalCard
-          animal={animal}
-          disabled={disabled}
-          key={animal.id}
-          onSelect={onSelect}
-          selected={selectedId === animal.id}
+    <>
+      <label className="roster-search">
+        <span>Find fighter</span>
+        <input
+          type="search"
+          value={query}
+          onChange={(event) => setQuery(event.target.value)}
+          placeholder="Type a name..."
+          aria-label={`Search ${label}`}
+          autoComplete="off"
+          spellCheck="false"
         />
-      ))}
-    </div>
+        <output aria-live="polite">{resultLabel}</output>
+      </label>
+      <div className={`roster ${deferredQuery.trim() ? 'filtered' : ''}`} aria-label={label}>
+        {visibleAnimals.map((animal) => (
+          <AnimalCard
+            animal={animal}
+            disabled={disabled}
+            key={animal.id}
+            onSelect={onSelect}
+            selected={selectedId === animal.id}
+          />
+        ))}
+        {visibleAnimals.length === 0 ? (
+          <p className="roster-empty">No fighters match “{deferredQuery.trim()}”.</p>
+        ) : null}
+      </div>
+    </>
   )
 })
 
