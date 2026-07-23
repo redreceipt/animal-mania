@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { memo, useCallback, useEffect, useRef, useState, useTransition } from 'react'
 import {
   ANIMALS, chooseCpuMove, createFighter, getDamageRange,
   getOpeningActor, resolveAction,
@@ -10,6 +10,8 @@ import { normalizeRoomCode, useOnlineRoom } from './useOnlineRoom.js'
 
 const initialSelection = [null, null]
 const imagePromises = new Map()
+const portraitObservers = new Map()
+let portraitObserver
 const linkedRoomCode = normalizeRoomCode(new URLSearchParams(window.location.search).get('room'))
 const globeIcon = (
   <svg className="globe-icon" viewBox="0 0 16 16" shapeRendering="crispEdges" aria-hidden="true" focusable="false">
@@ -48,63 +50,153 @@ function randomAnimal(excludedId) {
   return fighters[Math.floor(Math.random() * fighters.length)]
 }
 
-function PixelAnimal({ animal, variant = 'portrait', flip = false }) {
+function observePortrait(element, onVisible) {
+  if (!('IntersectionObserver' in window)) {
+    onVisible()
+    return () => {}
+  }
+  portraitObserver ??= new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      if (!entry.isIntersecting) return
+      portraitObservers.get(entry.target)?.()
+      portraitObservers.delete(entry.target)
+      portraitObserver.unobserve(entry.target)
+    })
+  })
+  portraitObservers.set(element, onVisible)
+  portraitObserver.observe(element)
+  return () => {
+    portraitObservers.delete(element)
+    portraitObserver.unobserve(element)
+  }
+}
+
+const PixelAnimal = memo(function PixelAnimal({ animal, variant = 'portrait', flip = false }) {
   const src = animalImage(animal, variant)
+  const frameRef = useRef(null)
+  const [shouldLoad, setShouldLoad] = useState(variant !== 'portrait')
   const [imageState, setImageState] = useState({ src: null, groundOffset: 0 })
-  const loaded = imageState.src === src
+  const loaded = variant === 'fighter' && imageState.src === src
+
+  useEffect(() => {
+    if (shouldLoad || variant !== 'portrait') return undefined
+    return observePortrait(frameRef.current, () => setShouldLoad(true))
+  }, [shouldLoad, variant])
+
+  useEffect(() => {
+    if (!shouldLoad || variant !== 'portrait') return
+    const frame = frameRef.current
+    const image = frame.querySelector('img')
+    frame.classList.remove('loaded')
+    image.classList.remove('loaded')
+    if (image.complete && image.naturalWidth) {
+      frame.classList.add('loaded')
+      image.classList.add('loaded')
+    }
+  }, [shouldLoad, src, variant])
 
   function handleLoad(event) {
-    const groundOffset = variant === 'fighter' ? measureFighterGroundOffset(event.currentTarget) : 0
-    setImageState({ src, groundOffset })
+    if (variant === 'portrait') {
+      frameRef.current.classList.add('loaded')
+      event.currentTarget.classList.add('loaded')
+      return
+    }
+    setImageState({ src, groundOffset: measureFighterGroundOffset(event.currentTarget) })
   }
 
   return (
     <span
+      ref={frameRef}
       className={`pixel-animal-frame ${variant} ${loaded ? 'loaded' : ''}`}
       style={{ '--animal-color': animal.color, '--fighter-ground-offset': `${imageState.groundOffset}%` }}
     >
-      <img
-        className={`pixel-animal ${loaded ? 'loaded' : ''} ${flip ? 'flip' : ''}`}
-        src={src}
-        alt={animal.name}
-        width="444"
-        height="444"
-        decoding="async"
-        onLoad={handleLoad}
-        draggable="false"
-      />
+      {shouldLoad ? (
+        <img
+          className={`pixel-animal ${loaded ? 'loaded' : ''} ${flip ? 'flip' : ''}`}
+          src={src}
+          alt={animal.name}
+          width="444"
+          height="444"
+          decoding="async"
+          loading={variant === 'portrait' ? 'lazy' : 'eager'}
+          onLoad={handleLoad}
+          draggable="false"
+        />
+      ) : null}
     </span>
   )
-}
+})
 
 function Logo() {
   return <h1 className="logo"><span>Animal</span> <span>Mania</span></h1>
 }
 
-function AttributeLine({ animal }) {
+const AttributeLine = memo(function AttributeLine({ animal }) {
   return (
     <span className="animal-attributes" aria-label={`${animal.health} health, strength ${animal.strength}, defense ${animal.defense}, speed ${animal.speed}`}>
       <span>HP <b>{animal.health}</b></span><span>STR <b>{animal.strength}</b></span><span>DEF <b>{animal.defense}</b></span><span>SPD <b>{animal.speed}</b></span>
     </span>
   )
-}
+})
 
-function ModeScreen({ onChoose }) {
+const AnimalCard = memo(function AnimalCard({
+  animal,
+  disabled = false,
+  onSelect,
+  selected,
+}) {
   return (
-    <main className="arcade-shell mode-screen">
+    <button
+      className={`animal-card ${selected ? 'selected' : ''}`}
+      onClick={() => onSelect(animal)}
+      aria-pressed={selected}
+      disabled={disabled}
+    >
+      <PixelAnimal animal={animal} />
+      <strong>{animal.name}</strong>
+      <AttributeLine animal={animal} />
+      <small>{animal.detail}</small>
+    </button>
+  )
+})
+
+const AnimalRoster = memo(function AnimalRoster({
+  disabled = false,
+  label,
+  onSelect,
+  selectedId,
+}) {
+  return (
+    <div className="roster" aria-label={label}>
+      {ANIMALS.map((animal) => (
+        <AnimalCard
+          animal={animal}
+          disabled={disabled}
+          key={animal.id}
+          onSelect={onSelect}
+          selected={selectedId === animal.id}
+        />
+      ))}
+    </div>
+  )
+})
+
+function ModeScreen({ onChoose, pending }) {
+  return (
+    <main className="arcade-shell mode-screen" aria-busy={pending}>
       <header className="game-header"><Logo /><p>Choose your showdown</p></header>
       <section className="mode-options" aria-label="Game mode">
-        <button className="mode-card" onClick={() => onChoose('single')}>
+        <button className="mode-card" onClick={() => onChoose('single')} disabled={pending}>
           <span className="mode-icon" aria-hidden="true">1P</span>
           <strong>Single player</strong>
           <small>Battle a tactical CPU opponent</small>
         </button>
-        <button className="mode-card" onClick={() => onChoose('local')}>
+        <button className="mode-card" onClick={() => onChoose('local')} disabled={pending}>
           <span className="mode-icon" aria-hidden="true">2P</span>
           <strong>Local multiplayer</strong>
           <small>Share the screen and settle the score</small>
         </button>
-        <button className="mode-card online" onClick={() => onChoose('online')}>
+        <button className="mode-card online" onClick={() => onChoose('online')} disabled={pending}>
           <span className="mode-icon" aria-hidden="true">{globeIcon}</span>
           <strong>Play online</strong>
           <small>Create a private room or join with a code</small>
@@ -193,14 +285,15 @@ function RoomShare({ code }) {
 function OnlineSelectScreen({ online }) {
   const [randomSelection, setRandomSelection] = useState(false)
   const { room, session } = online
+  const { selectAnimal } = online
   const you = session.playerIndex
   const rival = room.players[1 - you]
   const selectedId = room.players[you]?.animalId
   const rivalAnimal = ANIMALS.find((animal) => animal.id === rival?.animalId)
 
-  function selectFighter(animalId, randomized = false) {
+  const selectFighter = useCallback((animalId, randomized = false) => {
     setRandomSelection(randomized)
-    if (online.selectAnimal(animalId)) {
+    if (selectAnimal(animalId)) {
       analytics.fighterSelected({
         mode: 'online',
         fighter: animalId,
@@ -208,7 +301,8 @@ function OnlineSelectScreen({ online }) {
         selection: randomized ? 'random' : 'manual',
       })
     }
-  }
+  }, [selectAnimal])
+  const selectRosterFighter = useCallback((animal) => selectFighter(animal.id), [selectFighter])
 
   return (
     <main className="arcade-shell online-select-screen">
@@ -219,19 +313,12 @@ function OnlineSelectScreen({ online }) {
         <div className="player-select">
           <div className="player-heading"><span>You · Player {you + 1}</span><b>{randomSelection ? 'Random!' : ANIMALS.find((animal) => animal.id === selectedId)?.name ?? 'Choose!'}</b></div>
           <button className={`random-btn ${randomSelection ? 'selected' : ''}`} onClick={() => selectFighter(randomAnimal().id, true)} aria-pressed={randomSelection} disabled={online.status !== 'connected'}>Surprise me · Random fighter</button>
-          <div className="roster" aria-label="Your animal selection">
-            {ANIMALS.map((animal) => {
-              const selected = selectedId === animal.id
-              return (
-                <button className={`animal-card ${selected ? 'selected' : ''}`} key={animal.id} onClick={() => selectFighter(animal.id)} aria-pressed={selected} disabled={online.status !== 'connected'}>
-                  <PixelAnimal animal={animal} />
-                  <strong>{animal.name}</strong>
-                  <AttributeLine animal={animal} />
-                  <small>{animal.detail}</small>
-                </button>
-              )
-            })}
-          </div>
+          <AnimalRoster
+            disabled={online.status !== 'connected'}
+            label="Your animal selection"
+            onSelect={selectRosterFighter}
+            selectedId={selectedId}
+          />
         </div>
         <aside className="rival-waiting">
           <span className="mode-icon" aria-hidden="true">{rival ? '2P' : '…'}</span>
@@ -247,10 +334,12 @@ function OnlineSelectScreen({ online }) {
   )
 }
 
-function SelectScreen({ mode, onBack, onStart }) {
+function SelectScreen({ mode, navigationPending, onBack, onStart }) {
   const [selections, setSelections] = useState(initialSelection)
   const [randomSelections, setRandomSelections] = useState([false, false])
   const [preparedAssetKey, setPreparedAssetKey] = useState(null)
+  const randomSelectionsRef = useRef(randomSelections)
+  const [selectionPending, startSelectionTransition] = useTransition()
   const singlePlayer = mode === 'single'
   const homeId = selections[0]?.id
   const awayId = selections[1]?.id
@@ -258,42 +347,60 @@ function SelectScreen({ mode, onBack, onStart }) {
   const ready = Boolean(battleAssetKey)
   const battleAssetsReady = battleAssetKey === preparedAssetKey
 
+  useEffect(() => {
+    randomSelectionsRef.current = randomSelections
+  }, [randomSelections])
+
   function randomFighter(player, home = selections[0]) {
     return randomAnimal(singlePlayer && player === 1 ? home?.id : null)
   }
 
-  function select(player, animal) {
-    setSelections((current) => current.map((value, index) => {
-      if (index === player) return animal
-      if (player === 0 && index === 1 && singlePlayer && randomSelections[1]) return randomFighter(1, animal)
-      return value
-    }))
-    setRandomSelections((current) => current.map((random, index) => index === player ? false : random))
+  const select = useCallback((player, animal) => {
     analytics.fighterSelected({
       mode,
       fighter: animal.id,
       player: singlePlayer && player === 1 ? 'cpu' : player === 0 ? 'home' : 'away',
       selection: 'manual',
     })
-  }
+    startSelectionTransition(() => {
+      setSelections((current) => current.map((value, index) => {
+        if (index === player) return animal
+        if (player === 0 && index === 1 && singlePlayer && randomSelectionsRef.current[1]) return randomAnimal(animal.id)
+        return value
+      }))
+      setRandomSelections((current) => (
+        current[player]
+          ? current.map((random, index) => index === player ? false : random)
+          : current
+      ))
+    })
+  }, [mode, singlePlayer])
+  const selectPlayerOne = useCallback((animal) => select(0, animal), [select])
+  const selectPlayerTwo = useCallback((animal) => select(1, animal), [select])
 
   function randomize(player) {
     const selected = randomFighter(player)
     const rerolledCpu = player === 0 && singlePlayer && randomSelections[1]
       ? randomFighter(1, selected)
       : null
-    setSelections((current) => {
-      const next = [...current]
-      next[player] = selected
-      if (rerolledCpu) next[1] = rerolledCpu
-      return next
-    })
-    setRandomSelections((current) => current.map((random, index) => index === player ? true : random))
     analytics.fighterSelected({
       mode,
       fighter: selected.id,
       player: singlePlayer && player === 1 ? 'cpu' : player === 0 ? 'home' : 'away',
       selection: 'random',
+    })
+    startSelectionTransition(() => {
+      setSelections((current) => {
+        const next = [...current]
+        next[player] = selected
+        if (rerolledCpu) next[1] = rerolledCpu
+        return next
+      })
+      setRandomSelections((current) => (
+        current[player]
+          ? current
+          : current.map((random, index) => index === player ? true : random)
+      ))
     })
   }
 
@@ -317,7 +424,7 @@ function SelectScreen({ mode, onBack, onStart }) {
   }, [awayId, homeId])
 
   return (
-    <main className="arcade-shell select-screen">
+    <main className="arcade-shell select-screen" aria-busy={selectionPending || navigationPending}>
       <header className="game-header"><Logo /><p>{singlePlayer ? 'Pick your fighter and CPU rival' : 'Pick your wild contenders'}</p></header>
       <section className="select-layout">
         {[0, 1].map((player) => (
@@ -327,26 +434,18 @@ function SelectScreen({ mode, onBack, onStart }) {
               <b>{randomSelections[player] ? 'Random!' : selections[player]?.name ?? 'Choose!'}</b>
             </div>
             <button className={`random-btn ${randomSelections[player] ? 'selected' : ''}`} onClick={() => randomize(player)} aria-pressed={randomSelections[player]}>Surprise me · Random {singlePlayer && player === 1 ? 'rival' : 'fighter'}</button>
-            <div className="roster" aria-label={`${singlePlayer && player === 1 ? 'CPU' : `Player ${player + 1}`} animal selection`}>
-              {ANIMALS.map((animal) => {
-                const selected = selections[player]?.id === animal.id
-                return (
-                  <button className={`animal-card ${selected ? 'selected' : ''}`} key={animal.id} onClick={() => select(player, animal)} aria-pressed={selected}>
-                    <PixelAnimal animal={animal} />
-                    <strong>{animal.name}</strong>
-                    <AttributeLine animal={animal} />
-                    <small>{animal.detail}</small>
-                  </button>
-                )
-              })}
-            </div>
+            <AnimalRoster
+              label={`${singlePlayer && player === 1 ? 'CPU' : `Player ${player + 1}`} animal selection`}
+              onSelect={player === 0 ? selectPlayerOne : selectPlayerTwo}
+              selectedId={selections[player]?.id}
+            />
           </div>
         ))}
       </section>
       <div className="versus-mark" aria-hidden="true">VS</div>
       <footer className="select-footer">
         <p aria-live="polite">{ready ? `${selections[0].name} hosts at ${selections[0].home}. ${battleAssetsReady ? 'Ready!' : 'Preparing arena…'}` : singlePlayer ? 'Choose your home fighter and a CPU rival' : 'Player 1 chooses the home fighter'}</p>
-        <div className="select-actions"><button className="secondary-btn" onClick={onBack}>Back</button><button className="primary-btn" disabled={!ready || !battleAssetsReady} onClick={startMatch} aria-busy={ready && !battleAssetsReady}>{ready && !battleAssetsReady ? 'Preparing arena…' : 'Start showdown'}</button></div>
+        <div className="select-actions"><button className="secondary-btn" onClick={onBack}>Back</button><button className="primary-btn" disabled={!ready || !battleAssetsReady || navigationPending} onClick={startMatch} aria-busy={(ready && !battleAssetsReady) || navigationPending}>{navigationPending ? 'Starting…' : ready && !battleAssetsReady ? 'Preparing arena…' : 'Start showdown'}</button></div>
       </footer>
     </main>
   )
@@ -820,11 +919,8 @@ function OnlineBattleScreen({ online }) {
 export default function App() {
   const [mode, setMode] = useState(linkedRoomCode ? 'online' : null)
   const [choices, setChoices] = useState(null)
+  const [screenPending, startScreenTransition] = useTransition()
   const online = useOnlineRoom(linkedRoomCode)
-
-  useEffect(() => {
-    ANIMALS.forEach((animal) => preloadImage(animalImage(animal, 'portrait')))
-  }, [])
 
   function leaveOnline() {
     online.leaveRoom()
@@ -833,7 +929,7 @@ export default function App() {
 
   function chooseMode(nextMode) {
     analytics.modeSelected(nextMode)
-    setMode(nextMode)
+    startScreenTransition(() => setMode(nextMode))
   }
 
   function exitSelection() {
@@ -843,15 +939,19 @@ export default function App() {
 
   function changeFighters() {
     analytics.fightersChanged(mode)
-    setChoices(null)
+    startScreenTransition(() => setChoices(null))
   }
 
-  if (!mode) return <ModeScreen onChoose={chooseMode} />
+  function beginMatch(nextChoices) {
+    startScreenTransition(() => setChoices(nextChoices))
+  }
+
+  if (!mode) return <ModeScreen onChoose={chooseMode} pending={screenPending} />
   if (mode === 'online') {
     if (!online.room) return <OnlineLobby online={online} onBack={leaveOnline} />
     if (online.room.phase === 'waiting' || online.room.phase === 'selecting') return <OnlineSelectScreen online={online} />
     return <OnlineBattleScreen online={online} />
   }
-  if (!choices) return <SelectScreen mode={mode} onBack={exitSelection} onStart={setChoices} />
+  if (!choices) return <SelectScreen mode={mode} navigationPending={screenPending} onBack={exitSelection} onStart={beginMatch} />
   return <BattleScreen choices={choices} singlePlayer={mode === 'single'} onReset={changeFighters} />
 }
