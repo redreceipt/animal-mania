@@ -40,7 +40,7 @@ land on different instances.
 
 ## Battle rules
 
-- Forty data-driven, evenly matched fighters using a shared 30-point balance budget
+- Forty-three data-driven, evenly matched fighters using a shared 30-point balance budget
 - Animal HP ranges from 24 to 60 based on size and toughness
 - Small targets take lighter hits while large targets take heavier hits, keeping the wide HP range balanced without erasing its durability advantage
 - Strength modifies attack damage
@@ -49,7 +49,7 @@ land on different instances.
 - Every attack has its own damage range, hit probability, and tactical effects
 - Venom deals damage after a poisoned fighter acts; exposure empowers the next hit; daze lowers the next attack's accuracy
 - Guard, focus, and evasion create defensive and setup options
-- A swarm acts as one shared-health fighter; its individual insects appear as separate low-damage hit chances, not extra turns
+- A group such as a swarm or school acts as one shared-health fighter; its members appear as separate low-damage hit chances, not extra turns
 - Defense must be recharged by attacking once, preventing endless stalling
 - First fighter to reach 0 HP loses
 
@@ -95,6 +95,9 @@ land on different instances.
 - **Dolphin — 44 HP / STR 6 / DEF 6 / SPD 9:** echolocating tactician with exposure, multi-hit attacks, and evasive movement
 - **Dog — 34 HP / STR 6 / DEF 5 / SPD 8:** tenacious team fighter with daze, wounded-target pressure, and recovery
 - **Killer Bee Swarm — 26 HP / STR 4 / DEF 3 / SPD 9:** fragile skirmishers with three-hit pressure, venom, daze, and evasive dispersal
+- **Black Widow — 25 HP / STR 4 / DEF 5 / SPD 9:** web-laying ambusher with exposure, lasting venom, and evasive cover
+- **Scorpion — 32 HP / STR 6 / DEF 8 / SPD 6:** armored counterstinger with daze, guard piercing, venom, and a heavy brace
+- **Piranha School — 35 HP / STR 6 / DEF 4 / SPD 8:** circling skirmishers with coordinated bites, exposure, and wounded-target pressure
 
 The kits are intentionally asymmetric. Seeded matchup simulations keep overall random-strategy win rates close while allowing meaningful strengths and counters.
 See the [roster balance guide](docs/roster-balance.md) for the six-axis budget,

@@ -105,10 +105,15 @@ test('issue 36 fighters use grounded tactics to offset small-animal power', () =
   }
 })
 
-test('killer bee swarm is one fragile fighter with readable swarm tactics', () => {
+test('issue 87 pilot covers swarm, web, armor, and aquatic group tactics', () => {
   const swarm = ANIMALS.find(({ id }) => id === 'killer-bee-swarm')
+  const widow = ANIMALS.find(({ id }) => id === 'black-widow')
+  const scorpion = ANIMALS.find(({ id }) => id === 'scorpion')
+  const piranhas = ANIMALS.find(({ id }) => id === 'piranha-school')
 
-  assert.ok(swarm)
+  assert.deepEqual(ANIMALS.slice(-4).map(({ id }) => id), [
+    'killer-bee-swarm', 'black-widow', 'scorpion', 'piranha-school',
+  ])
   assert.equal(swarm.col, 39)
   assert.ok(swarm.health < 30)
   assert.ok(swarm.strength <= 4)
@@ -118,6 +123,19 @@ test('killer bee swarm is one fragile fighter with readable swarm tactics', () =
   assert.deepEqual(swarm.moves.find(({ name }) => name === 'Venom Cascade')?.poison, { damage: 1, turns: 3 })
   assert.ok(swarm.moves.some(({ daze }) => daze))
   assert.ok(swarm.moves.some(({ evasionGain }) => evasionGain))
+
+  assert.ok(widow.health < 30)
+  assert.ok(widow.moves.some(({ expose }) => expose))
+  assert.deepEqual(widow.moves.find(({ name }) => name === 'Venom Bite')?.poison, { damage: 1, turns: 4 })
+
+  assert.ok(scorpion.defense >= 8)
+  assert.ok(scorpion.moves.some(({ daze }) => daze))
+  assert.ok(scorpion.moves.some(({ guardPierce }) => guardPierce))
+  assert.ok(scorpion.moves.some(({ poison }) => poison))
+
+  assert.equal(piranhas.moves.find(({ name }) => name === 'School Rush')?.hits, 2)
+  assert.ok(piranhas.moves.some(({ bonusBelowHalf }) => bonusBelowHalf))
+  assert.ok(piranhas.moves.some(({ evasionGain }) => evasionGain))
 })
 
 test('bear fighters have unique roster identities and sprite columns', () => {

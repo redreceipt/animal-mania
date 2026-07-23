@@ -407,6 +407,36 @@ export const ANIMALS = [
       defend('Scatter Pattern', 0.22, 0.24, 'Break formation to guard, focus, and evade.', { evasionGain: 0.22 }),
     ],
   },
+  {
+    id: 'black-widow', name: 'Black Widow', color: '#bd2c32', detail: 'Web-laying ambusher', archetype: 'tactician', col: 40, health: 25, strength: 4, defense: 5, speed: 9, home: 'Moonlit Woodpile',
+    budget: { strength: 3, speed: 7, defense: 4, accuracy: 6, utility: 8, initiative: 2 },
+    moves: [
+      attack('Web Snap', 5, 7, 0.98, 'Expose the trapped foe for +2 damage and pierce 25% of guard.', { expose: 2, guardPierce: 0.25 }),
+      attack('Venom Bite', 6, 9, 0.82, "Poison for 1 damage after each of the foe's next 4 moves.", { poison: { damage: 1, turns: 4 } }),
+      attack('Widow Ambush', 10, 14, 0.65, 'Pierce 25% of guard and gain 8% evasion.', { guardPierce: 0.25, evasionGain: 0.08 }),
+      defend('Silk Veil', 0.29, 0.27, 'Guard, focus, and vanish behind webbing.', { evasionGain: 0.12 }),
+    ],
+  },
+  {
+    id: 'scorpion', name: 'Scorpion', color: '#b7662c', detail: 'Armored counterstinger', archetype: 'survivor', col: 41, health: 32, strength: 6, defense: 8, speed: 6, home: 'Redstone Burrow',
+    budget: { strength: 5, speed: 4, defense: 8, accuracy: 5, utility: 6, initiative: 2 },
+    moves: [
+      attack('Pincer Check', 5, 7, 0.97, 'Reliable. Builds +10% focus.', { focusGain: 0.1 }),
+      attack('Tail Feint', 8, 11, 0.82, "Daze the foe: their next attack loses 10% accuracy.", { daze: 0.1 }),
+      attack('Venom Spear', 12, 16, 0.64, 'Inflict venom and pierce 30% of guard.', { poison: { damage: 1, turns: 3 }, guardPierce: 0.3 }),
+      defend('Chitin Brace', 0.55, 0.08, 'Set the claws and armor behind a strong guard.', { evasionGain: 0.04 }),
+    ],
+  },
+  {
+    id: 'piranha-school', name: 'Piranha School', color: '#d84537', detail: 'Circling bite squad', archetype: 'skirmisher', col: 42, health: 35, strength: 6, defense: 4, speed: 8, home: 'Rootwater Lagoon',
+    budget: { strength: 4, speed: 8, defense: 3, accuracy: 7, utility: 5, initiative: 3 },
+    moves: [
+      attack('Testing Bite', 4, 6, 0.98, 'Expose the surrounded foe for +2 damage.', { expose: 2 }),
+      attack('School Rush', 4, 5, 0.75, 'Two coordinated piranhas get separate bite chances.', { hits: 2 }),
+      attack('Feeding Frenzy', 11, 15, 0.65, 'Deals +2 to wounded foes and pierces 20% of guard.', { bonusBelowHalf: 2, guardPierce: 0.2 }),
+      defend('Split Current', 0.32, 0.23, 'Scatter through the current to guard, focus, and evade.', { evasionGain: 0.17 }),
+    ],
+  },
 ]
 
 export const strengthBonus = (strength) => Math.round((strength - 7) * 0.5)
