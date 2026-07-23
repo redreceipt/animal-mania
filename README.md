@@ -40,7 +40,7 @@ land on different instances.
 
 ## Battle rules
 
-- Forty-three data-driven, evenly matched fighters using a shared 30-point balance budget
+- Fifty-seven data-driven, evenly matched fighters using a shared 30-point balance budget
 - Animal HP ranges from 24 to 60 based on size and toughness
 - Small targets take lighter hits while large targets take heavier hits, keeping the wide HP range balanced without erasing its durability advantage
 - Strength modifies attack damage
@@ -58,7 +58,7 @@ land on different instances.
 - **Tiger — 40 HP / STR 7 / DEF 6 / SPD 7:** balanced hunter that builds focus and punishes wounded opponents
 - **Gorilla — 48 HP / STR 10 / DEF 7 / SPD 4:** slow bruiser with the hardest hits, strongest guard, and guard-piercing attacks
 - **Eagle — 30 HP / STR 5 / DEF 4 / SPD 10:** swift trickster with exposure setups, multi-hit attacks, and extra initiative
-- **Crocodile — 44 HP / STR 8 / DEF 10 / SPD 5:** armored survivor with healing and anti-guard pressure
+- **Saltwater Crocodile — 44 HP / STR 8 / DEF 10 / SPD 5:** armored survivor with healing and anti-guard pressure
 - **Rhino — 52 HP / STR 10 / DEF 9 / SPD 3:** relentless charger with heavy guard-piercing attacks
 - **Hippo — 56 HP / STR 11 / DEF 8 / SPD 3:** river powerhouse with punishing bites, strong guard, and recovery
 - **Horse — 36 HP / STR 5 / DEF 4 / SPD 9:** fleet combo fighter with dazing feints, evasion, and extra initiative
@@ -70,7 +70,7 @@ land on different instances.
 - **Lion — 49 HP / STR 10 / DEF 7 / SPD 4:** regal finisher with the strongest guard and guard-piercing attacks
 - **Anaconda — 42 HP / STR 7 / DEF 6 / SPD 7:** coiling controller that builds focus and punishes wounded opponents
 - **Water Buffalo — 58 HP / STR 11 / DEF 8 / SPD 3:** marsh juggernaut with heavy guard, recovery, and powerful charges
-- **Shark — 47 HP / STR 8 / DEF 6 / SPD 6:** relentless striker with evasion, wounded-target pressure, and guard piercing
+- **Great White Shark — 47 HP / STR 8 / DEF 6 / SPD 6:** relentless striker with evasion, wounded-target pressure, and guard piercing
 - **Orca — 54 HP / STR 9 / DEF 8 / SPD 6:** ocean powerhouse with strong guard and anti-guard attacks
 - **Ostrich — 34 HP / STR 5 / DEF 4 / SPD 10:** fleet kicker with multi-hit attacks, evasion, and extra initiative
 - **Falcon — 28 HP / STR 5 / DEF 4 / SPD 10:** aerial daredevil with accuracy disruption, multi-hit attacks, and extra initiative
@@ -89,7 +89,7 @@ land on different instances.
 - **Alligator — 45 HP / STR 8 / DEF 10 / SPD 5:** swamp counterfighter with anti-guard pressure and strong recovery
 - **Warthog — 43 HP / STR 8 / DEF 7 / SPD 5:** scrappy charger with guard piercing, recovery, and wounded-target pressure
 - **Giraffe — 51 HP / STR 7 / DEF 5 / SPD 8:** long-range kicker with focus, multi-hit attacks, and evasive footwork
-- **Skunk — 27 HP / STR 4 / DEF 4 / SPD 7:** scent-screen trickster with daze, exposure, and evasive defense
+- **Skunk — 29 HP / STR 4 / DEF 4 / SPD 7:** scent-screen trickster with daze, exposure, and evasive defense
 - **Bunny — 24 HP / STR 4 / DEF 3 / SPD 9:** alert evasive kicker with repeated hind-leg attacks and cover
 - **Goat — 33 HP / STR 6 / DEF 6 / SPD 8:** sure-footed duelist with focus, guard piercing, and evasive attacks
 - **Dolphin — 44 HP / STR 6 / DEF 6 / SPD 9:** echolocating tactician with exposure, multi-hit attacks, and evasive movement
@@ -98,6 +98,20 @@ land on different instances.
 - **Black Widow — 25 HP / STR 4 / DEF 5 / SPD 9:** web-laying ambusher with exposure, lasting venom, and evasive cover
 - **Scorpion — 32 HP / STR 6 / DEF 8 / SPD 6:** armored counterstinger with daze, guard piercing, venom, and a heavy brace
 - **Piranha School — 35 HP / STR 6 / DEF 4 / SPD 8:** circling skirmishers with coordinated bites, exposure, and wounded-target pressure
+- **Poison Tree Frog — 31 HP / STR 5 / DEF 4 / SPD 9:** toxic spring fighter with daze, lingering poison, and evasive kicks
+- **Walrus — 56 HP / STR 11 / DEF 8 / SPD 3:** tusked heavyweight with wounded-target pressure, heavy recovery, and crushing drives
+- **Narwhal — 46 HP / STR 7 / DEF 7 / SPD 7:** spiraling lancer with sonar exposure and guard-piercing tusk attacks
+- **Coyote — 35 HP / STR 6 / DEF 5 / SPD 8:** dustland opportunist with daze, wounded-target pressure, and evasive pounces
+- **Giant Squid — 40 HP / STR 8 / DEF 9 / SPD 5:** abyssal grappler with anti-guard tentacles, recovery, and layered defense
+- **Hyena — 39 HP / STR 7 / DEF 6 / SPD 7:** cackling pressure fighter with focus and wounded-target finishing power
+- **Giant Manta Ray — 44 HP / STR 6 / DEF 6 / SPD 9:** winged current rider with exposure, multi-hit sweeps, and evasion
+- **Sea Turtle — 43 HP / STR 8 / DEF 10 / SPD 5:** carapace counterfighter with anti-guard attacks and shell recovery
+- **Black Mamba — 31 HP / STR 5 / DEF 4 / SPD 9:** lightning venom striker with daze and evasive recoil
+- **Bull Shark — 47 HP / STR 8 / DEF 6 / SPD 6:** estuary brawler with wounded-target pressure and guard-piercing breaches
+- **Inland Taipan — 30 HP / STR 5 / DEF 4 / SPD 9:** desert venom specialist with daze and evasive strikes
+- **Gila Monster — 44 HP / STR 8 / DEF 10 / SPD 5:** beaded-hide survivor with venom, recovery, and heavy armor
+- **Copperhead — 31 HP / STR 5 / DEF 4 / SPD 9:** leaf-litter ambusher with daze, venom, and evasive attacks
+- **Rattlesnake — 31 HP / STR 5 / DEF 4 / SPD 9:** warning-shot tactician with daze, venom, and coiled evasion
 
 The kits are intentionally asymmetric. Seeded matchup simulations keep overall random-strategy win rates close while allowing meaningful strengths and counters.
 See the [roster balance guide](docs/roster-balance.md) for the six-axis budget,

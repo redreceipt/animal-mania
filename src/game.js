@@ -38,7 +38,7 @@ export const ANIMALS = [
     ],
   },
   {
-    id: 'crocodile', name: 'Crocodile', color: '#54a84b', detail: 'Armored survivor', archetype: 'survivor', col: 3, health: 44, strength: 8, defense: 10, speed: 5, home: 'Blackwater Mangroves',
+    id: 'saltwater-crocodile', name: 'Saltwater Crocodile', color: '#54a84b', detail: 'Armored survivor', archetype: 'survivor', col: 3, health: 44, strength: 8, defense: 10, speed: 5, home: 'Blackwater Mangroves',
     budget: { strength: 5, speed: 3, defense: 8, accuracy: 5, utility: 6, initiative: 3 },
     moves: [
       attack('Tail Snap', 4, 7, 0.94, 'Reliable pressure attack.'),
@@ -158,7 +158,7 @@ export const ANIMALS = [
     ],
   },
   {
-    id: 'shark', name: 'Shark', color: '#507f9b', detail: 'Relentless striker', archetype: 'all-rounder', col: 15, health: 47, strength: 8, defense: 6, speed: 6, home: 'Bluewater Reef',
+    id: 'great-white-shark', name: 'Great White Shark', color: '#507f9b', detail: 'Relentless striker', archetype: 'all-rounder', col: 15, health: 47, strength: 8, defense: 6, speed: 6, home: 'Bluewater Reef',
     budget: { strength: 6, speed: 5, defense: 4, accuracy: 6, utility: 5, initiative: 4 },
     moves: [
       attack('Bite Feint', 4, 6, 0.97, 'Reliable. Gain 4% evasion.', { evasionGain: 0.04 }),
@@ -348,7 +348,7 @@ export const ANIMALS = [
     ],
   },
   {
-    id: 'skunk', name: 'Skunk', color: '#c9c6b9', detail: 'Scent-screen trickster', archetype: 'tactician', col: 34, health: 27, strength: 4, defense: 4, speed: 7, home: 'Fernwood Burrow',
+    id: 'skunk', name: 'Skunk', color: '#c9c6b9', detail: 'Scent-screen trickster', archetype: 'tactician', col: 34, health: 29, strength: 4, defense: 4, speed: 7, home: 'Fernwood Burrow',
     budget: { strength: 3, speed: 6, defense: 4, accuracy: 6, utility: 8, initiative: 3 },
     moves: [
       attack('Warning Stomp', 5, 7, 0.99, "Daze the foe: their next attack loses 16% accuracy.", { daze: 0.16 }),
@@ -435,6 +435,146 @@ export const ANIMALS = [
       attack('School Rush', 4, 5, 0.75, 'Two coordinated piranhas get separate bite chances.', { hits: 2 }),
       attack('Feeding Frenzy', 11, 15, 0.65, 'Deals +2 to wounded foes and pierces 20% of guard.', { bonusBelowHalf: 2, guardPierce: 0.2 }),
       defend('Split Current', 0.32, 0.23, 'Scatter through the current to guard, focus, and evade.', { evasionGain: 0.17 }),
+    ],
+  },
+  {
+    id: 'poison-tree-frog', name: 'Poison Tree Frog', color: '#f4d51f', detail: 'Toxic spring fighter', archetype: 'tactician', col: 43, health: 31, strength: 5, defense: 4, speed: 9, home: 'Canopy Poison Pool',
+    budget: { strength: 3, speed: 7, defense: 3, accuracy: 6, utility: 8, initiative: 3 },
+    moves: [
+      attack('Warning Flash', 5, 7, 0.97, "Daze the foe: their next attack loses 11% accuracy.", { daze: 0.11 }),
+      attack('Toxin Touch', 6, 9, 0.81, "Poison for 1 damage after each of the foe's next 4 moves.", { poison: { damage: 1, turns: 4 } }),
+      attack('Spring Kick', 11, 14, 0.67, 'Leap clear and gain 15% evasion.', { evasionGain: 0.15 }),
+      defend('Low Crouch', 0.3, 0.27, 'Compress behind a light guard, then spring away.', { evasionGain: 0.17 }),
+    ],
+  },
+  {
+    id: 'walrus', name: 'Walrus', color: '#9a5d3c', detail: 'Tusked heavyweight', archetype: 'bruiser', col: 44, health: 56, strength: 11, defense: 8, speed: 3, home: 'Tuskbreaker Ice Floe',
+    budget: { strength: 9, speed: 2, defense: 8, accuracy: 5, utility: 4, initiative: 2 },
+    moves: [
+      attack('Flipper Check', 5, 7, 0.95, 'A heavy, dependable opening shove.'),
+      attack('Tusk Hook', 7, 10, 0.84, 'Deals +2 to wounded foes.', { bonusBelowHalf: 2 }),
+      attack('Icebreaker Rush', 12, 16, 0.64, 'A fearsome all-or-nothing drive.'),
+      defend('Blubber Brace', 0.67, 0.035, 'Absorb the charge and recover 2 HP.', { heal: 2 }),
+    ],
+  },
+  {
+    id: 'narwhal', name: 'Narwhal', color: '#71889a', detail: 'Spiraling lancer', archetype: 'all-rounder', col: 45, health: 46, strength: 7, defense: 7, speed: 7, home: 'Spiral Ice Channel',
+    budget: { strength: 6, speed: 5, defense: 5, accuracy: 6, utility: 5, initiative: 3 },
+    moves: [
+      attack('Sonar Probe', 4, 6, 0.96, 'Expose the foe: the next hit deals +2 damage.', { expose: 2 }),
+      attack('Tusk Sweep', 8, 11, 0.81, 'Deals +2 through any guard.', { bonusVsGuard: 2 }),
+      attack('Spiral Lance', 12, 16, 0.62, 'Drive through 31% of the foe’s guard.', { guardPierce: 0.31 }),
+      defend('Tail Current', 0.53, 0.14, 'Turn through the current for guard and focus.'),
+    ],
+  },
+  {
+    id: 'coyote', name: 'Coyote', color: '#b8844f', detail: 'Dustland opportunist', archetype: 'all-rounder', col: 46, health: 35, strength: 6, defense: 5, speed: 8, home: 'Moonbrush Badlands',
+    budget: { strength: 4, speed: 6, defense: 4, accuracy: 7, utility: 5, initiative: 4 },
+    moves: [
+      attack('Dust Fake', 4, 6, 0.97, "Daze the foe: their next attack loses 9% accuracy.", { daze: 0.09 }),
+      attack('Snapping Combo', 7, 10, 0.84, 'Deals +2 to wounded foes.', { bonusBelowHalf: 2 }),
+      attack('Brush Pounce', 11, 15, 0.67, 'Gain 12% evasion after landing.', { evasionGain: 0.12 }),
+      defend('Mesa Sidestep', 0.4, 0.2, 'Guard, focus, and recover 1 HP.', { heal: 1 }),
+    ],
+  },
+  {
+    id: 'giant-squid', name: 'Giant Squid', color: '#a94135', detail: 'Abyssal grappler', archetype: 'tactician', col: 47, health: 40, strength: 8, defense: 9, speed: 5, home: 'Abyssal Vent Trench',
+    budget: { strength: 5, speed: 3, defense: 8, accuracy: 4, utility: 7, initiative: 3 },
+    moves: [
+      attack('Ink Jet', 4, 6, 0.93, 'Reliable pressure attack.'),
+      attack('Tentacle Snare', 8, 11, 0.78, 'Deals +3 through any guard.', { bonusVsGuard: 3 }),
+      attack('Feeding Lash', 11, 15, 0.62, 'Clamp down and recover 3 HP on a hit.', { heal: 3 }),
+      defend('Arm Fortress', 0.6, 0.08, 'Layer the arms into a strong guard.', { heal: 2 }),
+    ],
+  },
+  {
+    id: 'hyena', name: 'Hyena', color: '#b08a52', detail: 'Cackling pressure fighter', archetype: 'all-rounder', col: 48, health: 39, strength: 7, defense: 6, speed: 7, home: 'Bonegrass Hollow',
+    budget: { strength: 5, speed: 6, defense: 5, accuracy: 6, utility: 5, initiative: 3 },
+    moves: [
+      attack('Cackle Feint', 4, 6, 0.96, 'Build 11% focus while testing the foe.', { focusGain: 0.11 }),
+      attack('Pack Harrier', 8, 11, 0.82, 'Deals +3 to wounded foes.', { bonusBelowHalf: 3 }),
+      attack('Bonecrusher Bite', 14, 18, 0.56, 'Deals +4 to wounded foes.', { bonusBelowHalf: 4 }),
+      defend('Laugh It Off', 0.45, 0.18, 'Guard and line up the next strike.'),
+    ],
+  },
+  {
+    id: 'giant-manta-ray', name: 'Giant Manta Ray', color: '#355a75', detail: 'Winged current rider', archetype: 'tactician', col: 49, health: 44, strength: 6, defense: 6, speed: 9, home: 'Pelagic Sun Arch',
+    budget: { strength: 4, speed: 7, defense: 4, accuracy: 6, utility: 6, initiative: 3 },
+    moves: [
+      attack('Cephalic Feint', 3, 5, 0.98, 'Expose the foe: the next hit deals +2 damage.', { expose: 2 }),
+      attack('Wingbeat Rush', 3, 4, 0.84, 'Two sweeping wing chances.', { hits: 2 }),
+      attack('Ray Glide', 10, 14, 0.68, 'Gain 16% evasion after landing.', { evasionGain: 0.16 }),
+      defend('Current Veil', 0.32, 0.26, 'Ride the current for focus and evasion.', { evasionGain: 0.16 }),
+    ],
+  },
+  {
+    id: 'sea-turtle', name: 'Sea Turtle', color: '#4f8d72', detail: 'Carapace counterfighter', archetype: 'survivor', col: 50, health: 43, strength: 8, defense: 10, speed: 5, home: 'Ancient Reef Shelf',
+    budget: { strength: 5, speed: 3, defense: 8, accuracy: 5, utility: 6, initiative: 3 },
+    moves: [
+      attack('Beak Jab', 4, 7, 0.95, 'Reliable reef pressure.'),
+      attack('Flipper Sweep', 8, 11, 0.78, 'Deals +3 through any guard.', { bonusVsGuard: 3 }),
+      attack('Ramming Shell', 11, 15, 0.62, 'Recover 3 HP after a solid impact.', { heal: 3 }),
+      defend('Carapace Lock', 0.6, 0.08, 'Retreat behind the shell and recover 2 HP.', { heal: 2 }),
+    ],
+  },
+  {
+    id: 'black-mamba', name: 'Black Mamba', color: '#313733', detail: 'Lightning venom striker', archetype: 'tactician', col: 51, health: 31, strength: 5, defense: 4, speed: 9, home: 'Charcoal Thornveld',
+    budget: { strength: 3, speed: 7, defense: 3, accuracy: 6, utility: 8, initiative: 3 },
+    moves: [
+      attack('Open-Mouth Feint', 5, 7, 0.98, "Daze the foe: their next attack loses 9% accuracy.", { daze: 0.09 }),
+      attack('Mamba Fang', 6, 9, 0.81, "Poison for 1 damage after each of the foe's next 4 moves.", { poison: { damage: 1, turns: 4 } }),
+      attack('Blackline Strike', 11, 14, 0.67, 'Recoil and gain 14% evasion.', { evasionGain: 0.14 }),
+      defend('S-Curve Slip', 0.3, 0.27, 'Sway clear with focus and high evasion.', { evasionGain: 0.18 }),
+    ],
+  },
+  {
+    id: 'bull-shark', name: 'Bull Shark', color: '#587684', detail: 'Estuary brawler', archetype: 'all-rounder', col: 52, health: 47, strength: 8, defense: 6, speed: 6, home: 'Brackwater Break',
+    budget: { strength: 6, speed: 5, defense: 4, accuracy: 6, utility: 5, initiative: 4 },
+    moves: [
+      attack('Shoulder Ram', 4, 6, 0.97, 'Reliable. Gain 5% evasion.', { evasionGain: 0.05 }),
+      attack('Frenzy Bite', 7, 10, 0.84, 'Deals +2 to wounded foes.', { bonusBelowHalf: 2 }),
+      attack('Estuary Breach', 12, 15, 0.64, 'Punches through 30% of guard.', { guardPierce: 0.3 }),
+      defend('Low-Water Turn', 0.55, 0.14, 'Brace in the shallows and recover 1 HP.', { heal: 1 }),
+    ],
+  },
+  {
+    id: 'inland-taipan', name: 'Inland Taipan', color: '#8d6538', detail: 'Desert venom specialist', archetype: 'tactician', col: 53, health: 30, strength: 5, defense: 4, speed: 9, home: 'Cracked Clay Expanse',
+    budget: { strength: 3, speed: 7, defense: 3, accuracy: 6, utility: 8, initiative: 3 },
+    moves: [
+      attack('Heat-Haze Probe', 5, 7, 0.98, "Daze the foe: their next attack loses 10% accuracy.", { daze: 0.1 }),
+      attack('Taipan Venom', 6, 9, 0.81, "Poison for 1 damage after each of the foe's next 4 moves.", { poison: { damage: 1, turns: 4 } }),
+      attack('Dustline Whip', 11, 15, 0.67, 'Snap away and gain 15% evasion.', { evasionGain: 0.15 }),
+      defend('Burrow Coil', 0.3, 0.27, 'Use the dust for focus and evasion.', { evasionGain: 0.18 }),
+    ],
+  },
+  {
+    id: 'gila-monster', name: 'Gila Monster', color: '#d26332', detail: 'Beaded-hide survivor', archetype: 'survivor', col: 54, health: 44, strength: 8, defense: 10, speed: 5, home: 'Saguaro Stonewash',
+    budget: { strength: 6, speed: 3, defense: 8, accuracy: 4, utility: 6, initiative: 3 },
+    moves: [
+      attack('Beaded Headbutt', 4, 7, 0.96, 'Reliable desert pressure.'),
+      attack('Venom Clamp', 6, 9, 0.78, "Poison for 1 damage after each of the foe's next 3 moves.", { poison: { damage: 1, turns: 3 } }),
+      attack('Tail Buffet', 11, 15, 0.62, 'Recover 3 HP on a hit.', { heal: 3 }),
+      defend('Rock-Crack Shelter', 0.6, 0.08, 'Brace the beaded hide and recover 2 HP.', { heal: 2 }),
+    ],
+  },
+  {
+    id: 'copperhead', name: 'Copperhead', color: '#aa6d3b', detail: 'Leaf-litter ambusher', archetype: 'tactician', col: 55, health: 31, strength: 5, defense: 4, speed: 9, home: 'Copperleaf Ravine',
+    budget: { strength: 3, speed: 7, defense: 3, accuracy: 6, utility: 8, initiative: 3 },
+    moves: [
+      attack('Copper Feint', 5, 7, 0.98, "Daze the foe: their next attack loses 11% accuracy.", { daze: 0.11 }),
+      attack('Hemotoxic Bite', 6, 9, 0.82, "Poison for 1 damage after each of the foe's next 4 moves.", { poison: { damage: 1, turns: 4 } }),
+      attack('Leaf-Litter Strike', 11, 15, 0.66, 'Gain 15% evasion after landing.', { evasionGain: 0.15 }),
+      defend('Copper Camouflage', 0.31, 0.26, 'Disappear into the leaves with focus and evasion.', { evasionGain: 0.18 }),
+    ],
+  },
+  {
+    id: 'rattlesnake', name: 'Rattlesnake', color: '#ad8b50', detail: 'Warning-shot tactician', archetype: 'tactician', col: 56, health: 31, strength: 5, defense: 4, speed: 9, home: 'Echo Rattle Canyon',
+    budget: { strength: 3, speed: 7, defense: 3, accuracy: 6, utility: 8, initiative: 3 },
+    moves: [
+      attack('Rattle Warning', 5, 7, 0.97, "Daze the foe: their next attack loses 11% accuracy.", { daze: 0.11 }),
+      attack('Twin Fang Rush', 6, 9, 0.81, "Poison for 1 damage after each of the foe's next 4 moves.", { poison: { damage: 1, turns: 4 } }),
+      attack('Pit-Viper Strike', 11, 15, 0.68, 'Gain 15% evasion after landing.', { evasionGain: 0.15 }),
+      defend('Warning Coil', 0.3, 0.27, 'Hold a tight coil with focus and evasion.', { evasionGain: 0.17 }),
     ],
   },
 ]

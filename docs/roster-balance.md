@@ -131,6 +131,19 @@ the scorpion spends more on armor and guard, then trades speed for daze and a pi
 venom strike. Together, the four issue 87 fighters prove that future insects, arachnids,
 and small-animal groups can stay inside the same roster contract.
 
+## Issue 86 expansion
+
+The issue 86 expansion adds fourteen fighters while making the original generic Shark
+and Crocodile explicit species: Great White Shark and Saltwater Crocodile. The new
+fighters reuse the established combat vocabulary rather than adding one-off engine
+rules. Poisonous species express venom through the shared poison status; aquatic bodies
+use exposure, evasion, guard piercing, and recovery; and heavy animals trade speed for
+durability.
+
+The complete 57-fighter roster passes the same 30-point budget validation and seeded
+matchup audit as the original roster. Skunk receives a small health adjustment to
+preserve its overall matchup range after the larger venom-focused field is introduced.
+
 ## Status setup effects
 
 Status moves trade immediate power for a later advantage and should remain readable
