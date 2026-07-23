@@ -424,14 +424,28 @@ function BattleLog({ entries }) {
   )
 }
 
-function BattleArena({ players, homeArena, action }) {
+function BattleResultPanel({ result, children }) {
+  return (
+    <div className={`battle-result-panel result-${result.tone}`}>
+      <div className="battle-result-summary">
+        <span>Battle over</span>
+        <strong>{result.title}</strong>
+        <small>{result.detail}</small>
+      </div>
+      {children}
+    </div>
+  )
+}
+
+function BattleArena({ players, homeArena, action, result, winner }) {
   const actionClasses = action
     ? `action-${action.animation} actor-p${action.actor + 1} outcome-${action.outcome}`
     : ''
+  const resultClass = result ? `battle-finished result-${result.tone}` : ''
 
   return (
     <section
-      className={`faceoff-arena ${actionClasses}`}
+      className={`faceoff-arena ${actionClasses} ${resultClass}`}
       style={{
         '--arena-image': `url('/animals/arena-${homeArena.id}.webp')`,
         '--move-animation-duration': `${MOVE_ANIMATION_MS}ms`,
@@ -441,10 +455,24 @@ function BattleArena({ players, homeArena, action }) {
       data-outcome={action?.outcome}
     >
       <div className="arena-plaque"><span>Home arena</span><strong>{homeArena.home}</strong></div>
-      <div className="fighter-slot left"><PixelAnimal animal={players[0].animal} variant="fighter" /></div>
+      <div className={`fighter-slot left ${winner === 0 ? 'winner' : winner === 1 ? 'defeated' : ''}`}><PixelAnimal animal={players[0].animal} variant="fighter" /></div>
       <div className="versus-spark" aria-hidden="true">VS</div>
-      <div className="fighter-slot right"><PixelAnimal animal={players[1].animal} variant="fighter" flip /></div>
+      <div className={`fighter-slot right ${winner === 1 ? 'winner' : winner === 0 ? 'defeated' : ''}`}><PixelAnimal animal={players[1].animal} variant="fighter" flip /></div>
       {action ? <div className="move-flash" aria-hidden="true">{action.glyph}</div> : null}
+      {result ? (
+        <>
+          <div className="battle-result-shade" aria-hidden="true" />
+          <div className="battle-result-sting" aria-hidden="true">
+            <span className="result-frond left"><i /><i /><i /></span>
+            <span className="result-sting-copy">
+              <small>Battle over</small>
+              <strong>{result.title}</strong>
+              <em>{result.victorName} stands tall</em>
+            </span>
+            <span className="result-frond right"><i /><i /><i /></span>
+          </div>
+        </>
+      ) : null}
     </section>
   )
 }
@@ -475,6 +503,16 @@ function BattleScreen({ choices, singlePlayer, onReset }) {
         : `${actorLabel} goes again — choose another move!`
       : singlePlayer && active === 1 ? 'CPU is choosing…' : `${actorLabel} — choose a move`
   const homeArena = choices[0]
+  const battleResult = victor
+    ? {
+        tone: singlePlayer && winner === 1 ? 'defeat' : 'victory',
+        title: singlePlayer ? (winner === 0 ? 'Victory' : 'Defeat') : `${winnerLabel} wins`,
+        victorName: victor.animal.name,
+        detail: singlePlayer && winner === 1
+          ? `${victor.animal.name} claimed this round. Track it down in a rematch.`
+          : `${victor.animal.name} claimed the arena.`,
+      }
+    : null
 
   useEffect(() => {
     window.scrollTo(0, 0)
@@ -576,17 +614,21 @@ function BattleScreen({ choices, singlePlayer, onReset }) {
         <div key={turnRevision} className={`turn-banner p${active + 1} ${bonusTurn ? 'bonus' : ''}`} role="status" aria-live="polite" aria-atomic="true">{turnLabel}</div>
         <FighterHud player={players[1]} index={1} active={active === 1 && !victor} label={singlePlayer ? 'Away · CPU' : 'Away · Player 2'} />
       </section>
-      <BattleArena players={players} homeArena={homeArena} action={actionAnimation} />
+      <BattleArena players={players} homeArena={homeArena} action={actionAnimation} result={battleResult} winner={winner} />
       <p className="battle-message" aria-live="polite">{message}</p>
       <section className="command-zone">
         <div className={`move-panel ${victor ? '' : `turn-p${active + 1}`} ${bonusTurn ? 'bonus-turn' : ''}`}>
-          <h2>{victor ? commandHint : bonusTurn ? `${actorLabel} · Go again! · ${commandHint}` : `${actorLabel} · ${commandHint}`}</h2>
           {victor ? (
-            <div className="victory-actions"><button className="primary-btn" onClick={resetBattle}>Rematch</button><button className="secondary-btn" onClick={onReset}>Change fighters</button></div>
+            <BattleResultPanel result={battleResult}>
+              <div className="victory-actions"><button className="primary-btn" onClick={resetBattle}>Rematch</button><button className="secondary-btn" onClick={onReset}>Change fighters</button></div>
+            </BattleResultPanel>
           ) : (
-            <div className="move-grid">
-              {activeMoves.map((move, index) => <MoveButton key={move.name} animal={players[active].animal} move={move} index={index} onChoose={() => chooseMove(index)} disabled={resolving || (singlePlayer && active === 1) || (move.type === 'defend' && !players[active].defenseReady)} />)}
-            </div>
+            <>
+              <h2>{bonusTurn ? `${actorLabel} · Go again! · ${commandHint}` : `${actorLabel} · ${commandHint}`}</h2>
+              <div className="move-grid">
+                {activeMoves.map((move, index) => <MoveButton key={move.name} animal={players[active].animal} move={move} index={index} onChoose={() => chooseMove(index)} disabled={resolving || (singlePlayer && active === 1) || (move.type === 'defend' && !players[active].defenseReady)} />)}
+              </div>
+            </>
           )}
         </div>
         <BattleLog entries={log} />
@@ -655,6 +697,16 @@ function OnlineBattleScreen({ online }) {
   const canAct = yourTurn && rivalConnected && roomConnected && !actionAnimation
   const victor = battle.winner === null ? null : players[battle.winner]
   const youWon = battle.winner === you
+  const battleResult = victor
+    ? {
+        tone: youWon ? 'victory' : 'defeat',
+        title: youWon ? 'Victory' : 'Defeat',
+        victorName: victor.animal.name,
+        detail: youWon
+          ? `${victor.animal.name} claimed the arena.`
+          : `${victor.animal.name} claimed this round. Return stronger.`,
+      }
+    : null
   const turnLabel = victor
     ? (youWon ? 'You win!' : 'Rival wins!')
     : battle.bonusTurn
@@ -731,26 +783,30 @@ function OnlineBattleScreen({ online }) {
         <div key={`${room.round}:${battle.revision}`} className={`turn-banner p${battle.active + 1} ${battle.bonusTurn ? 'bonus' : ''}`} role="status" aria-live="polite" aria-atomic="true">{turnLabel}</div>
         <FighterHud player={players[1]} index={1} active={battle.active === 1 && !victor} label={you === 1 ? 'Away · You' : 'Away · Rival'} />
       </section>
-      <BattleArena players={players} homeArena={homeArena} action={actionAnimation} />
+      <BattleArena players={players} homeArena={homeArena} action={actionAnimation} result={battleResult} winner={battle.winner} />
       <p className="battle-message" aria-live="polite">{battle.message}</p>
       <section className="command-zone">
         <div className={`move-panel ${yourTurn ? `turn-p${you + 1}` : ''} ${battle.bonusTurn ? 'bonus-turn' : ''}`}>
-          <h2>{victor ? `${victor.animal.name} rules the wild!` : battle.bonusTurn ? `${yourTurn ? 'You go again! · Choose your move' : 'Rival goes again · Your move set waits'}` : `${yourTurn ? 'Your' : 'Waiting · your'} move set`}</h2>
           {victor ? (
-            <RematchControls online={online} rematch={room.rematch} playerIndex={you} connected={roomConnected} />
+            <BattleResultPanel result={battleResult}>
+              <RematchControls online={online} rematch={room.rematch} playerIndex={you} connected={roomConnected} />
+            </BattleResultPanel>
           ) : (
-            <div className="move-grid">
-              {yourPlayer.animal.moves.map((move, index) => (
-                <MoveButton
-                  key={move.name}
-                  animal={yourPlayer.animal}
-                  move={move}
-                  index={index}
-                  onChoose={() => chooseMove(index)}
-                  disabled={!canAct || (move.type === 'defend' && !yourPlayer.defenseReady)}
-                />
-              ))}
-            </div>
+            <>
+              <h2>{battle.bonusTurn ? `${yourTurn ? 'You go again! · Choose your move' : 'Rival goes again · Your move set waits'}` : `${yourTurn ? 'Your' : 'Waiting · your'} move set`}</h2>
+              <div className="move-grid">
+                {yourPlayer.animal.moves.map((move, index) => (
+                  <MoveButton
+                    key={move.name}
+                    animal={yourPlayer.animal}
+                    move={move}
+                    index={index}
+                    onChoose={() => chooseMove(index)}
+                    disabled={!canAct || (move.type === 'defend' && !yourPlayer.defenseReady)}
+                  />
+                ))}
+              </div>
+            </>
           )}
         </div>
         <BattleLog entries={battle.log} />
