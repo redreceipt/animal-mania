@@ -162,11 +162,14 @@ button:disabled { filter: grayscale(1); opacity: .4; cursor: not-allowed; }
 .action-combo.actor-p2 .fighter-slot.right { animation: combo-rush-left var(--move-animation-duration, 520ms) steps(8); }
 .action-power.actor-p1 .fighter-slot.left { animation: power-strike-right var(--move-animation-duration, 520ms) steps(7); }
 .action-power.actor-p2 .fighter-slot.right { animation: power-strike-left var(--move-animation-duration, 520ms) steps(7); }
+.action-miss.actor-p1 .fighter-slot.left { animation: miss-whiff-right var(--move-animation-duration, 520ms) steps(7); }
+.action-miss.actor-p2 .fighter-slot.right { animation: miss-whiff-left var(--move-animation-duration, 520ms) steps(7); }
 .action-guard.actor-p1 .fighter-slot.left { animation: guard-brace-left var(--move-animation-duration, 520ms) steps(6); }
 .action-guard.actor-p2 .fighter-slot.right { animation: guard-brace-right var(--move-animation-duration, 520ms) steps(6); }
 .action-quick .move-flash { animation: quick-flash var(--move-animation-duration, 520ms) steps(4); }
 .action-combo .move-flash { animation: combo-flash var(--move-animation-duration, 520ms) steps(6); }
 .action-power .move-flash { animation: power-flash var(--move-animation-duration, 520ms) steps(5); }
+.action-miss .move-flash { border-color: #d7f4ff; color: var(--gold); text-shadow: 2px 2px 0 #123a53; box-shadow: 4px 4px 0 #123a53; animation: miss-flash var(--move-animation-duration, 520ms) steps(5); }
 .action-guard .move-flash { animation: guard-flash var(--move-animation-duration, 520ms) steps(4); }
 .outcome-hit.actor-p1 .fighter-slot.right, .outcome-hit.actor-p2 .fighter-slot.left { animation: hit-recoil var(--move-animation-duration, 520ms) steps(6); }
 .outcome-miss.actor-p1 .fighter-slot.right { animation: dodge-right var(--move-animation-duration, 520ms) steps(5); }
@@ -177,6 +180,8 @@ button:disabled { filter: grayscale(1); opacity: .4; cursor: not-allowed; }
 @keyframes combo-rush-left { 0%, 100% { transform: translateX(0); } 18% { transform: translateX(-52px); } 34% { transform: translateX(-12px); } 48%, 62% { transform: translateX(-78px); } }
 @keyframes power-strike-right { 0%, 100% { transform: translate(0, 0); } 28% { transform: translate(-18px, 8px) rotate(-3deg); } 52%, 68% { transform: translate(88px, -4px) rotate(2deg); } }
 @keyframes power-strike-left { 0%, 100% { transform: translate(0, 0); } 28% { transform: translate(18px, 8px) rotate(3deg); } 52%, 68% { transform: translate(-88px, -4px) rotate(-2deg); } }
+@keyframes miss-whiff-right { 0%, 100% { transform: translate(0, 0) rotate(0); } 20% { transform: translate(-14px, 5px) rotate(-2deg); } 44% { transform: translate(58px, -3px) rotate(2deg); } 58%, 72% { transform: translate(80px, 8px) rotate(6deg); } 82% { transform: translate(44px, 10px) rotate(4deg); } }
+@keyframes miss-whiff-left { 0%, 100% { transform: translate(0, 0) rotate(0); } 20% { transform: translate(14px, 5px) rotate(2deg); } 44% { transform: translate(-58px, -3px) rotate(-2deg); } 58%, 72% { transform: translate(-80px, 8px) rotate(-6deg); } 82% { transform: translate(-44px, 10px) rotate(-4deg); } }
 @keyframes guard-brace-left { 0%, 100% { transform: translate(0, 0) scale(1); filter: none; } 18% { transform: translate(8px, -2px) scale(.98, 1.02); } 34%, 82% { transform: translate(-24px, 10px) scale(1.06, .92) rotate(-2deg); filter: drop-shadow(0 0 10px #9edcf2); } }
 @keyframes guard-brace-right { 0%, 100% { transform: translate(0, 0) scale(1); filter: none; } 18% { transform: translate(-8px, -2px) scale(.98, 1.02); } 34%, 82% { transform: translate(24px, 10px) scale(1.06, .92) rotate(2deg); filter: drop-shadow(0 0 10px #9edcf2); } }
 @keyframes hit-recoil { 0%, 44%, 100% { transform: translate(0, 0); filter: none; } 52% { transform: translate(-8px, 3px); filter: brightness(1.8); } 60% { transform: translate(9px, -2px); } 72% { transform: translate(-5px, 1px); } }
@@ -185,6 +190,7 @@ button:disabled { filter: grayscale(1); opacity: .4; cursor: not-allowed; }
 @keyframes quick-flash { 0%, 28%, 100% { opacity: 0; transform: translate(-50%, -50%) rotate(-5deg) scale(.7); } 36%, 88% { opacity: 1; transform: translate(-50%, -50%) rotate(-5deg) scale(1); } }
 @keyframes combo-flash { 0%, 24%, 100% { opacity: 0; transform: translate(-50%, -50%) scale(.7); } 32%, 90% { opacity: 1; transform: translate(-50%, -50%) scale(1); } 48% { transform: translate(-54%, -50%) scale(1.08); } 62% { transform: translate(-46%, -50%) scale(1.08); } }
 @keyframes power-flash { 0%, 34%, 100% { opacity: 0; transform: translate(-50%, -50%) scale(.7); } 44%, 92% { opacity: 1; transform: translate(-50%, -50%) scale(1.18); } }
+@keyframes miss-flash { 0%, 28%, 100% { opacity: 0; transform: translate(-50%, -35%) rotate(5deg) scale(.65); } 38%, 70% { opacity: 1; transform: translate(-50%, -50%) rotate(-4deg) scale(1.12); } 88% { opacity: 1; transform: translate(-50%, -72%) rotate(3deg) scale(.92); } }
 @keyframes guard-flash { 0%, 16%, 100% { opacity: 0; transform: translate(-50%, -50%) scale(.35, .08); } 28% { opacity: 1; transform: translate(-50%, -50%) scale(.8, 1.12); } 40%, 90% { opacity: 1; transform: translate(-50%, -50%) scale(1); } }
 .battle-message { z-index: 1; min-height: 42px; display: flex; align-items: center; margin: 0; border: 3px solid var(--line); background: #061b29; padding: 10px 16px; color: white; font-size: 8px; line-height: 1.6; }
 .battle-message::before { content: '···'; color: var(--gold); margin-right: 12px; letter-spacing: 2px; }
