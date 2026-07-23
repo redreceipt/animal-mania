@@ -106,6 +106,7 @@ Use the body grammar that fits the species:
 | Mammal or reptile that can rear | Lift the torso; plant or bend the hind legs; assign the forelimbs clear offense/guard roles; broaden the shoulders and striking shapes. | Ordinary quadruped walk, stalk, or charge with no guard; realistic body with only an angry face. |
 | Bird | Plant or clearly direct the talons; use asymmetrical wing shapes as strike and guard; keep the beak and gaze on the attack line. | Perched bird, neutral standing bird, decorative symmetrical wings, or ordinary flight. |
 | Aquatic, serpentine, or genuinely limbless | Keep the authentic body plan; use a tense C- or S-shaped attack arc, threatening head, and counterdirected fins, coil, or tail. | Straight documentary swim, scenic leap, loose resting coil, or invented humanoid legs. |
+| Swarm | Compress five to nine readable insects into one asymmetric wedge or spiral. Give the leading edge a clear strike job and the denser rear mass a guard job so the group reads as one combatant. | Evenly scattered particles, a realistic colony cloud, repeated clones on a grid, or tiny specks without a shared line of action. |
 
 Symmetry, relaxed joints, evenly distributed weight, and a level spine usually
 signal neutral wildlife. Prefer asymmetry, compression, forward pressure, and
@@ -114,8 +115,9 @@ never overrides the combat read.
 
 ### Fighter framing
 
-- Show one complete animal in a side or three-quarter fighting pose, generally
-  facing right. The app mirrors the away fighter.
+- Show one complete animal—or one cohesive swarm treated as a single fighter—in
+  a side or three-quarter fighting pose, generally facing right. The app mirrors
+  the away fighter.
 - Keep the silhouette readable at card size. Use a stable stance or clear
   airborne/swimming gesture; avoid tangled limbs and ambiguous anatomy.
 - Leave at least one logical pixel of transparent margin on every side. Aim for
@@ -126,6 +128,8 @@ never overrides the combat read.
 ### Portrait framing
 
 - Use a close head-and-shoulders crop with a focused, competitive expression.
+- For a swarm portrait, feature one enlarged lead insect with two or three
+  overlapping companions so the crop remains readable as a group.
 - Match the fighter's markings, body colors, proportions, and outline weight.
 - Leave at least one logical pixel above the subject. Shoulders may meet the
   bottom and side edges. Aim for roughly 35–75% visible canvas coverage.

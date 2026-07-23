@@ -397,6 +397,16 @@ export const ANIMALS = [
       defend('Circle the Flock', 0.4, 0.2, 'Guard, focus, and recover 1 HP.', { heal: 1 }),
     ],
   },
+  {
+    id: 'killer-bee-swarm', name: 'Killer Bee Swarm', color: '#e5a820', detail: 'Coordinated stingers', archetype: 'skirmisher', col: 39, health: 26, strength: 4, defense: 3, speed: 9, home: 'Sunbaked Apiary',
+    budget: { strength: 2, speed: 8, defense: 2, accuracy: 7, utility: 7, initiative: 4 },
+    moves: [
+      attack('Scouting Sting', 5, 7, 0.98, "Daze the foe: their next attack loses 12% accuracy.", { daze: 0.12 }),
+      attack('Swarm Rush', 4, 5, 0.78, 'Three separate stingers can connect.', { hits: 3 }),
+      attack('Venom Cascade', 10, 13, 0.62, "Poison for 1 damage after each of the foe's next 3 moves.", { poison: { damage: 1, turns: 3 } }),
+      defend('Scatter Pattern', 0.22, 0.24, 'Break formation to guard, focus, and evade.', { evasionGain: 0.22 }),
+    ],
+  },
 ]
 
 export const strengthBonus = (strength) => Math.round((strength - 7) * 0.5)

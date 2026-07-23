@@ -110,6 +110,19 @@ makes the accurate, repeated, and evasive techniques explicit.
 Adding an animal remains a data-and-assets change. The battle engine only needs a new
 mechanic when recognizable behavior cannot be expressed by the existing move effects.
 
+## Swarm fighters
+
+A swarm is represented as one fighter with one health pool and one place in the turn
+order. This keeps targeting, status effects, online synchronization, and victory rules
+identical to the rest of the roster. Individual insects are expressed through existing
+multi-hit attacks: every hit gets its own accuracy roll, but the swarm never gains extra
+turns just because it contains multiple creatures.
+
+Killer Bee Swarm is the first test of this model. Low Health, Strength, and Defense pay
+for high Speed, three independent sting chances, venom, and evasive dispersal. Those
+tradeoffs let a swarm feel numerous without multiplying its action economy or hiding how
+an opponent can defeat it.
+
 ## Status setup effects
 
 Status moves trade immediate power for a later advantage and should remain readable

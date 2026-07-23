@@ -40,7 +40,7 @@ land on different instances.
 
 ## Battle rules
 
-- Thirty-nine data-driven, evenly matched animals using a shared 30-point balance budget
+- Forty data-driven, evenly matched fighters using a shared 30-point balance budget
 - Animal HP ranges from 24 to 60 based on size and toughness
 - Small targets take lighter hits while large targets take heavier hits, keeping the wide HP range balanced without erasing its durability advantage
 - Strength modifies attack damage
@@ -49,6 +49,7 @@ land on different instances.
 - Every attack has its own damage range, hit probability, and tactical effects
 - Venom deals damage after a poisoned fighter acts; exposure empowers the next hit; daze lowers the next attack's accuracy
 - Guard, focus, and evasion create defensive and setup options
+- A swarm acts as one shared-health fighter; its individual insects appear as separate low-damage hit chances, not extra turns
 - Defense must be recharged by attacking once, preventing endless stalling
 - First fighter to reach 0 HP loses
 
@@ -93,6 +94,7 @@ land on different instances.
 - **Goat — 33 HP / STR 6 / DEF 6 / SPD 8:** sure-footed duelist with focus, guard piercing, and evasive attacks
 - **Dolphin — 44 HP / STR 6 / DEF 6 / SPD 9:** echolocating tactician with exposure, multi-hit attacks, and evasive movement
 - **Dog — 34 HP / STR 6 / DEF 5 / SPD 8:** tenacious team fighter with daze, wounded-target pressure, and recovery
+- **Killer Bee Swarm — 26 HP / STR 4 / DEF 3 / SPD 9:** fragile skirmishers with three-hit pressure, venom, daze, and evasive dispersal
 
 The kits are intentionally asymmetric. Seeded matchup simulations keep overall random-strategy win rates close while allowing meaningful strengths and counters.
 See the [roster balance guide](docs/roster-balance.md) for the six-axis budget,

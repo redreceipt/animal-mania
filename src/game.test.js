@@ -75,7 +75,7 @@ test('fighter artwork is shifted only when transparent padding exceeds the groun
 })
 
 test('first roster expansion remains in display order', () => {
-  assert.deepEqual(ANIMALS.slice(10).map(({ id }) => id), [
+  assert.deepEqual(ANIMALS.slice(10, 39).map(({ id }) => id), [
     'wolf', 'komodo-dragon', 'lion', 'anaconda', 'water-buffalo',
     'shark', 'orca', 'ostrich', 'falcon', 'octopus', 'panda', 'hawk',
     'honey-badger', 'leopard', 'panther', 'moose', 'yak', 'bull',
@@ -90,7 +90,7 @@ test('issue 36 fighters use grounded tactics to offset small-animal power', () =
     'bull', 'snow-leopard', 'king-cobra', 'hammerhead-shark', 'alligator',
     'warthog', 'giraffe', 'skunk', 'bunny', 'goat', 'dolphin', 'dog',
   ]
-  assert.deepEqual(ANIMALS.slice(-requestedIds.length).map(({ id }) => id), requestedIds)
+  assert.deepEqual(ANIMALS.slice(20, 20 + requestedIds.length).map(({ id }) => id), requestedIds)
 
   const smallerFighters = ANIMALS.filter(({ id }) => [
     'hawk', 'king-cobra', 'skunk', 'bunny', 'goat', 'dog',
@@ -103,6 +103,21 @@ test('issue 36 fighters use grounded tactics to offset small-animal power', () =
     ))
     assert.ok(tacticalMoves.length >= 2, `${animal.name} needs multiple tactical answers`)
   }
+})
+
+test('killer bee swarm is one fragile fighter with readable swarm tactics', () => {
+  const swarm = ANIMALS.find(({ id }) => id === 'killer-bee-swarm')
+
+  assert.ok(swarm)
+  assert.equal(swarm.col, 39)
+  assert.ok(swarm.health < 30)
+  assert.ok(swarm.strength <= 4)
+  assert.ok(swarm.defense <= 3)
+  assert.equal(swarm.speed, 9)
+  assert.equal(swarm.moves.find(({ name }) => name === 'Swarm Rush')?.hits, 3)
+  assert.deepEqual(swarm.moves.find(({ name }) => name === 'Venom Cascade')?.poison, { damage: 1, turns: 3 })
+  assert.ok(swarm.moves.some(({ daze }) => daze))
+  assert.ok(swarm.moves.some(({ evasionGain }) => evasionGain))
 })
 
 test('bear fighters have unique roster identities and sprite columns', () => {
