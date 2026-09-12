@@ -28,10 +28,41 @@ Online matches support two anonymous players. The Node server is authoritative
 for fighter selection, turns, random rolls, battle state, and rematches. A
 disconnected player can rejoin from the same browser session, and inactive
 rooms expire after 30 minutes. The same endpoint runs locally on the combined
-Node server and deploys as a Vercel WebSocket Function. Rooms are currently held
-in process memory; reliable multi-instance deployments require shared room
-persistence and event delivery (such as Redis), because two connections may
-land on different instances.
+Node server and deploys as a Vercel WebSocket Function. Production instances
+share room state and live updates through Redis, so players can join the same
+room even when their connections reach different servers. Room mutations are
+atomic: simultaneous joins cannot claim the same seat, and duplicate turns
+cannot overwrite newer battle state.
+
+### Online deployment
+
+Set the server-only `REDIS_URL` environment variable to a Redis connection URL
+(`rediss://` for TLS) on every instance. Redis must support Lua scripts and
+Pub/Sub; use the provider's Redis protocol URL, not an HTTP REST endpoint.
+On Vercel, configure it for Production before deploying this change. Use a
+**separate Redis database for Preview** so preview and production games cannot
+share rooms. Never prefix this variable with `VITE_` or expose it to the browser.
+
+Vercel deployments without Redis report that online rooms are unavailable
+instead of creating rooms that another instance cannot find. Local development
+and a single standalone Node server still work in memory without configuration.
+Existing in-memory rooms cannot migrate; players must create new rooms after
+the rollout. Redis keys expire after 30 minutes of inactivity. A Redis outage
+fails closed while the server reconnects; players can rejoin once service returns.
+When a Redis subscription recovers, connected browsers automatically rejoin to
+recover any missed updates. Replaced connections cannot submit further actions.
+
+To exercise the same multi-instance storage locally, start Redis and run:
+
+```bash
+REDIS_URL=redis://127.0.0.1:6379 npm run dev
+TEST_REDIS_URL=redis://127.0.0.1:6379 node --test server/online-sockets.test.js
+```
+
+The integration check launches independent server processes and covers room
+sharing, simultaneous joins, synchronized turns, reconnects on a cold server,
+and expiration. CI runs it against a Redis service; without `TEST_REDIS_URL`,
+`npm test` runs the local-server check and skips the cross-instance check.
 
 ### Controls
 

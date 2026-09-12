@@ -143,7 +143,7 @@ export function useOnlineRoom(initialCode = '') {
             errorCode: message.code,
             stage: roomRef.current?.phase ?? target.action,
           })
-          if (['ROOM_NOT_FOUND', 'ROOM_FULL', 'ROOM_EXPIRED', 'NOT_A_PLAYER'].includes(message.code)) {
+          if (['ROOM_NOT_FOUND', 'ROOM_FULL', 'ROOM_EXPIRED', 'NOT_A_PLAYER', 'ONLINE_UNAVAILABLE', 'SESSION_REPLACED'].includes(message.code)) {
             fatal = true
             roomRef.current = null
             setRoom(null)
@@ -153,8 +153,13 @@ export function useOnlineRoom(initialCode = '') {
         }
       })
 
-      socket.addEventListener('close', () => {
+      socket.addEventListener('close', (event) => {
         if (!active || fatal) return
+        if (event.code === 4001) {
+          setStatus('error')
+          setError('This room was opened in another connection. Rejoin to play here.')
+          return
+        }
         attempts += 1
         setStatus('reconnecting')
         retryTimer = window.setTimeout(connect, Math.min(500 * (2 ** (attempts - 1)), 5000))
