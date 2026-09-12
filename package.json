@@ -17,6 +17,7 @@
   },
   "dependencies": {
     "@fontsource/press-start-2p": "^5.2.6",
+    "@redis/client": "^5.12.1",
     "@vercel/analytics": "^2.0.1",
     "@vercel/speed-insights": "^2.0.0",
     "@vitejs/plugin-react": "^4.4.1",

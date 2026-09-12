@@ -31,6 +31,14 @@ jobs:
           - name: Animal art
             script: art:check
 
+    services:
+      redis:
+        image: ${{ matrix.script == 'test' && 'redis:7-alpine' || '' }}
+        ports:
+          - 6379:6379
+    env:
+      TEST_REDIS_URL: redis://127.0.0.1:6379
+
     steps:
       - name: Check out repository
         uses: actions/checkout@v7
