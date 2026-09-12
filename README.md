@@ -39,9 +39,10 @@ cannot overwrite newer battle state.
 Set the server-only `REDIS_URL` environment variable to a Redis connection URL
 (`rediss://` for TLS) on every instance. Redis must support Lua scripts and
 Pub/Sub; use the provider's Redis protocol URL, not an HTTP REST endpoint.
-On Vercel, configure it for Production before deploying this change. Use a
-**separate Redis database for Preview** so preview and production games cannot
-share rooms. Never prefix this variable with `VITE_` or expose it to the browser.
+On Vercel, configure it for Production before deploying this change. If you
+later add it to Preview, use a **separate Redis database for Preview** so
+preview and production games cannot share rooms. Never prefix this variable
+with `VITE_` or expose it to the browser.
 
 Vercel deployments without Redis report that online rooms are unavailable
 instead of creating rooms that another instance cannot find. Local development
