@@ -54,8 +54,8 @@ function serializeFighter({ animal, ...fighter }) {
   return { ...fighter, animalId: animal.id }
 }
 
-function createPlayer(token) {
-  return { token, connected: true, animalId: null }
+function createPlayer(token, connectionId) {
+  return { token, connectionId, connected: true, animalId: null }
 }
 
 export class RoomStore {
@@ -72,16 +72,17 @@ export class RoomStore {
     this.rooms = new Map()
   }
 
-  createRoom() {
+  createRoom(connectionId) {
     this.cleanupExpired()
     const code = this.#uniqueCode()
     const token = this.tokenFactory()
     const timestamp = this.now()
     const room = {
       code,
+      version: 0,
       createdAt: timestamp,
       updatedAt: timestamp,
-      players: [createPlayer(token), null],
+      players: [createPlayer(token, connectionId), null],
       battle: null,
       rematch: null,
       round: 0,
@@ -90,7 +91,7 @@ export class RoomStore {
     return { code, token, playerIndex: 0, room: this.snapshot(room) }
   }
 
-  joinRoom(rawCode, requestedToken = null) {
+  joinRoom(rawCode, requestedToken = null, connectionId) {
     this.cleanupExpired()
     const code = normalizeRoomCode(rawCode)
     if (!ROOM_CODE_PATTERN.test(code)) {
@@ -108,15 +109,16 @@ export class RoomStore {
       room.players[playerIndex] = createPlayer(token)
     }
 
+    room.players[playerIndex].connectionId = connectionId
     room.players[playerIndex].connected = true
     this.#touch(room)
     return { code, token, playerIndex, room: this.snapshot(room) }
   }
 
-  disconnect(rawCode, token) {
+  disconnect(rawCode, token, connectionId) {
     const room = this.rooms.get(normalizeRoomCode(rawCode))
     const playerIndex = room?.players.findIndex((player) => player?.token === token) ?? -1
-    if (playerIndex === -1) return null
+    if (playerIndex === -1 || room.players[playerIndex].connectionId !== connectionId) return null
     room.players[playerIndex].connected = false
     this.#touch(room)
     return this.snapshot(room)
@@ -223,6 +225,7 @@ export class RoomStore {
     if (!room) return null
     return {
       code: room.code,
+      version: room.version,
       phase: room.battle ? (room.battle.winner === null ? 'battle' : 'finished')
         : room.players[1] ? 'selecting' : 'waiting',
       round: room.round,
@@ -254,6 +257,13 @@ export class RoomStore {
       }
     }
     return expired
+  }
+
+  requireConnection(rawCode, token, connectionId) {
+    const { room, playerIndex } = this.#member(rawCode, token)
+    if (room.players[playerIndex].connectionId !== connectionId) {
+      throw new RoomError('SESSION_REPLACED', 'This room was opened in another connection. Rejoin to play here.')
+    }
   }
 
   #member(rawCode, token) {
@@ -301,6 +311,7 @@ export class RoomStore {
   }
 
   #touch(room) {
+    room.version += 1
     room.updatedAt = this.now()
   }
 
