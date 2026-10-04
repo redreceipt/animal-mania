@@ -594,8 +594,9 @@ export function getDamageRange(animal, move) {
 }
 
 export function getOpeningActor(animals, random = Math.random) {
-  if (animals[0].speed === animals[1].speed) return random() < 0.5 ? 0 : 1
-  return animals[0].speed > animals[1].speed ? 0 : 1
+  const fastest = Math.max(...animals.map((animal) => animal.speed))
+  const contenders = animals.flatMap((animal, index) => animal.speed === fastest ? [index] : [])
+  return contenders.length === 1 ? contenders[0] : contenders[Math.floor(random() * contenders.length)]
 }
 
 export function createFighter(animal) {
@@ -689,10 +690,16 @@ function rollDamage(animal, move, random) {
 
 function nextActor(players, acting) {
   players[acting].initiative += turnDelay(players[acting].animal.speed)
-  const other = 1 - acting
-  if (players[acting].initiative < players[other].initiative) return acting
-  if (players[acting].initiative > players[other].initiative) return other
-  return players[acting].animal.speed > players[other].animal.speed ? acting : other
+  let next = null
+  // Walk from the next seat so equal-speed ties rotate instead of favoring Player 1.
+  for (let offset = 1; offset <= players.length; offset += 1) {
+    const index = (acting + offset) % players.length
+    const player = players[index]
+    if (player.health <= 0) continue
+    if (next === null || player.initiative < players[next].initiative
+      || (player.initiative === players[next].initiative && player.animal.speed > players[next].animal.speed)) next = index
+  }
+  return next
 }
 
 const clampAccuracy = (value) => Math.max(0.25, Math.min(0.99, value))
@@ -706,17 +713,18 @@ function applyPoisonTick(player) {
   return { damage, turns }
 }
 
-function finishAction(nextPlayers, active, message, winner = null) {
-  let resolvedWinner = winner
+function finishAction(nextPlayers, active, message, target) {
   let resolvedMessage = message
 
   const poisonTick = applyPoisonTick(nextPlayers[active])
   if (poisonTick) {
     const turnsLeft = poisonTick.turns > 0 ? ` ${poisonTick.turns} move${poisonTick.turns === 1 ? '' : 's'} left.` : ' The poison faded.'
     resolvedMessage += ` Venom dealt ${poisonTick.damage} damage to ${nextPlayers[active].animal.name}.${turnsLeft}`
-    if (nextPlayers[active].health === 0) resolvedWinner = 1 - active
   }
 
+  const survivors = nextPlayers.flatMap((player, index) => player.health > 0 ? [index] : [])
+  // Preserve the duel rule: if the final attack and venom knock both out, the target wins.
+  const resolvedWinner = survivors.length === 0 ? target : survivors.length === 1 ? survivors[0] : null
   return {
     players: nextPlayers,
     message: resolvedMessage,
@@ -726,12 +734,16 @@ function finishAction(nextPlayers, active, message, winner = null) {
   }
 }
 
-export function resolveAction(players, active, move, random = Math.random) {
+export function resolveAction(players, active, move, random = Math.random, target = players.findIndex((player, index) => index !== active && player.health > 0)) {
+  if (!players[active] || players[active].health <= 0
+    || players.filter((player) => player.health > 0).length < 2
+    || (move.type === 'attack' && (!Number.isInteger(target) || target === active || !players[target] || players[target].health <= 0))) {
+    return { players, message: 'Choose a living opponent.', log: null, winner: null, nextActive: active }
+  }
   const nextPlayers = players.map((player) => ({ ...player }))
   const attacker = nextPlayers[active]
-  const defender = nextPlayers[1 - active]
-  const attackerName = attacker.animal.name
-  const defenderName = defender.animal.name
+  const defender = nextPlayers[target]
+  const attackerName = players.length > 2 ? `Player ${active + 1}'s ${attacker.animal.name}` : attacker.animal.name
 
   if (move.type === 'defend') {
     if (!attacker.defenseReady) {
@@ -747,9 +759,10 @@ export function resolveAction(players, active, move, random = Math.random) {
     if (move.evasionGain) effects.push(`+${Math.round(move.evasionGain * 100)}% evasion`)
     if (move.heal) effects.push(`healed ${move.heal}`)
     const message = `${attackerName} used ${move.name}: ${effects.join(', ')}.`
-    return finishAction(nextPlayers, active, message)
+    return finishAction(nextPlayers, active, message, target)
   }
 
+  const defenderName = players.length > 2 ? `Player ${target + 1}'s ${defender.animal.name}` : defender.animal.name
   const guardValue = defender.guard
   const guarded = guardValue > 0
   const targetWasWounded = defender.health <= defender.animal.health / 2
@@ -786,7 +799,7 @@ export function resolveAction(players, active, move, random = Math.random) {
   if (landedHits === 0) {
     const details = [evasive ? `${defenderName} evaded` : 'it missed', dazed ? 'daze cut accuracy' : null, guarded ? 'guard expired' : null].filter(Boolean).join(', ')
     const message = `${attackerName} used ${move.name} — ${details}!`
-    return finishAction(nextPlayers, active, message)
+    return finishAction(nextPlayers, active, message, target)
   }
 
   defender.health = Math.max(0, defender.health - totalDamage)
@@ -817,7 +830,7 @@ export function resolveAction(players, active, move, random = Math.random) {
   if (move.expose) effects.push(`exposed +${move.expose}`)
   if (move.daze) effects.push(`dazed -${Math.round(move.daze * 100)}% accuracy`)
   const effectText = effects.length ? ` (${effects.join(', ')})` : ''
-  const message = `${attackerName} used ${move.name} for ${totalDamage} damage${effectText}!`
-  const winner = defender.health === 0 ? active : null
-  return finishAction(nextPlayers, active, message, winner)
+  const targetText = players.length > 2 ? ` to ${defenderName}${defender.health === 0 ? ' (knocked out)' : ''}` : ''
+  const message = `${attackerName} used ${move.name} for ${totalDamage} damage${targetText}${effectText}!`
+  return finishAction(nextPlayers, active, message, target)
 }

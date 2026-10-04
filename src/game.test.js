@@ -254,6 +254,101 @@ test('speed controls initiative and can earn the faster animal another move', ()
   assert.ok(turns.some((actor, index) => index > 0 && actor === turns[index - 1]), 'faster Eagle should eventually act twice in succession')
 })
 
+test('three- and four-player opening ties and initiative rotate fairly from every seat', () => {
+  for (const count of [3, 4]) {
+    const animals = Array(count).fill(ANIMALS[0])
+    for (let start = 0; start < count; start += 1) {
+      let players = animals.map(createFighter)
+      let active = getOpeningActor(animals, () => (start + 0.5) / count)
+      assert.equal(active, start)
+      for (let turn = 0; turn < count * 3; turn += 1) {
+        assert.equal(active, (start + turn) % count)
+        const result = resolveAction(players, active, animals[active].moves[0], () => 0.999, (active + 1) % count)
+        players = result.players
+        active = result.nextActive
+      }
+    }
+  }
+  assert.equal(getOpeningActor([ANIMALS[0], ANIMALS[1], ANIMALS[2]], () => 0), 2)
+})
+
+test('free-for-all attacks affect only a legal target and skip knocked-out seats', () => {
+  const players = Array.from({ length: 4 }, () => createFighter(ANIMALS[0]))
+  players[1].health = 0
+  players[3].health = 1
+  const before = structuredClone(players)
+  for (const target of [0, 1, -1, 4, 1.5, null, '2']) {
+    const result = resolveAction(players, 0, players[0].animal.moves[0], () => 0, target)
+    assert.equal(result.log, null)
+    assert.equal(result.players, players)
+  }
+  const eliminatedAction = resolveAction(players, 1, players[1].animal.moves[0], () => 0, 2)
+  assert.equal(eliminatedAction.log, null)
+  const result = resolveAction(players, 0, players[0].animal.moves[0], () => 0, 3)
+  assert.deepEqual(players, before)
+  assert.equal(result.players[3].health, 0)
+  assert.equal(result.players[2].health, before[2].health)
+  assert.equal(result.winner, null)
+  assert.equal(result.nextActive, 2)
+  assert.match(result.message, /Player 4.*knocked out/)
+  result.players[0].health = 1
+  const finish = resolveAction(result.players, 2, players[2].animal.moves[0], () => 0, 0)
+  assert.equal(finish.winner, 2)
+  assert.equal(resolveAction(finish.players, 2, players[2].animal.moves[0], () => 0, 0).log, null)
+})
+
+test('party defense, multi-hit and poison retain their single-target rules', () => {
+  const animals = [ANIMALS[0], ANIMALS[2], ANIMALS.find(({ id }) => id === 'komodo-dragon')]
+  let players = animals.map(createFighter)
+  const guard = resolveAction(players, 0, animals[0].moves[3], () => 0, null)
+  assert.equal(guard.players[0].defenseReady, false)
+  assert.equal(resolveAction(guard.players, 0, animals[0].moves[3], () => 0, null).log, null)
+  const combo = resolveAction(guard.players, 1, animals[1].moves[1], () => 0, 2)
+  assert.equal(combo.players[0].guard, guard.players[0].guard)
+  assert.ok(combo.players[2].health < players[2].health)
+  const venom = resolveAction(players, 2, animals[2].moves[1], () => 0, 0)
+  assert.deepEqual(venom.players[0].poisoned, { damage: 1, turns: 3 })
+  players = resolveAction(venom.players, 1, animals[1].moves[0], () => 0.999, 2).players
+  assert.equal(players[0].poisoned.turns, 3)
+  players[0].health = 1
+  const poisonedOut = resolveAction(players, 0, animals[0].moves[0], () => 0.999, 1)
+  assert.equal(poisonedOut.players[0].health, 0)
+  assert.equal(poisonedOut.winner, null)
+  assert.notEqual(poisonedOut.nextActive, 0)
+  players[1].health = 1
+  assert.equal(resolveAction(players, 0, animals[0].moves[0], () => 0, 1).winner, 2)
+  players[2].health = 0
+  assert.equal(resolveAction(players, 0, animals[0].moves[0], () => 0, 1).winner, 1)
+})
+
+test('seeded free-for-alls finish across the roster without a mirror-match seat advantage', () => {
+  let state = 630034
+  const random = () => ((state = (1664525 * state + 1013904223) >>> 0) / 4294967296)
+  for (const count of [3, 4]) {
+    const seatWins = Array(count).fill(0)
+    for (const mirror of [true, false]) {
+      for (let game = 0; game < 1140; game += 1) {
+        const animals = Array.from({ length: count }, (_, index) => ANIMALS[(game + (mirror ? 0 : index)) % ANIMALS.length])
+        let players = animals.map(createFighter)
+        let active = getOpeningActor(animals, random)
+        let winner = null
+        for (let turn = 0; turn < 500 && winner === null; turn += 1) {
+          assert.ok(players[active].health > 0)
+          const targets = players.flatMap((player, index) => index !== active && player.health > 0 ? [index] : [])
+          const moves = getLegalMoves(players[active])
+          const result = resolveAction(players, active, moves[Math.floor(random() * moves.length)], random, targets[Math.floor(random() * targets.length)])
+          players = result.players
+          active = result.nextActive
+          winner = result.winner
+        }
+        assert.notEqual(winner, null, `stalled ${count}-player game ${game}`)
+        if (mirror) seatWins[winner] += 1
+      }
+    }
+    for (const wins of seatWins) assert.ok(Math.abs(wins / 1140 - 1 / count) < 0.08, `seat wins: ${seatWins}`)
+  }
+})
+
 test('unique defensive and attack effects resolve correctly', () => {
   let players = [createFighter(ANIMALS[0]), createFighter(ANIMALS[1])]
   const defense = resolveAction(players, 0, ANIMALS[0].moves[3], () => 0)

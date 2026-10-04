@@ -9,7 +9,7 @@ completion, with online-room events covering the invite and rematch funnels.
 | `game_mode_selected` | A player chooses single, local, or online play | `mode` |
 | `fighter_selection_exited` | A player backs out of local fighter selection | `mode` |
 | `fighter_selected` | A player chooses or randomizes a fighter | `mode`, `fighter`, `player`, `selection` |
-| `match_started` | Both fighters are ready and a match begins | `mode`, `home_fighter`, `away_fighter`, `round` |
+| `match_started` | All fighters are ready and a match begins | `mode`, `home_fighter`, `away_fighter`, `round` |
 | `move_used` | A legal move is submitted | `mode`, `fighter`, `move`, `move_type`, `actor`, `input`, `round` |
 | `match_completed` | A match gets a winner | `mode`, `winner_fighter`, `loser_fighter`, `winner_side`, `result`, `turns`, `round` |
 | `fighters_changed` | A player returns to fighter selection from a match | `mode` |
@@ -28,6 +28,12 @@ Events use only gameplay categories and public fighter or move names. Never add
 room codes, join URLs, session tokens, free-form player input, or other unique
 identifiers to event properties. The Analytics `beforeSend` hook also removes
 the `room` query parameter from every reported URL.
+
+Local matches include `player_count` on start/completion. In free-for-alls,
+`home_fighter` and `away_fighter` identify the first two seats; additional seats
+use `player-3` and `player-4` for selection/move events. Completion uses
+`player-N` for `winner_side` and omits `loser_fighter` because there are multiple
+losers.
 
 Custom events are sent only when the Vercel Analytics script is active. Local
 development remains quiet unless a test installs a `window.va` event collector.

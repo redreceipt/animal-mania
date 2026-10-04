@@ -9,7 +9,6 @@ import { measureFighterGroundOffset } from './fighter-image.js'
 import { createMoveAnimation, MOVE_ANIMATION_MS } from './move-animation.js'
 import { normalizeRoomCode, useOnlineRoom } from './useOnlineRoom.js'
 
-const initialSelection = [null, null]
 const imagePromises = new Map()
 const portraitObservers = new Map()
 let portraitObserver
@@ -36,14 +35,6 @@ function preloadImage(src) {
   })
   imagePromises.set(src, promise)
   return promise
-}
-
-function battleImages(homeId, awayId) {
-  return [
-    `/animals/${homeId}-fighter.webp`,
-    `/animals/${awayId}-fighter.webp`,
-    `/animals/arena-${homeId}.webp`,
-  ]
 }
 
 function randomAnimal(excludedId) {
@@ -218,9 +209,9 @@ function ModeScreen({ onChoose, pending }) {
           <small>Battle a tactical CPU opponent</small>
         </button>
         <button className="mode-card" onClick={() => onChoose('local')} disabled={pending}>
-          <span className="mode-icon" aria-hidden="true">2P</span>
+          <span className="mode-icon" aria-hidden="true">2–4P</span>
           <strong>Local multiplayer</strong>
-          <small>Share the screen and settle the score</small>
+          <small>2, 3 or 4 players · Share one arena</small>
         </button>
         <button className="mode-card online" onClick={() => onChoose('online')} disabled={pending}>
           <span className="mode-icon" aria-hidden="true">{globeIcon}</span>
@@ -360,16 +351,15 @@ function OnlineSelectScreen({ online }) {
   )
 }
 
-function SelectScreen({ mode, navigationPending, onBack, onStart }) {
-  const [selections, setSelections] = useState(initialSelection)
-  const [randomSelections, setRandomSelections] = useState([false, false])
+function SelectScreen({ mode, playerCount, onPlayerCount, navigationPending, onBack, onStart }) {
+  const [selections, setSelections] = useState([null, null, null, null])
+  const [randomSelections, setRandomSelections] = useState([false, false, false, false])
   const [preparedAssetKey, setPreparedAssetKey] = useState(null)
   const randomSelectionsRef = useRef(randomSelections)
   const [selectionPending, startSelectionTransition] = useTransition()
   const singlePlayer = mode === 'single'
-  const homeId = selections[0]?.id
-  const awayId = selections[1]?.id
-  const battleAssetKey = homeId && awayId ? `${homeId}:${awayId}` : null
+  const contenders = selections.slice(0, singlePlayer ? 2 : playerCount)
+  const battleAssetKey = contenders.every(Boolean) ? contenders.map((animal) => animal.id).join(':') : null
   const ready = Boolean(battleAssetKey)
   const battleAssetsReady = battleAssetKey === preparedAssetKey
 
@@ -385,7 +375,7 @@ function SelectScreen({ mode, navigationPending, onBack, onStart }) {
     analytics.fighterSelected({
       mode,
       fighter: animal.id,
-      player: singlePlayer && player === 1 ? 'cpu' : player === 0 ? 'home' : 'away',
+      player: singlePlayer && player === 1 ? 'cpu' : player === 0 ? 'home' : player === 1 ? 'away' : `player-${player + 1}`,
       selection: 'manual',
     })
     startSelectionTransition(() => {
@@ -403,6 +393,9 @@ function SelectScreen({ mode, navigationPending, onBack, onStart }) {
   }, [mode, singlePlayer])
   const selectPlayerOne = useCallback((animal) => select(0, animal), [select])
   const selectPlayerTwo = useCallback((animal) => select(1, animal), [select])
+  const selectPlayerThree = useCallback((animal) => select(2, animal), [select])
+  const selectPlayerFour = useCallback((animal) => select(3, animal), [select])
+  const selectPlayers = [selectPlayerOne, selectPlayerTwo, selectPlayerThree, selectPlayerFour]
 
   function randomize(player) {
     const selected = randomFighter(player)
@@ -412,7 +405,7 @@ function SelectScreen({ mode, navigationPending, onBack, onStart }) {
     analytics.fighterSelected({
       mode,
       fighter: selected.id,
-      player: singlePlayer && player === 1 ? 'cpu' : player === 0 ? 'home' : 'away',
+      player: singlePlayer && player === 1 ? 'cpu' : player === 0 ? 'home' : player === 1 ? 'away' : `player-${player + 1}`,
       selection: 'random',
     })
     startSelectionTransition(() => {
@@ -436,24 +429,35 @@ function SelectScreen({ mode, navigationPending, onBack, onStart }) {
       mode,
       homeFighter: selections[0].id,
       awayFighter: selections[1].id,
+      playerCount: contenders.length,
     })
-    onStart(selections)
+    onStart(contenders)
   }
 
   useEffect(() => {
-    if (!homeId || !awayId) return undefined
+    if (!battleAssetKey) return undefined
     let current = true
-    Promise.all(battleImages(homeId, awayId).map(preloadImage)).then(() => {
-      if (current) setPreparedAssetKey(`${homeId}:${awayId}`)
+    const ids = battleAssetKey.split(':')
+    const images = [...ids.map((id) => `/animals/${id}-fighter.webp`), `/animals/arena-${ids[0]}.webp`]
+    Promise.all(images.map(preloadImage)).then(() => {
+      if (current) setPreparedAssetKey(battleAssetKey)
     })
     return () => { current = false }
-  }, [awayId, homeId])
+  }, [battleAssetKey])
 
   return (
     <main className="arcade-shell select-screen" aria-busy={selectionPending || navigationPending}>
-      <header className="game-header"><Logo /><p>{singlePlayer ? 'Pick your fighter and CPU rival' : 'Pick your wild contenders'}</p></header>
-      <section className="select-layout">
-        {[0, 1].map((player) => (
+      <header className="game-header">
+        <Logo /><p>{singlePlayer ? 'Pick your fighter and CPU rival' : 'Pick your wild contenders'}</p>
+        {!singlePlayer ? (
+          <div className="player-count" role="group" aria-label="Number of local players">
+            {[2, 3, 4].map((count) => <button key={count} className="text-btn" aria-pressed={playerCount === count} onClick={() => onPlayerCount(count)}>{count} players</button>)}
+            {playerCount > 2 ? <p>Free-for-all · Choose a target each turn · Last fighter standing wins</p> : null}
+          </div>
+        ) : null}
+      </header>
+      <section className={`select-layout ${contenders.length > 2 ? 'party-selection' : ''}`}>
+        {contenders.map((_, player) => (
           <div className={`player-select p${player + 1}`} key={player}>
             <div className="player-heading">
               <span>{singlePlayer && player === 1 ? 'CPU opponent' : `Player ${player + 1}`}</span>
@@ -462,13 +466,13 @@ function SelectScreen({ mode, navigationPending, onBack, onStart }) {
             <button className={`random-btn ${randomSelections[player] ? 'selected' : ''}`} onClick={() => randomize(player)} aria-pressed={randomSelections[player]}>Surprise me · Random {singlePlayer && player === 1 ? 'rival' : 'fighter'}</button>
             <AnimalRoster
               label={`${singlePlayer && player === 1 ? 'CPU' : `Player ${player + 1}`} animal selection`}
-              onSelect={player === 0 ? selectPlayerOne : selectPlayerTwo}
+              onSelect={selectPlayers[player]}
               selectedId={selections[player]?.id}
             />
           </div>
         ))}
       </section>
-      <div className="versus-mark" aria-hidden="true">VS</div>
+      {contenders.length === 2 ? <div className="versus-mark" aria-hidden="true">VS</div> : null}
       <footer className="select-footer">
         <p aria-live="polite">{ready ? `${selections[0].name} hosts at ${selections[0].home}. ${battleAssetsReady ? 'Ready!' : 'Preparing arena…'}` : singlePlayer ? 'Choose your home fighter and a CPU rival' : 'Player 1 chooses the home fighter'}</p>
         <div className="select-actions"><button className="secondary-btn" onClick={onBack}>Back</button><button className="primary-btn" disabled={!ready || !battleAssetsReady || navigationPending} onClick={startMatch} aria-busy={(ready && !battleAssetsReady) || navigationPending}>{navigationPending ? 'Starting…' : ready && !battleAssetsReady ? 'Preparing arena…' : 'Start showdown'}</button></div>
@@ -484,6 +488,7 @@ function HealthBar({ health, maxHealth }) {
 }
 
 function StatusRow({ player }) {
+  if (player.health === 0) return <div className="status-row">Knocked out</div>
   if (!player.guard && !player.focus && !player.evasion && !player.poisoned && !player.exposed && !player.dazed) return <div className="status-row empty">Ready</div>
   return (
     <div className="status-row">
@@ -563,6 +568,7 @@ function BattleResultPanel({ result, children }) {
 }
 
 function BattleArena({ players, homeArena, action, result, winner }) {
+  const party = players.length > 2
   const actionClasses = action
     ? `action-${action.animation} actor-p${action.actor + 1} outcome-${action.outcome}`
     : ''
@@ -570,19 +576,25 @@ function BattleArena({ players, homeArena, action, result, winner }) {
 
   return (
     <section
-      className={`faceoff-arena ${actionClasses} ${resultClass}`}
+      className={`faceoff-arena ${party ? 'party-arena' : ''} ${actionClasses} ${resultClass}`}
       style={{
         '--arena-image': `url('/animals/arena-${homeArena.id}.webp')`,
         '--move-animation-duration': `${MOVE_ANIMATION_MS}ms`,
+        '--player-count': players.length,
+        '--action-position': `${((action?.outcome === 'guard' ? action.actor : action?.target ?? 0) + 0.5) / players.length * 100}%`,
       }}
-      aria-label={`${players[0].animal.name} faces ${players[1].animal.name} at ${homeArena.home}`}
+      aria-label={`${players.map((player, index) => `Player ${index + 1}: ${player.animal.name}`).join(' vs ')} at ${homeArena.home}`}
       data-animation={action?.animation}
       data-outcome={action?.outcome}
     >
       <div className="arena-plaque"><span>Home arena</span><strong>{homeArena.home}</strong></div>
-      <div className={`fighter-slot left ${winner === 0 ? 'winner' : winner === 1 ? 'defeated' : ''}`}><PixelAnimal animal={players[0].animal} variant="fighter" /></div>
-      <div className="versus-spark" aria-hidden="true">VS</div>
-      <div className={`fighter-slot right ${winner === 1 ? 'winner' : winner === 0 ? 'defeated' : ''}`}><PixelAnimal animal={players[1].animal} variant="fighter" flip /></div>
+      {players.map((player, index) => (
+        <div key={index} className={`fighter-slot ${party ? '' : index === 0 ? 'left' : 'right'} ${winner === index ? 'winner' : player.health === 0 ? 'defeated' : ''} ${action?.actor === index ? 'acting' : action?.target === index ? 'targeted' : ''}`}>
+          <PixelAnimal animal={player.animal} variant="fighter" flip={index >= players.length / 2} />
+          {party ? <span className="fighter-seat">P{index + 1}{player.health === 0 ? ' · Out' : ''}</span> : null}
+        </div>
+      ))}
+      {!party ? <div className="versus-spark" aria-hidden="true">VS</div> : null}
       {action ? <div className="move-flash" aria-hidden="true">{action.glyph}</div> : null}
       {result ? (
         <>
@@ -607,6 +619,8 @@ function BattleScreen({ choices, singlePlayer, onReset }) {
   const [players, setPlayers] = useState(opening.players)
   const [active, setActive] = useState(opening.active)
   const [winner, setWinner] = useState(null)
+  const [target, setTarget] = useState(null)
+  const party = choices.length > 2
   const [message, setMessage] = useState(`${choices[opening.active].name}'s speed wins the opening move!`)
   const [log, setLog] = useState([{ id: 0, text: 'The showdown begins.' }])
   const [resolving, setResolving] = useState(false)
@@ -651,6 +665,7 @@ function BattleScreen({ choices, singlePlayer, onReset }) {
     setPlayers(freshBattle.players)
     setActive(freshBattle.active)
     setWinner(null)
+    setTarget(null)
     setMessage(`${choices[freshBattle.active].name}'s speed wins the opening move!`)
     setLog([{ id: 0, text: 'The showdown begins.' }])
     setResolving(false)
@@ -665,23 +680,29 @@ function BattleScreen({ choices, singlePlayer, onReset }) {
     if (singlePlayer && active === 1 && !isCpuAction) return
     const move = activeMoves[index]
     if (!move || (move.type === 'defend' && !players[active].defenseReady)) return
-    const result = resolveAction(players, active, move)
+    if (party && move.type === 'attack' && target === null) return
+    const defending = party ? target : 1 - active
+    const result = resolveAction(players, active, move, Math.random, defending)
     if (!result.log) { setMessage(result.message); return }
     analytics.moveUsed({
       mode,
       fighter: players[active].animal.id,
       move: move.name,
       moveType: move.type,
-      actor: singlePlayer && active === 1 ? 'cpu' : active === 0 ? 'home' : 'away',
+      actor: singlePlayer && active === 1 ? 'cpu' : active === 0 ? 'home' : active === 1 ? 'away' : `player-${active + 1}`,
       input: isCpuAction ? 'cpu' : input,
     })
     setPlayers(result.players)
-    setActionAnimation(createMoveAnimation({
-      move,
-      moveIndex: index,
-      actor: active,
-      damage: players[1 - active].health - result.players[1 - active].health,
-    }))
+    setActionAnimation({
+      ...createMoveAnimation({
+        move,
+        moveIndex: index,
+        actor: active,
+        damage: move.type === 'attack' ? players[defending].health - result.players[defending].health : 0,
+      }),
+      target: defending,
+    })
+    setTarget(null)
     const earnedBonusTurn = result.winner === null && result.nextActive === active
     const speedBonus = earnedBonusTurn ? ` ${players[active].animal.name}'s speed earns another move!` : ''
     setMessage(`${result.message}${speedBonus}`)
@@ -691,12 +712,13 @@ function BattleScreen({ choices, singlePlayer, onReset }) {
     setTurnCount((current) => current + 1)
     setTurnRevision((current) => current + 1)
     if (result.winner !== null) {
-      const loser = 1 - result.winner
+      const loser = party ? null : 1 - result.winner
       analytics.matchCompleted({
         mode,
         winnerFighter: result.players[result.winner].animal.id,
-        loserFighter: result.players[loser].animal.id,
-        winnerSide: result.winner === 0 ? 'home' : 'away',
+        loserFighter: result.players[loser]?.animal.id,
+        winnerSide: party ? `player-${result.winner + 1}` : result.winner === 0 ? 'home' : 'away',
+        playerCount: players.length,
         turns: turnCount + 1,
       })
       setWinner(result.winner)
@@ -705,7 +727,7 @@ function BattleScreen({ choices, singlePlayer, onReset }) {
       setResolving(false)
       setActionAnimation(null)
     }, MOVE_ANIMATION_MS)
-  }, [active, activeMoves, mode, players, resolving, singlePlayer, turnCount, victor])
+  }, [active, activeMoves, mode, party, players, resolving, singlePlayer, target, turnCount, victor])
 
   useEffect(() => {
     if (!singlePlayer || active !== 1 || resolving || winner !== null) return undefined
@@ -734,10 +756,9 @@ function BattleScreen({ choices, singlePlayer, onReset }) {
   return (
     <main className="arcade-shell battle-screen">
       <header className="battle-header"><Logo /><button className="text-btn" onClick={onReset}>Change fighters</button></header>
-      <section className={`hud-row ${victor ? '' : 'has-active-turn'}`}>
-        <FighterHud player={players[0]} index={0} active={active === 0 && !victor} label="Home · Player 1" />
+      <section className={`hud-row ${party ? 'party-hud' : ''} ${victor ? '' : 'has-active-turn'}`}>
         <div key={turnRevision} className={`turn-banner p${active + 1} ${bonusTurn ? 'bonus' : ''}`} role="status" aria-live="polite" aria-atomic="true">{turnLabel}</div>
-        <FighterHud player={players[1]} index={1} active={active === 1 && !victor} label={singlePlayer ? 'Away · CPU' : 'Away · Player 2'} />
+        {players.map((player, index) => <FighterHud key={index} player={player} index={index} active={active === index && !victor} label={singlePlayer && index === 1 ? 'Away · CPU' : `${index === 0 ? 'Home · ' : ''}Player ${index + 1}`} />)}
       </section>
       <BattleArena players={players} homeArena={homeArena} action={actionAnimation} result={battleResult} winner={winner} />
       <p className="battle-message" aria-live="polite">{message}</p>
@@ -750,8 +771,16 @@ function BattleScreen({ choices, singlePlayer, onReset }) {
           ) : (
             <>
               <h2>{bonusTurn ? `${actorLabel} · Go again! · ${commandHint}` : `${actorLabel} · ${commandHint}`}</h2>
+              {party ? (
+                <fieldset className="target-picker" disabled={resolving}>
+                  <legend>Choose an opponent to attack, or defend</legend>
+                  {players.map((player, index) => index !== active && player.health > 0 ? (
+                    <button key={index} className="text-btn" aria-pressed={target === index} onClick={() => setTarget(index)}>Player {index + 1} · {player.animal.name} · {player.health} HP</button>
+                  ) : null)}
+                </fieldset>
+              ) : null}
               <div className="move-grid">
-                {activeMoves.map((move, index) => <MoveButton key={move.name} animal={players[active].animal} move={move} index={index} onChoose={() => chooseMove(index)} disabled={resolving || (singlePlayer && active === 1) || (move.type === 'defend' && !players[active].defenseReady)} />)}
+                {activeMoves.map((move, index) => <MoveButton key={move.name} animal={players[active].animal} move={move} index={index} onChoose={() => chooseMove(index)} disabled={resolving || (singlePlayer && active === 1) || (party && move.type === 'attack' && target === null) || (move.type === 'defend' && !players[active].defenseReady)} />)}
               </div>
             </>
           )}
@@ -945,6 +974,7 @@ function OnlineBattleScreen({ online }) {
 export default function App() {
   const [mode, setMode] = useState(linkedRoomCode ? 'online' : null)
   const [choices, setChoices] = useState(null)
+  const [playerCount, setPlayerCount] = useState(2)
   const [screenPending, startScreenTransition] = useTransition()
   const online = useOnlineRoom(linkedRoomCode)
 
@@ -978,6 +1008,6 @@ export default function App() {
     if (online.room.phase === 'waiting' || online.room.phase === 'selecting') return <OnlineSelectScreen online={online} />
     return <OnlineBattleScreen online={online} />
   }
-  if (!choices) return <SelectScreen mode={mode} navigationPending={screenPending} onBack={exitSelection} onStart={beginMatch} />
+  if (!choices) return <SelectScreen mode={mode} playerCount={playerCount} onPlayerCount={setPlayerCount} navigationPending={screenPending} onBack={exitSelection} onStart={beginMatch} />
   return <BattleScreen choices={choices} singlePlayer={mode === 'single'} onReset={changeFighters} />
 }

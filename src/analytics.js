@@ -20,10 +20,11 @@ export function createAnalytics(sendEvent = track) {
       player,
       selection,
     }),
-    matchStarted: ({ mode, homeFighter, awayFighter, round = 1 }) => emit('match_started', {
+    matchStarted: ({ mode, homeFighter, awayFighter, playerCount, round = 1 }) => emit('match_started', {
       mode,
       home_fighter: homeFighter,
       away_fighter: awayFighter,
+      player_count: playerCount,
       round,
     }),
     moveUsed: ({ mode, fighter, move, moveType, actor, input, round = 1 }) => emit('move_used', {
@@ -40,6 +41,7 @@ export function createAnalytics(sendEvent = track) {
       winnerFighter,
       loserFighter,
       winnerSide,
+      playerCount,
       result,
       turns,
       round = 1,
@@ -48,6 +50,7 @@ export function createAnalytics(sendEvent = track) {
       winner_fighter: winnerFighter,
       loser_fighter: loserFighter,
       winner_side: winnerSide,
+      player_count: playerCount,
       result,
       turns,
       round,

@@ -57,5 +57,10 @@ test('analytics emits stable, flat product events without private room data', ()
     },
     { name: 'online_room_joined', properties: { source: 'link' } },
   ])
+  analytics.matchCompleted({ mode: 'local', winnerFighter: 'eagle', winnerSide: 'player-3', playerCount: 4, turns: 25 })
+  assert.deepEqual(events.at(-1), {
+    name: 'match_completed',
+    properties: { mode: 'local', winner_fighter: 'eagle', winner_side: 'player-3', player_count: 4, turns: 25, round: 1 },
+  })
   assert.doesNotMatch(JSON.stringify(events), /room.code|room_code|session|token|url/i)
 })

@@ -1,6 +1,6 @@
 # Animal Mania
 
-A turn-based animal fighting game with tactical single-player, local two-player,
+A turn-based animal fighting game with tactical single-player, local two- to four-player,
 and private online modes, inspired by classic creature battlers and 8-bit
 tactics games.
 
@@ -20,7 +20,7 @@ npm start
 ```
 
 Choose single player to face a tactical CPU, share one screen in local
-multiplayer, or create a private online room with a three-word code and join
+multiplayer (choose 2, 3, or 4 players), or create a private online room with a three-word code and join
 link. Pick a fighter, then use its four-move kit to outplay the opponent. Every
 animal has a distinct mix of damage, accuracy, defense, and utility.
 
@@ -83,7 +83,11 @@ and expiration. CI runs it against a Redis service; without `TEST_REDIS_URL`,
 - Guard, focus, and evasion create defensive and setup options
 - A group such as a swarm or school acts as one shared-health fighter; its members appear as separate low-damage hit chances, not extra turns
 - Defense must be recharged by attacking once, preventing endless stalling
-- First fighter to reach 0 HP loses
+- In duels, the first fighter to reach 0 HP loses
+- Local 3- and 4-player free-for-alls put everyone in one arena, taking turns rather than submitting moves simultaneously. Choose any living opponent before each attack; defense needs no target. All fighters may pick the same animal.
+- Free-for-all initiative uses the same speed rules as duels. Opening ties are random; later equal-speed ties rotate between seats. Knocked-out fighters cannot act or be targeted, and the last survivor wins.
+- Poison ticks only after its affected fighter acts. If an attack and venom knock out the final two fighters together, the attack's target wins, as in duels.
+- Attacks remain single-target: multi-hit moves strike one opponent, not the whole arena. Area attacks and online 3–4-player rooms are not included.
 
 ### Fighters
 
