@@ -17,7 +17,8 @@
 * { box-sizing: border-box; }
 body { margin: 0; min-width: 320px; min-height: 100vh; background: #020e17; }
 button { font: inherit; }
-button:focus-visible { outline: 4px solid white; outline-offset: 3px; }
+button:focus-visible, .keyboard-navigation :is(button, input):focus { outline: 4px solid white; outline-offset: 3px; }
+.animal-card:focus-visible, .keyboard-navigation .animal-card:focus { outline-offset: -6px; }
 #root { min-height: 100vh; display: grid; place-items: center; padding: 18px; }
 .arcade-shell { width: min(1400px, 100%); min-height: min(850px, calc(100vh - 36px)); background: var(--navy); border: 5px solid var(--line); box-shadow: 0 0 0 5px #06101a, 0 0 0 8px #22435a; padding: 20px; position: relative; overflow: hidden; }
 .arcade-shell::after { content: ''; pointer-events: none; position: absolute; inset: 0; background: repeating-linear-gradient(0deg, transparent 0 3px, rgb(0 0 0 / .08) 3px 4px); }

@@ -67,8 +67,11 @@ and expiration. CI runs it against a Redis service; without `TEST_REDIS_URL`,
 
 ### Controls
 
-- Click or tap a move card
-- Press `1`–`4` to choose the matching move
+- Click or tap any control, or use `Tab` / `Shift+Tab` to move between controls (in macOS Safari, use `Option+Tab` if Tab skips buttons)
+- Use arrow keys to browse buttons and fighter/move grids; `Enter` or `Space` chooses the highlighted button
+- Each roster is one Tab stop: use arrows to browse fighters, or type in its search field
+- Press `1`–`4` to choose the matching move (unchanged)
+- Keyboard focus appears automatically and follows screen/turn changes; clicking or tapping returns to pointer controls
 
 ## Battle rules
 
@@ -168,6 +171,10 @@ npm run art:check
 npm run lint
 npm run build
 ```
+
+For keyboard controls, start the production server with `npm run preview -- --host 127.0.0.1`,
+then run `node scripts/check-keyboard.mjs` (append `firefox` or `webkit` for those engines).
+Install the test browsers first with `npx playwright install chromium firefox webkit`.
 
 Gameplay pull requests must also complete the browser, viewport, input, console,
 arcade visual-fidelity, animal-art, and documentation checks in the
