@@ -284,17 +284,41 @@ function OnlineLobby({ online, onBack }) {
 
 function RoomShare({ code }) {
   const [copied, setCopied] = useState(false)
+  const [copyFailed, setCopyFailed] = useState(false)
+  const inputRef = useRef(null)
   const joinUrl = new URL(window.location.href)
   joinUrl.searchParams.set('room', code)
 
+  function markCopied() {
+    setCopied(true)
+    setCopyFailed(false)
+    analytics.onlineRoomLinkCopied()
+    window.setTimeout(() => setCopied(false), 1800)
+  }
+
   async function copyLink() {
+    const text = joinUrl.toString()
+    setCopyFailed(false)
     try {
-      await navigator.clipboard.writeText(joinUrl.toString())
-      setCopied(true)
-      analytics.onlineRoomLinkCopied()
-      window.setTimeout(() => setCopied(false), 1800)
+      if (!navigator.clipboard?.writeText) throw new Error('clipboard unavailable')
+      await navigator.clipboard.writeText(text)
+      markCopied()
+      return
     } catch {
+      // Fall through to legacy fallback below.
+    }
+    try {
+      const input = inputRef.current
+      if (!input) throw new Error('join link input unavailable')
+      input.focus()
+      input.select()
+      if (!document.execCommand('copy')) throw new Error('legacy copy failed')
+      markCopied()
+    } catch {
+      inputRef.current?.focus()
+      inputRef.current?.select()
       setCopied(false)
+      setCopyFailed(true)
     }
   }
 
@@ -302,8 +326,9 @@ function RoomShare({ code }) {
     <div className="room-share">
       <span>Room code</span>
       <strong>{code}</strong>
-      <input aria-label="Join link" readOnly value={joinUrl.toString()} onFocus={(event) => event.currentTarget.select()} />
+      <input ref={inputRef} aria-label="Join link" readOnly value={joinUrl.toString()} onFocus={(event) => event.currentTarget.select()} />
       <button className="secondary-btn" onClick={copyLink}>{copied ? 'Copied!' : 'Copy join link'}</button>
+      {copyFailed ? <span role="alert">Copy failed — copy the link manually.</span> : null}
     </div>
   )
 }
