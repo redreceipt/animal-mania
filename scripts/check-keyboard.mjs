@@ -41,6 +41,18 @@ try {
   await press(' ')
   await expect(focused).toHaveAttribute('aria-pressed', 'true')
   await expect(page.getByRole('button', { name: 'Start showdown' })).toBeEnabled()
+  await press('ArrowUp') // A single-result roster still leaves upward to its search field.
+  await expect(focused).toHaveAttribute('type', 'search')
+  await press('Tab') // Search fields keep native arrow-key editing, so Tab back out.
+  await expect(focused).toContainText('Gorilla')
+  await press('ArrowDown') // Arrows must reach the footer instead of trapping focus in the grid.
+  await expect(focused).toHaveText('Back')
+  await press('ArrowDown')
+  await expect(focused).toHaveText('Start showdown')
+  await press('ArrowUp')
+  await expect(focused).toHaveText('Back')
+  await press('ArrowUp')
+  await expect(focused).toContainText('Gorilla')
   await press('Tab')
   await expect(focused).toHaveText('Back')
   await press('Shift+Tab')

@@ -76,6 +76,9 @@ export function setupKeyboardNavigation(root) {
           return
         }
       }
+      // No further target in this column: keep moving in DOM order so
+      // arrows can leave a grid (e.g. down to Start showdown) instead of trapping focus.
+      focus(available[index + direction])
       return
     }
     focus(available[index + direction])
