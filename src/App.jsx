@@ -514,7 +514,7 @@ function FighterHud({ player, index, active, label }) {
   )
 }
 
-function MoveButton({ animal, move, index, onChoose, disabled }) {
+function MoveButton({ animal, move, index, onChoose, disabled, recharging }) {
   const defensive = move.type === 'defend'
   const range = getDamageRange(animal, move)
   const effectStats = [
@@ -530,7 +530,7 @@ function MoveButton({ animal, move, index, onChoose, disabled }) {
       <span className="move-copy">
         <strong>{move.name}</strong>
         <small>{defensive ? defenseStats : attackStats}</small>
-        <em>{disabled && defensive ? 'Recharge: attack once' : move.description}</em>
+        <em>{defensive && recharging ? 'Recharge: attack once' : move.description}</em>
       </span>
     </button>
   )
@@ -751,7 +751,7 @@ function BattleScreen({ choices, singlePlayer, onReset }) {
             <>
               <h2>{bonusTurn ? `${actorLabel} · Go again! · ${commandHint}` : `${actorLabel} · ${commandHint}`}</h2>
               <div className="move-grid">
-                {activeMoves.map((move, index) => <MoveButton key={move.name} animal={players[active].animal} move={move} index={index} onChoose={() => chooseMove(index)} disabled={resolving || (singlePlayer && active === 1) || (move.type === 'defend' && !players[active].defenseReady)} />)}
+                {activeMoves.map((move, index) => <MoveButton key={move.name} animal={players[active].animal} move={move} index={index} onChoose={() => chooseMove(index)} disabled={resolving || (singlePlayer && active === 1) || (move.type === 'defend' && !players[active].defenseReady)} recharging={move.type === 'defend' && !players[active].defenseReady} />)}
               </div>
             </>
           )}
@@ -928,6 +928,7 @@ function OnlineBattleScreen({ online }) {
                     index={index}
                     onChoose={() => chooseMove(index)}
                     disabled={!canAct || (move.type === 'defend' && !yourPlayer.defenseReady)}
+                    recharging={move.type === 'defend' && !yourPlayer.defenseReady}
                   />
                 ))}
               </div>
