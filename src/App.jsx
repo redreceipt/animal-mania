@@ -1,4 +1,4 @@
-import { memo, useCallback, useDeferredValue, useEffect, useRef, useState, useTransition } from 'react'
+import { memo, useCallback, useDeferredValue, useEffect, useLayoutEffect, useRef, useState, useTransition } from 'react'
 import {
   ANIMALS, chooseCpuMove, createFighter, getDamageRange,
   getOpeningActor, resolveAction,
@@ -8,6 +8,7 @@ import { searchAnimals } from './animal-search.js'
 import { measureFighterGroundOffset } from './fighter-image.js'
 import { createMoveAnimation, MOVE_ANIMATION_MS } from './move-animation.js'
 import { normalizeRoomCode, useOnlineRoom } from './useOnlineRoom.js'
+import { setupKeyboardNavigation } from './keyboard-navigation.js'
 
 const initialSelection = [null, null]
 const imagePromises = new Map()
@@ -144,13 +145,17 @@ const AnimalCard = memo(function AnimalCard({
   animal,
   disabled = false,
   onSelect,
+  onFocus,
   selected,
+  tabIndex,
 }) {
   return (
     <button
       className={`animal-card ${selected ? 'selected' : ''}`}
       onClick={() => onSelect(animal)}
+      onFocus={() => onFocus(animal.id)}
       aria-pressed={selected}
+      tabIndex={tabIndex}
       disabled={disabled}
     >
       <PixelAnimal animal={animal} />
@@ -168,8 +173,10 @@ const AnimalRoster = memo(function AnimalRoster({
   selectedId,
 }) {
   const [query, setQuery] = useState('')
+  const [focusedId, setFocusedId] = useState(null)
   const deferredQuery = useDeferredValue(query)
   const visibleAnimals = searchAnimals(ANIMALS, deferredQuery)
+  const tabStopId = visibleAnimals.find((animal) => animal.id === (focusedId ?? selectedId))?.id ?? visibleAnimals[0]?.id
   const resultLabel = deferredQuery.trim()
     ? `${visibleAnimals.length} found`
     : `${ANIMALS.length} fighters`
@@ -189,14 +196,16 @@ const AnimalRoster = memo(function AnimalRoster({
         />
         <output aria-live="polite">{resultLabel}</output>
       </label>
-      <div className={`roster ${deferredQuery.trim() ? 'filtered' : ''}`} aria-label={label}>
+      <div className={`roster ${deferredQuery.trim() ? 'filtered' : ''}`} aria-label={label} tabIndex={-1}>
         {visibleAnimals.map((animal) => (
           <AnimalCard
             animal={animal}
             disabled={disabled}
             key={animal.id}
             onSelect={onSelect}
+            onFocus={setFocusedId}
             selected={selectedId === animal.id}
+            tabIndex={animal.id === tabStopId ? 0 : -1}
           />
         ))}
         {visibleAnimals.length === 0 ? (
@@ -228,6 +237,7 @@ function ModeScreen({ onChoose, pending }) {
           <small>Create a private room or join with a code</small>
         </button>
       </section>
+      <footer className="hint">Tab or arrows to navigate · Enter to choose · Keys 1–4 for moves</footer>
     </main>
   )
 }
@@ -525,7 +535,7 @@ function MoveButton({ animal, move, index, onChoose, disabled, recharging }) {
   const attackStats = range ? `${range.min}–${range.max} dmg${range.hits > 1 ? ` ×${range.hits}` : ''} · ${Math.round(move.accuracy * 100)}% hit${effectStats ? ` · ${effectStats}` : ''}` : ''
   const defenseStats = [`Guard ${Math.round((move.guard ?? 0) * 100)}%`, move.focus ? `Focus +${Math.round(move.focus * 100)}%` : null, move.evasionGain ? `Evade +${Math.round(move.evasionGain * 100)}%` : null].filter(Boolean).join(' · ')
   return (
-    <button className={`move-card ${defensive ? 'defensive' : `attack-${index + 1}`}`} onClick={onChoose} disabled={disabled}>
+    <button className={`move-card ${defensive ? 'defensive' : `attack-${index + 1}`}`} onClick={(event) => onChoose(event.detail === 0 ? 'keyboard' : 'button')} disabled={disabled}>
       <span className="move-key">{index + 1}</span>
       <span className="move-copy">
         <strong>{move.name}</strong>
@@ -716,19 +726,6 @@ function BattleScreen({ choices, singlePlayer, onReset }) {
     return () => window.clearTimeout(timer)
   }, [active, activeMoves, chooseMove, players, resolving, singlePlayer, winner])
 
-  useEffect(() => {
-    function keydown(event) {
-      if (event.repeat || winner !== null || (singlePlayer && active === 1)) return
-      const index = Number(event.key) - 1
-      if (index >= 0 && index < 4) {
-        event.preventDefault()
-        chooseMove(index, false, 'keyboard')
-      }
-    }
-    window.addEventListener('keydown', keydown)
-    return () => window.removeEventListener('keydown', keydown)
-  }, [active, chooseMove, singlePlayer, winner])
-
   const commandHint = victor ? `${victor.animal.name} rules the wild!` : `${players[active].animal.name}'s move set`
 
   return (
@@ -751,7 +748,7 @@ function BattleScreen({ choices, singlePlayer, onReset }) {
             <>
               <h2>{bonusTurn ? `${actorLabel} · Go again! · ${commandHint}` : `${actorLabel} · ${commandHint}`}</h2>
               <div className="move-grid">
-                {activeMoves.map((move, index) => <MoveButton key={move.name} animal={players[active].animal} move={move} index={index} onChoose={() => chooseMove(index)} disabled={resolving || (singlePlayer && active === 1) || (move.type === 'defend' && !players[active].defenseReady)} recharging={move.type === 'defend' && !players[active].defenseReady} />)}
+                {activeMoves.map((move, index) => <MoveButton key={move.name} animal={players[active].animal} move={move} index={index} onChoose={(input) => chooseMove(index, false, input)} disabled={resolving || (singlePlayer && active === 1) || (move.type === 'defend' && !players[active].defenseReady)} recharging={move.type === 'defend' && !players[active].defenseReady} />)}
               </div>
             </>
           )}
@@ -881,19 +878,6 @@ function OnlineBattleScreen({ online }) {
     }
   }, [battle.revision, canAct, online, room.round, yourPlayer])
 
-  useEffect(() => {
-    function keydown(event) {
-      if (event.repeat || !canAct) return
-      const index = Number(event.key) - 1
-      if (index >= 0 && index < 4) {
-        event.preventDefault()
-        chooseMove(index, 'keyboard')
-      }
-    }
-    window.addEventListener('keydown', keydown)
-    return () => window.removeEventListener('keydown', keydown)
-  }, [canAct, chooseMove])
-
   const homeArena = players[0].animal
 
   return (
@@ -926,7 +910,7 @@ function OnlineBattleScreen({ online }) {
                     animal={yourPlayer.animal}
                     move={move}
                     index={index}
-                    onChoose={() => chooseMove(index)}
+                    onChoose={(input) => chooseMove(index, input)}
                     disabled={!canAct || (move.type === 'defend' && !yourPlayer.defenseReady)}
                     recharging={move.type === 'defend' && !yourPlayer.defenseReady}
                   />
@@ -948,6 +932,8 @@ export default function App() {
   const [choices, setChoices] = useState(null)
   const [screenPending, startScreenTransition] = useTransition()
   const online = useOnlineRoom(linkedRoomCode)
+
+  useLayoutEffect(() => setupKeyboardNavigation(document.getElementById('root')), [])
 
   function leaveOnline() {
     online.leaveRoom()
